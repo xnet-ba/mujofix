@@ -20,6 +20,8 @@ STRINGS = {
                      "Elevator dolazi u Fazi 6, zasad preskačem: {a}"),
         "report_ok": "Popravljeno: {ok}, preskočeno: {skip}, palo: {fail}.",
         "theme": "Tamna tema",
+        "explain_ai": "Objasni nalaze (AI)",
+        "sent_log": "Šta je poslano AI-ju",
     },
     "en": {
         "app_title": "MujoFix — AI mechanic for Windows",
@@ -40,6 +42,8 @@ STRINGS = {
                      "Elevator lands in Phase 6, skipping for now: {a}"),
         "report_ok": "Fixed: {ok}, skipped: {skip}, failed: {fail}.",
         "theme": "Dark theme",
+        "explain_ai": "Explain findings (AI)",
+        "sent_log": "What was sent to the AI",
     },
 }
 

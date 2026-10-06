@@ -29,6 +29,14 @@
   Nepotpisan, SmartScreen ocekivan, NIJE za krajnje korisnike.
 - Ostaje: VM validacija po docs/TESTING.md (A-F), pa tek onda v0.1.0.
 
+## AI-GUI spoj (2026-10-06)
+
+- GUI dugme "Objasni nalaze (AI)": pristanak (ako nije zapamcen) ->
+  anonimizacija -> FallbackChain -> tekst u log + "Sta je poslano AI-ju".
+  Lanac je offline-only dok se zivi model ne nakaci uz server (Issue #1).
+- `scan --out findings.json` daje payload za `mujofix_mcp.py --findings`.
+- 104/104 testova prolazi.
+
 ## Repo higijena (2026-10-06)
 
 - Pinovan PySide6==6.11.2; Dependabot (pip + actions, nedjeljno);

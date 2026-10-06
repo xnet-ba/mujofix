@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import platform as std_platform
 import sys
 
 sys.path.insert(0, __import__("os").path.join(
@@ -65,8 +66,19 @@ def main(argv: list[str] | None = None) -> int:
     scan = sub.add_parser("scan", help="pokreni scannere")
     scan.add_argument("--scanner", action="append", default=None)
     scan.add_argument("--summary", action="store_true")
+    scan.add_argument("--out", default=None,
+                      help="upisi nalaze za MCP server "
+                           "(mujofix_mcp.py --findings <fajl>)")
     args = parser.parse_args(argv)
     reports = run_scan(args.scanner)
+    if args.out:
+        findings = [f for r in reports for f in r["findings"]
+                    if not r["skipped"]]
+        payload = {"findings": findings,
+                   "system_info": {"os": std_platform.system(),
+                                   "release": std_platform.release()}}
+        with open(args.out, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, ensure_ascii=False, indent=2)
     if args.summary:
         print(summarize(reports))
     else:

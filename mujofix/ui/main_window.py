@@ -8,7 +8,9 @@ uz objasnjenje (elevator proces dolazi u Fazi 6) — nista se ne lazira.
 
 from __future__ import annotations
 
+import getpass
 import os
+import socket as std_socket
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -35,7 +37,15 @@ from mujofix.actions.base import ActionContext, Runner  # noqa: E402
 from mujofix.actions.service import RestartService  # noqa: E402
 from mujofix.actions.startup import DisableStartupItem  # noqa: E402
 from mujofix.actions.temp import CleanTemp  # noqa: E402
+from mujofix.ai.provider import (  # noqa: E402
+    AIRequest,
+    FallbackChain,
+    OfflineProvider,
+    compact_findings,
+)
+from mujofix.ai.sanitize import sanitize  # noqa: E402
 from mujofix.i18n.strings import tr  # noqa: E402
+from mujofix.ui.consent import ConsentDialog, SentLogViewer  # noqa: E402
 
 QUARANTINE_SUBDIR = "quarantine"
 
@@ -92,6 +102,7 @@ class MainWindow(QMainWindow):
         self._undone: list = []  # (action, state) uspjesnih, za "Ponisti sve"
         self._worker: QThread | None = None
         self._stop_requested = False
+        self._chain: FallbackChain | None = None
         self._build_ui()
 
     # -- UI -----------------------------------------------------------------
@@ -143,6 +154,17 @@ class MainWindow(QMainWindow):
         self.btn_fix.clicked.connect(self.start_fix)
         layout.addWidget(self.btn_fix)
 
+        ai_row = QHBoxLayout()
+        self.btn_explain = QPushButton(self._t("explain_ai"))
+        self.btn_explain.setEnabled(False)
+        self.btn_explain.clicked.connect(self.explain_findings)
+        self.btn_sent = QPushButton(self._t("sent_log"))
+        self.btn_sent.setEnabled(False)
+        self.btn_sent.clicked.connect(self.show_sent_log)
+        ai_row.addWidget(self.btn_explain)
+        ai_row.addWidget(self.btn_sent)
+        layout.addLayout(ai_row)
+
         self.progress = QProgressBar()
         self.progress.setVisible(False)
         layout.addWidget(self.progress)
@@ -189,6 +211,7 @@ class MainWindow(QMainWindow):
                           m=counts["MEDIUM"], l=counts["LOW"]))
         self._render_list()
         self.btn_fix.setEnabled(total > 0)
+        self.btn_explain.setEnabled(total > 0)
 
     def _render_list(self):
         self.list.clear()
@@ -217,6 +240,34 @@ class MainWindow(QMainWindow):
                         for row in range(self.list.count())
                         if self.list.item(row).checkState() == Qt.Checked}
         return [f for f in self._findings if f["id"] in approved_ids]
+
+    # -- AI OBJASNJENJE ------------------------------------------------------
+    def explain_findings(self):
+        try:
+            username = getpass.getuser()
+        except OSError:
+            username = ""
+        try:
+            hostname = std_socket.gethostname()
+        except OSError:
+            hostname = ""
+        payload = sanitize({"findings": compact_findings(self._findings)},
+                           username, hostname)
+        if ConsentDialog.stored_choice() is None:
+            dlg = ConsentDialog(payload, self)
+            if dlg.exec() != dlg.Accepted:
+                self._log("AI odbijen — ostajem u offline modu.")
+        # Lanac je trenutno offline-only; zivi model se kaci kad server radi
+        # (VM validacija, Issue #1). Bezbednost ne zavisi od modela.
+        self._chain = FallbackChain([OfflineProvider()])
+        resp = self._chain.explain(
+            AIRequest(payload["findings"], username, hostname))
+        self._log(f"[AI: {resp.model}] {resp.text}")
+        self.btn_sent.setEnabled(True)
+
+    def show_sent_log(self):
+        if self._chain is not None:
+            SentLogViewer(self._chain.sent_log, self).exec()
 
     # -- FIX -----------------------------------------------------------------
     def start_fix(self):
