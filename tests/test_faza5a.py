@@ -118,7 +118,9 @@ class TestConfigScanner(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             with patch.dict(os.environ, {"PATH": tmp, "TEMP": tmp,
                                           "TMP": tmp}), \
-                 patch("mujofix.platform.windows.is_windows", return_value=False):
+                 patch("mujofix.platform.windows.is_windows", return_value=False), \
+                 patch("mujofix.scanners.config._world_writable",
+                       return_value=False):
                 report = ConfigScanner().scan(ScanContext())
         self.assertEqual(report.findings, [])
 
