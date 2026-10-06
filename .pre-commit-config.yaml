@@ -1,0 +1,7 @@
+# Pre-commit: gitleaks stiti od slucajnog commitovanja tajni.
+# Instalacija (jednokratno): pip install pre-commit && pre-commit install
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.3
+    hooks:
+      - id: gitleaks
