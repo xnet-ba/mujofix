@@ -73,6 +73,11 @@ jobs:
             Format-Table -AutoSize |
             Out-File $env:RUNNER_TEMP/SHA256SUMS.txt
           Move-Item $env:RUNNER_TEMP/SHA256SUMS.txt dist/SHA256SUMS.txt
+      - name: Smoke test bundlovanog CLI-ja (pravi Win exe)
+        shell: pwsh
+        run: |
+          .\dist\MujoFix\MujoFixCLI.exe scan --summary
+          if ($LASTEXITCODE -ne 0) { throw "bundlovani CLI pao" }
       - uses: actions/upload-artifact@v4
         with:
           name: MujoFix-windows
