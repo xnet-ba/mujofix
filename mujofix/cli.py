@@ -20,7 +20,9 @@ from mujofix.scanners import disk as _disk  # noqa: E402,F401
 from mujofix.scanners import drivers as _drivers  # noqa: E402,F401
 from mujofix.scanners import duplicates as _duplicates  # noqa: E402,F401
 from mujofix.scanners import network as _network  # noqa: E402,F401
+from mujofix.scanners import permissions as _permissions  # noqa: E402,F401
 from mujofix.scanners import services as _services  # noqa: E402,F401
+from mujofix.scanners import suspicious as _suspicious  # noqa: E402,F401
 from mujofix.scanners import startup as _startup  # noqa: E402,F401
 from mujofix.scanners.base import REGISTRY, ScanContext  # noqa: E402
 

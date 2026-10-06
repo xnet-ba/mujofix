@@ -37,6 +37,17 @@ Repo ziv: https://github.com/xnet-ba/mujofix (public, main).
 Pristup: SSH kljuc `mujofix-agent` (trajan) + token koristen jednom za
 kreiranje repoa. Push ide preko `origin` (SSH).
 
+## Faza 5 — gotova (kod + Linux dokazi, Win VM ceka)
+
+- network (DNS CRITICAL, TCP latencija, hosts hijack, proxy, Winsock),
+  config (PATH rupe, TEMP var, power saver, CBS/SFC tragovi),
+  drivers (pnputil, stariji od 8 god; nekoristeni programi se ne laziju),
+  duplicates (velicina->64KB->sha256, >2GB "vjerovatno", nikad auto-brisanje),
+  suspicious ("sumnjivo, razlozi", potpis, Defender samo citanje),
+  permissions (UAC OFF = CRITICAL, ACL, share-ovi).
+- 100/100 testova prolazi. Svi Win-specficni pozivi su mockovani;
+  pravi winreg/pnputil/sc/powercfg/Getty postupci cekaju VM.
+
 ## Faza 4 — gotova (kod + Linux dokazi, Win VM + Zen ToS cekaju)
 
 - `ai/provider.py`: apstraktan Provider (zamjenjiv Ollama/OpenAI-kompatibilnim),
