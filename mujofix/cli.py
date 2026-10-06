@@ -15,7 +15,9 @@ sys.path.insert(0, __import__("os").path.join(
     __import__("os").path.dirname(__file__), "..", ".."))
 
 from mujofix.scanners import base as _base  # noqa: E402,F401  (registracija)
+from mujofix.scanners import config as _config  # noqa: E402,F401
 from mujofix.scanners import disk as _disk  # noqa: E402,F401
+from mujofix.scanners import network as _network  # noqa: E402,F401
 from mujofix.scanners import services as _services  # noqa: E402,F401
 from mujofix.scanners import startup as _startup  # noqa: E402,F401
 from mujofix.scanners.base import REGISTRY, ScanContext  # noqa: E402
