@@ -27,6 +27,8 @@
 - Release: https://github.com/xnet-ba/mujofix/releases/tag/v0.1.0-alpha.1
   (MujoFix-windows-alpha.1.zip, 49 MB, SHA gore u release notes).
   Nepotpisan, SmartScreen ocekivan, NIJE za krajnje korisnike.
+- CI build sadrzi i smoke test bundlovanog exe-a (MujoFixCLI.exe scan
+  na runneru PASS) — artefakt osvjezen 2026-10-06, SHA u release notes.
 - Ostaje: VM validacija po docs/TESTING.md (A-F), pa tek onda v0.1.0.
 
 ## AI-GUI spoj (2026-10-06)
