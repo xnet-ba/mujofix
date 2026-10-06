@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install UI deps
+        run: pip install -r requirements.txt
+      - name: Compile check
+        run: python -m compileall -q mujofix tests scripts
+      - name: Unit tests
+        run: env QT_QPA_PLATFORM=offscreen python -m unittest discover -s tests
+
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install UI deps
+        run: pip install -r requirements.txt
+      - name: Unit tests (mockovani, ali prolaze kroz realan winreg path)
+        run: python -m unittest discover -s tests
+
+  build:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt pyinstaller
+      - name: Provjeri OpenCode pin (SHA mora biti popunjen)
+        shell: pwsh
+        run: |
+          if ((Get-Content installer/OPENCODE_PIN.txt) -match 'NE PROVJERENO') {
+            throw 'OPENCODE_PIN.txt nije popunjen - build prekinut' }
+      - run: python -m PyInstaller mujofix.spec
+      - name: SHA-256 checksums
+        shell: pwsh
+        run: Get-ChildItem dist -Recurse -File | Get-FileHash -Algorithm SHA256 |
+             Format-Table -AutoSize | Out-File dist/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MujoFix-windows
+          path: dist/
