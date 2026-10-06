@@ -30,3 +30,9 @@ Nepoznato (upisati prije Faze 4, ne pretpostavljati):
 Sljedece: pokrenuti `scripts/phase0_spike.py --model <zen-model>` na Win10
 i Win11 VM-u. Ako tacka 3/4 ne prodje: alternativa je direktni
 OpenAI-kompatibilni Zen endpoint kroz vlastiti provider interfejs.
+
+## GitHub (2026-10-06)
+
+Repo ziv: https://github.com/xnet-ba/mujofix (public, main).
+Pristup: SSH kljuc `mujofix-agent` (trajan) + token koristen jednom za
+kreiranje repoa. Push ide preko `origin` (SSH).
