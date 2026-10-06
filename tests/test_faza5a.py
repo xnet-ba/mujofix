@@ -98,6 +98,22 @@ class TestConfigScanner(unittest.TestCase):
         ids = {f.id for f in report.findings}
         self.assertIn("config-temp-var", ids)
 
+    def test_windows_skips_stat_writable_check(self):
+        # Regresija s pravog Win runnera: stat bitovi tamo varaju (Temp je
+        # uredno per-user, a S_IWOTH je postavljen) — to pokriva icacls provjera.
+        with tempfile.TemporaryDirectory() as tmp:
+            wide = os.path.join(tmp, "wide")
+            os.mkdir(wide)
+            os.chmod(wide, 0o777)
+            env_path = os.pathsep.join([wide, os.path.join(tmp, "nepostoji")])
+            with patch.dict(os.environ, {"PATH": env_path,
+                                          "TEMP": tmp, "TMP": tmp}), \
+                 patch("mujofix.platform.windows.is_windows", return_value=True):
+                report = ConfigScanner().scan(ScanContext())
+        ids = {f.id for f in report.findings}
+        self.assertNotIn("config-path-writable", ids)
+        self.assertIn("config-path-missing", ids)
+
     def test_clean_env_no_findings(self):
         with tempfile.TemporaryDirectory() as tmp:
             with patch.dict(os.environ, {"PATH": tmp, "TEMP": tmp,

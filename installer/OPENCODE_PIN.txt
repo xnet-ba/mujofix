@@ -1,12 +1,11 @@
 # OpenCode pin (popunjava se prije release-a, rucno provjereno)
 
-# Format:
-# VERSION=<npr. 1.18.34>
-# SHA256_WINDOWS_X64=<sha256 opencode-windows-x64.zip s GitHub releases>
-# URL=https://github.com/sst/opencode/releases/download/v<VERSION>/...
-#
 # Pravila: checksum MORA odgovarati prije bundlovanja; ako ne odgovara,
 # build se prekida i nista se ne pakuje. Update OpenCode-a ide samo uz
 # update MujoFix-a, nakon kompatibilnosnih testova (docs/TESTING.md).
+# Provjereno 2026-10-06: asset skinut s offiziellnog release-a
+# (anomalyco/opencode, nasljednik sst/opencode) + lokalni sha256sum.
 VERSION=1.18.34
-SHA256_WINDOWS_X64=NE PROVJERENO - POPUNITI PRIJE BUILD-A
+ASSET=opencode-windows-x64.zip
+URL=https://github.com/anomalyco/opencode/releases/download/v1.18.34/opencode-windows-x64.zip
+SHA256_WINDOWS_X64=8ec42ed1ad8db108052394b83ab69d0331398f761fbfff5fe50f91d65bdd3548

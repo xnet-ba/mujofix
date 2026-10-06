@@ -54,8 +54,10 @@ class ConfigScanner(Scanner):
         findings: list[Finding] = []
         entries = _path_entries()
         missing = [e for e in entries if not os.path.isdir(e)]
-        writable = [e for e in entries
-                    if os.path.isdir(e) and _world_writable(e)]
+        # POSIX stat bitovi na Windowsu varaju (ACL != mode); tamo ranjive
+        # dozvole provjerava permissions scanner kroz icacls.
+        writable = [] if windows.is_windows() else [
+            e for e in entries if os.path.isdir(e) and _world_writable(e)]
         if writable:
             findings.append(Finding(
                 id="config-path-writable", scanner=self.name,
