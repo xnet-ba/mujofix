@@ -29,6 +29,15 @@
   Nepotpisan, SmartScreen ocekivan, NIJE za krajnje korisnike.
 - Ostaje: VM validacija po docs/TESTING.md (A-F), pa tek onda v0.1.0.
 
+## Repo higijena (2026-10-06)
+
+- Pinovan PySide6==6.11.2; Dependabot (pip + actions, nedjeljno);
+  gitleaks pre-commit config; secret scanning + push protection upaljeni.
+- Issue-i: #1 VM validacija, #2 UAC elevator + auto-update, #3 release kapija,
+  #4 Zen ToS provjera.
+- Jos nije ukljucen branch protection na main-u (blokirao bi direktne push-eve
+  dok zajedno iteriramo — ukljuciti kad predjemo na PR tok).
+
 ## Faza 0 SPIKE — djelimicno gotovo (kod + Linux dokazi, Win VM ceka)
 
 Uradjeno (Faza 0):
