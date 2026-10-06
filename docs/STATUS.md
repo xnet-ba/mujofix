@@ -37,6 +37,16 @@ Repo ziv: https://github.com/xnet-ba/mujofix (public, main).
 Pristup: SSH kljuc `mujofix-agent` (trajan) + token koristen jednom za
 kreiranje repoa. Push ide preko `origin` (SSH).
 
+## Faza 2 — gotova (kod + Linux dokazi, Win VM ceka)
+
+- `actions/base.py`: Action ugovor (precondition/snapshot/apply/verify/rollback),
+  Runner (pad nakon snapshot-a -> rollback), dry-run, karantin, audit log.
+- 3 akcije: disable_startup_item (HKCU/HKLM, UAC samo za HKLM),
+  clean_temp (starije od 7 dana u karantin, manifest), restart_service (`sc`,
+  treba UAC, rizik srednji).
+- Svaka akcija: test apply -> verify -> rollback -> stanje identicno originalu.
+- 54/54 testova prolazi.
+
 ## Faza 1 — gotovo (kod + Linux dokazi, Win VM ceka)
 
 - `core/models.py`: Finding (obavezan evidence, CRITICAL/MEDIUM/LOW) + ScanReport.
