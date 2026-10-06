@@ -2,7 +2,7 @@
 
 ## Faza 0 SPIKE — djelimicno gotovo (kod + Linux dokazi, Win VM ceka)
 
-Uradjeno (5 fajlova):
+Uradjeno (Faza 0):
 - `mujofix/ai/opencode_runtime.py` — `opencode serve` child: 127.0.0.1,
   slucajan port, slucajna lozinka po pokretanju, siguran close().
 - `mujofix/ai/agent_config.py` — agent `mujofix` (deny: shell/edit/write/patch/
@@ -36,3 +36,14 @@ OpenAI-kompatibilni Zen endpoint kroz vlastiti provider interfejs.
 Repo ziv: https://github.com/xnet-ba/mujofix (public, main).
 Pristup: SSH kljuc `mujofix-agent` (trajan) + token koristen jednom za
 kreiranje repoa. Push ide preko `origin` (SSH).
+
+## Faza 1 — gotovo (kod + Linux dokazi, Win VM ceka)
+
+- `core/models.py`: Finding (obavezan evidence, CRITICAL/MEDIUM/LOW) + ScanReport.
+- `platform/windows.py`: verzija/build detekcija, winreg wrapperi (stdlib).
+- `scanners/base.py`: interfejs, ScanContext(cancel), registry; greska = skipped.
+- Scanneri: startup (Run/RunOnce + Startup folderi), disk (prostor + temp +
+  WU kes + Windows.old), services (Get-Service auto/stopped).
+- `cli.py`: `scan` (JSON) + `--summary` (obican jezik).
+- 34/34 testova prolazi; zivi `scan --summary` na Linuxu radi
+  (disk nadje, startup/services se graceful preskoce).
