@@ -1,5 +1,21 @@
 # STATUS.md — stanje projekta (azurirano: 2026-10-06)
 
+## Faza 6 — gotova kao kod (release BLOKIRAN dok VM lista ne prodje)
+
+- `mujofix.spec` (MujoFix.exe GUI + MujoFixCLI.exe), `installer/mujofix.iss`
+  (lowest privileges, deinstalacija brise sve), `OPENCODE_PIN.txt`
+  (SHA-256 SE MORA popuniti prije build-a, inace CI build puca).
+- `.github/workflows/ci.yml`: lint+testi (ubuntu+windows), build na tag sa
+  SHA-256. CI nikad izvrsen — netestirano.
+- THIRD_PARTY_NOTICES.md (OpenCode MIT, PySide6 LGPL-3.0, Python PSF).
+- docs/TESTING.md: rucna VM lista (A-F) — OBAVEZNA prije tag-a.
+- Repo fajlovi: README.md (HTML), README.en.md, LICENSE (MIT),
+  CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG (0.1.0), .editorconfig,
+  Issue/PR sabloni.
+- Odluka: BEZ `v0.1.0` tag-a i BEZ javnog release-a dok docs/TESTING.md ne
+  bude PASS na Win10 i Win11. In-app auto-update nije implementiran
+  (nadogradnja rucno preko GitHub Releases + SHA-256).
+
 ## Faza 0 SPIKE — djelimicno gotovo (kod + Linux dokazi, Win VM ceka)
 
 Uradjeno (Faza 0):
