@@ -32,6 +32,7 @@ class ActionResult:
     rolled_back: bool
     message: str
     duration_s: float = 0.0
+    state: dict | None = None  # snapshot uspjesnog koraka (za "Ponisti sve")
 
 
 class Action(abc.ABC):
@@ -151,7 +152,7 @@ class Runner:
                                 time.time() - started)
         self._log(name, "done", True, details)
         return ActionResult(name, True, True, False, details,
-                            time.time() - started)
+                            time.time() - started, state=state)
 
     def _rollback_quietly(self, action: Action, ctx: ActionContext,
                          state: dict) -> None:
