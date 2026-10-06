@@ -67,8 +67,12 @@ jobs:
       - run: python -m PyInstaller mujofix.spec
       - name: SHA-256 checksums
         shell: pwsh
-        run: Get-ChildItem dist -Recurse -File | Get-FileHash -Algorithm SHA256 |
-             Format-Table -AutoSize | Out-File dist/SHA256SUMS.txt
+        run: |
+          Get-ChildItem dist -Recurse -File |
+            Get-FileHash -Algorithm SHA256 |
+            Format-Table -AutoSize |
+            Out-File $env:RUNNER_TEMP/SHA256SUMS.txt
+          Move-Item $env:RUNNER_TEMP/SHA256SUMS.txt dist/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
           name: MujoFix-windows
