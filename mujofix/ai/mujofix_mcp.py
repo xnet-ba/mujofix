@@ -1,21 +1,25 @@
-"""Minimalni MujoFix MCP server (stdio, samo stdlib) za Fazu 0 SPIKE.
+"""MujoFix MCP server (stdio, samo stdlib).
 
 Izlozeni alati (nijedan ne mijenja sistem, samo citaju/vroliraju):
 - get_findings, get_evidence, get_system_info, get_action_catalog (read-only)
-- propose_plan (validira plan prema allowlisti; odbija sve izvan kataloga)
+- propose_plan (validira plan prema schemi + allowlisti; odbija sve izvan kataloga)
 
-Transport: JSON-RPC 2.0, jedna poruka po liniji na stdin/stdout.
+Podaci: --findings <json> s pravim izlazom scannera (Faza 4); bez argumenta
+sluze spike-fixture (Faza 0). Transport: JSON-RPC 2.0, poruka po liniji.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
+import os
 import platform
 import sys
 
 SERVER_NAME = "mujofix"
 SERVER_VERSION = "0.0.1"
 SPIKE_MARKER = "MUJOFIX-SPIKE-OK"
+MAX_PLAN_STEPS = 20
 
 # Faza 0 allowlista: samo 3 akcije iz specifikacije.
 ACTION_ALLOWLIST = frozenset(
@@ -44,11 +48,13 @@ def validate_plan(plan: object) -> tuple[bool, str]:
     steps = plan.get("steps")
     if not isinstance(steps, list) or not steps:
         return False, "plan mora imati nepraznu listu 'steps'"
+    if len(steps) > MAX_PLAN_STEPS:
+        return False, f"previse koraka ({len(steps)} > {MAX_PLAN_STEPS})"
     for index, step in enumerate(steps):
         if not isinstance(step, dict):
             return False, f"korak {index} nije objekat"
         action = step.get("action")
-        if action not in ACTION_ALLOWLIST:
+        if not action or action not in ACTION_ALLOWLIST:
             return False, (
                 f"korak {index}: akcija '{action}' nije u katalogu "
                 f"{sorted(ACTION_ALLOWLIST)}"
@@ -59,6 +65,19 @@ def validate_plan(plan: object) -> tuple[bool, str]:
         if _is_protected(target):
             return False, f"korak {index}: zasticena zona '{target}'"
     return True, f"prihvaceno {len(steps)} koraka"
+
+
+STORE: dict = {"findings": [], "system_info": None}
+
+
+def load_findings_file(path: str) -> None:
+    """Ucitaj pravi izlaz scannera: {"findings": [...], "system_info": {...}}."""
+    with open(path, encoding="utf-8") as handle:
+        data = json.load(handle)
+    if not isinstance(data, dict) or "findings" not in data:
+        raise ValueError("findings fajl mora imati kljuc 'findings'")
+    STORE["findings"] = data["findings"]
+    STORE["system_info"] = data.get("system_info")
 
 
 def _spike_system_info() -> dict:
@@ -72,13 +91,23 @@ def _spike_system_info() -> dict:
 
 def _call_tool(name: str, args: dict) -> dict:
     if name == "get_findings":
-        return {"findings": []}
+        return {"findings": STORE["findings"]}
     if name == "get_evidence":
+        wanted = args.get("finding_id")
+        for finding in STORE["findings"]:
+            if finding.get("id") == wanted:
+                return {"finding_id": wanted,
+                        "evidence": finding.get("evidence", {})}
+        if STORE["findings"]:
+            return {"finding_id": wanted, "evidence": {},
+                    "error": "nepoznat finding_id"}
         return {
             "finding_id": args.get("finding_id"),
             "evidence": "spike-fixture: nema stvarnih dokaza u Fazi 0",
         }
     if name == "get_system_info":
+        if STORE["system_info"] is not None:
+            return STORE["system_info"]
         return _spike_system_info()
     if name == "get_action_catalog":
         return {"actions": sorted(ACTION_ALLOWLIST)}
@@ -185,4 +214,10 @@ def serve() -> None:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="MujoFix MCP server")
+    parser.add_argument("--findings", default=os.environ.get("MUJOFIX_FINDINGS"),
+                        help="JSON s pravim izlazom scannera")
+    parsed = parser.parse_args()
+    if parsed.findings:
+        load_findings_file(parsed.findings)
     serve()

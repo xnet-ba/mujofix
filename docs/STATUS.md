@@ -37,6 +37,22 @@ Repo ziv: https://github.com/xnet-ba/mujofix (public, main).
 Pristup: SSH kljuc `mujofix-agent` (trajan) + token koristen jednom za
 kreiranje repoa. Push ide preko `origin` (SSH).
 
+## Faza 4 — gotova (kod + Linux dokazi, Win VM + Zen ToS cekaju)
+
+- `ai/provider.py`: apstraktan Provider (zamjenjiv Ollama/OpenAI-kompatibilnim),
+  OpenCodeProvider (`run --attach`, agent mujofix), FallbackChain (retry s
+  backoff-om -> sljedeci model -> offline), kompaktni kontekst (max 10 nalaza),
+  `sent_log` za ekran "sta je tacno poslano", best-effort lista modela.
+- `ai/sanitize.py`: anonimizacija (ime, hostname, IP/MAC, serijski, licne putanje;
+  tajni kljucevi se dropaju).
+- `ai/mujofix_mcp.py`: `--findings` s pravim podacima scannera (dokazan stdio
+  roundtrip), validator + cap 20 koraka + prazna akcija se odbija.
+- `ui/consent.py`: ekran pristanka (kategorije + primjer STVARNOG payload-a +
+  NEPOTVRDJENI Zen uslovi) + SentLogViewer; default offline, izbor u QSettings.
+- 77/77 testova prolazi.
+- NIJE: Zen ToS i dalje neprovjeren (upisano kao nepoznato); tacke 3/4 spikea
+  uz pravi model; izgled consent ekrana na Win11.
+
 ## Faza 3 — gotova (kod + Linux offscreen dokazi, Win izgled netestiran)
 
 - `ui/main_window.py`: jedan ekran — SCAN (worker nit), sazetak, stiklirana
