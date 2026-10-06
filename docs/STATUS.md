@@ -16,6 +16,19 @@
   bude PASS na Win10 i Win11. In-app auto-update nije implementiran
   (nadogradnja rucno preko GitHub Releases + SHA-256).
 
+## v0.1.0-alpha.1 — PRE-RELEASE za VM testiranje (2026-10-06)
+
+- CI potpuno zelen (ubuntu + windows testovi, 101/101).
+- Realni Windows CI uhvatio 2 bug-a prije release-a: stat-bit false positive
+  na Temp-u (popravljeno skip-om) i drevni PyInstaller spec format
+  (prepisan na v6, validiran lokalnim buildom — bundlovani CLI radi).
+- OpenCode pin: stvarni SHA-256 zvanicnog asseta (anomalyco/opencode;
+  sst/org se preselio), CI skida + provjerava + bundluje.
+- Release: https://github.com/xnet-ba/mujofix/releases/tag/v0.1.0-alpha.1
+  (MujoFix-windows-alpha.1.zip, 49 MB, SHA gore u release notes).
+  Nepotpisan, SmartScreen ocekivan, NIJE za krajnje korisnike.
+- Ostaje: VM validacija po docs/TESTING.md (A-F), pa tek onda v0.1.0.
+
 ## Faza 0 SPIKE — djelimicno gotovo (kod + Linux dokazi, Win VM ceka)
 
 Uradjeno (Faza 0):
