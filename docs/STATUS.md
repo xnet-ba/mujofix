@@ -95,6 +95,10 @@ kreiranje repoa. Push ide preko `origin` (SSH).
   permissions (UAC OFF = CRITICAL, ACL, share-ovi).
 - 100/100 testova prolazi. Svi Win-specficni pozivi su mockovani;
   pravi winreg/pnputil/sc/powercfg/Getty postupci cekaju VM.
+- Djelimicna ziva potvrda (Win Server runner, CI artefakt windows-live-findings):
+  winreg Run stavke, disk %, duplikati, startup brojac i Temp-proces rade;
+  net-share parser je lazno prijavljivao header/footer — popravljen
+  (cita samo tijelo) + regresioni test; novi artefakt cist.
 
 ## Faza 4 — gotova (kod + Linux dokazi, Win VM + Zen ToS cekaju)
 
