@@ -132,7 +132,7 @@ class PermissionsScanner(Scanner):
                     risk="nizak: gasenje sharea je reverzibilno",
                     reversible=True,
                     evidence={"shares": shares[:20]},
-                    tech_details="net share (resource moze sadrzavati remark)")
+                    tech_details="net share (resource moze sadrzavati remark)"))
         else:
             writable = [entry for entry in
                         os.environ.get("PATH", "").split(os.pathsep)
