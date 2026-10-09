@@ -115,6 +115,30 @@ class TestPermissionsScanner(unittest.TestCase):
         by_id = {f.id: f for f in report.findings}
         self.assertEqual(by_id["permissions-acl"].severity, "CRITICAL")
 
+    def test_net_share_parses_body_only(self):
+        # Regresija s pravog Win runnera: header/footer su se lazirali kao share-ovi.
+        net_out = ("Share name   Resource                        Remark\r\n"
+                   "----------------------------------------------------\r\n"
+                   "C$           C:\\                             Default share\r\n"
+                   "IPC$                                         Remote IPC\r\n"
+                   "SharedDocs   C:\\Shared Docs                   My docs\r\n"
+                   "The command completed successfully.\r\n")
+        def fake_run(cmd, **kw):
+            if cmd[0] == "net":
+                return MagicMock(returncode=0, stdout=net_out, stderr="")
+            return MagicMock(returncode=1, stdout="", stderr="")
+        with patch("mujofix.platform.windows.is_windows", return_value=True), \
+             patch("mujofix.platform.windows.read_reg_values",
+                   return_value={"EnableLUA": "1"}), \
+             patch("os.path.isdir", return_value=False), \
+             patch("subprocess.run", side_effect=fake_run):
+            report = PermissionsScanner().scan(ScanContext())
+        by_id = {f.id: f for f in report.findings}
+        shares = by_id["permissions-shares"].evidence["shares"]
+        self.assertEqual(len(shares), 1)
+        self.assertEqual(shares[0]["name"], "SharedDocs")
+        self.assertIn("C:\\Shared Docs", shares[0]["resource"])
+
     def test_posix_fallback(self):
         with tempfile.TemporaryDirectory() as tmp:
             wide = os.path.join(tmp, "wide")

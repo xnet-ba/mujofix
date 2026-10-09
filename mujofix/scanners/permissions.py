@@ -46,6 +46,8 @@ def _icacls_writable_by(path: str, identities=("Everyone", "Users")) -> list[str
 
 
 def _net_shares() -> list[dict]:
+    """Parsira samo tijelo ispisa (izmedju crtica i kraja); header/footer se
+    preskacu. Resource moze sadrzavati i remark tekst (vidi tech_details)."""
     try:
         proc = subprocess.run(["net", "share"], capture_output=True,
                               text=True, timeout=30)
@@ -53,19 +55,25 @@ def _net_shares() -> list[dict]:
         return []
     if proc.returncode != 0:
         return []
-    shares, current = [], {}
-    for line in proc.stdout.splitlines():
-        name, _, rest = line.partition(" ")
-        name = name.strip()
-        if name and not name.startswith("-") and name != "Share name":
-            if current.get("name"):
-                shares.append(current)
-            current = {"name": name, "resource": rest.strip()}
-        elif "Path" in line or "Remark" in line:
-            current["resource"] = line.split(None, 1)[-1].strip()
-    if current.get("name"):
-        shares.append(current)
-    return [s for s in shares if s.get("name") not in DEFAULT_SHARES]
+    lines = proc.stdout.splitlines()
+    try:
+        start = next(i for i, line in enumerate(lines)
+                     if line.strip() and set(line.strip()) == {"-"}) + 1
+    except StopIteration:
+        return []
+    shares: list[dict] = []
+    for line in lines[start:]:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("The command"):
+            break
+        parts = stripped.split(None, 1)
+        if len(parts) < 2:
+            continue
+        name, resource = parts
+        if name in DEFAULT_SHARES:
+            continue
+        shares.append({"name": name, "resource": resource})
+    return shares
 
 
 def _posix_world_writable(path: str) -> bool:
@@ -124,7 +132,7 @@ class PermissionsScanner(Scanner):
                     risk="nizak: gasenje sharea je reverzibilno",
                     reversible=True,
                     evidence={"shares": shares[:20]},
-                    tech_details="net share"))
+                    tech_details="net share (resource moze sadrzavati remark)")
         else:
             writable = [entry for entry in
                         os.environ.get("PATH", "").split(os.pathsep)
