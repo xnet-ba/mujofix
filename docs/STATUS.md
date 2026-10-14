@@ -31,6 +31,17 @@
   na runneru PASS) — artefakt osvjezen 2026-10-06, SHA u release notes.
 - Ostaje: VM validacija po docs/TESTING.md (A-F), pa tek onda v0.1.0.
 
+## Ryzen KVM lab (2026-10-12/13, u toku — PAUZA dok je laptop offline)
+
+- SSH preko Tailscale radi (Korisnik, High integrity token); pristup snimljen
+  izvan repoa. WSL2 Ubuntu-24.04, /dev/kvm OK, Docker OK, MujoWinPC repo na laptopu.
+- Rijeseno: MS IP blok (WARP egress .145) -> kontejner skinuo Win11 Pro sam;
+  WSL bump 12GB + profil standard (8G VM); staticali ISO hash d141f6.
+- Kontejner dosao do QEMU boota ("Windows started successfully" jednom),
+  volumen ociscen, svjezi boot u toku Setup-a. Onda laptop offline — pauza.
+- Slijed kad se vrati: logs -> dovrsi Setup -> `mujowin backup` ->
+  guest `lab/guest-run.ps1` -> findings.json na Issue #1.
+
 ## AI-GUI spoj (2026-10-06)
 
 - GUI dugme "Objasni nalaze (AI)": pristanak (ako nije zapamcen) ->
