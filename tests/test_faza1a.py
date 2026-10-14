@@ -85,6 +85,14 @@ class TestStartupScanner(unittest.TestCase):
         self.assertIsNone(report.skipped)
         self.assertEqual(report.findings, [])
 
+    def test_desktop_ini_not_counted(self):
+        # Regresija s pravog Win11 hosta: desktop.ini se brojao kao program.
+        report = self._run({}, ["desktop.ini", "Thumbs.db", "app.lnk"])
+        finding = report.findings[0]
+        self.assertEqual(finding.evidence["count"], 1)
+        names = [i["name"] for i in finding.evidence["items"]]
+        self.assertEqual(names, ["app.lnk"])
+
     def test_graceful_skip_off_windows(self):
         with patch("mujofix.platform.windows.is_windows", return_value=False):
             report = StartupScanner().scan(ScanContext())

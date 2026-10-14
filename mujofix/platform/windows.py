@@ -88,11 +88,16 @@ def startup_folders() -> list[str]:
     return [f for f in folders if os.path.isdir(f)]
 
 
+# Sistemski artefakti koji nisu programi (ulovljeno zivim skenom na pravom Win11).
+NON_PROGRAM_FILES = frozenset({"desktop.ini", "thumbs.db"})
+
+
 def list_folder_entries(folder: str) -> list[str]:
     """Imena stavki u folderu (samo stdlib, bez pracenja .lnk meta)."""
     try:
         return sorted(
-            entry.name for entry in os.scandir(folder) if entry.is_file()
+            entry.name for entry in os.scandir(folder)
+            if entry.is_file() and entry.name.lower() not in NON_PROGRAM_FILES
         )
     except OSError:
         return []
