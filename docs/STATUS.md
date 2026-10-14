@@ -43,6 +43,9 @@
 - GUI smoke na hostu (2026-10-14): MujoFix.exe radi stabilno u Console sesiji
   (PID 2752, 65MB, bez crasha i missing DLL); screenshot 1707x1067 sacuvan na
   laptopu (mujofix-shared/gui.png) — vizualni pregled ostaje za ljudske oci.
+- Spike 1-2 PASS na hostu (2026-10-14): opencode 1.18.34 radi bez Node-a;
+  serve na 127.0.0.1:45991 vraca 401 bez lozinke i 200 s lozinkom.
+  Testna lozinka uklonjena iz registryja, serve task obrisan.
 - Nalazi okačeni na Issue #1 (sanirani).
 - Slijed: GUI smoke na hostu -> opencode.exe (BITS) -> spike 1-2-5 rucno ->
   oprezne akcije uz odobrenje -> VM Setup kad laptop miruje.
