@@ -46,6 +46,11 @@
 - Spike 1-2 PASS na hostu (2026-10-14): opencode 1.18.34 radi bez Node-a;
   serve na 127.0.0.1:45991 vraca 401 bez lozinke i 200 s lozinkom.
   Testna lozinka uklonjena iz registryja, serve task obrisan.
+- Akcije 5/5 PASS na hostu pravim kodom (2026-10-14, scripts/host_proof.py):
+  startup disable+rollback identican, temp clean+rollback identican,
+  Spooler restart (usput ulovljen START_PENDING race -> verify sad ceka
+  RUNNING do 30s + regresioni test). Restore point nije mogao (servis
+  ugasen na masini) — sigurnosna mreza bili karantin manifesti + test artefakti.
 - Nalazi okačeni na Issue #1 (sanirani).
 - Slijed: GUI smoke na hostu -> opencode.exe (BITS) -> spike 1-2-5 rucno ->
   oprezne akcije uz odobrenje -> VM Setup kad laptop miruje.
