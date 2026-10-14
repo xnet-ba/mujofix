@@ -54,6 +54,8 @@
 - Nalazi okačeni na Issue #1 (sanirani).
 - Slijed: GUI smoke na hostu -> opencode.exe (BITS) -> spike 1-2-5 rucno ->
   oprezne akcije uz odobrenje -> VM Setup kad laptop miruje.
+- VM Setup 2026-10-14: ciklus detect->boot->restart je NORMALAN (Setup rebooti);
+  dokaz data.img 64GB sparse + base/ver markeri, QEMU 200% CPU. NE DIRATI.
 
 ## AI-GUI spoj (2026-10-06)
 
