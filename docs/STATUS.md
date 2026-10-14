@@ -31,16 +31,18 @@
   na runneru PASS) — artefakt osvjezen 2026-10-06, SHA u release notes.
 - Ostaje: VM validacija po docs/TESTING.md (A-F), pa tek onda v0.1.0.
 
-## Ryzen KVM lab (2026-10-12/13, u toku — PAUZA dok je laptop offline)
+## Ryzen lab (host-direct + VM u pozadini; 2026-10-13)
 
 - SSH preko Tailscale radi (Korisnik, High integrity token); pristup snimljen
-  izvan repoa. WSL2 Ubuntu-24.04, /dev/kvm OK, Docker OK, MujoWinPC repo na laptopu.
-- Rijeseno: MS IP blok (WARP egress .145) -> kontejner skinuo Win11 Pro sam;
-  WSL bump 12GB + profil standard (8G VM); staticali ISO hash d141f6.
-- Kontejner dosao do QEMU boota ("Windows started successfully" jednom),
-  volumen ociscen, svjezi boot u toku Setup-a. Onda laptop offline — pauza.
-- Slijed kad se vrati: logs -> dovrsi Setup -> `mujowin backup` ->
-  guest `lab/guest-run.ps1` -> findings.json na Issue #1.
+  izvan repoa. WSL2 Ubuntu-24.04, /dev/kvm OK, Docker OK.
+- PREOKRET: umjesto cekanja VM-a, test direktno na host Win11 (brze, realniji
+  hardver). VM ostaje za prljave testove kad zatreba.
+- Host scan alpha exea (2026-10-13): 5 nalaza, 0 skipped, svih 9 scannera OK.
+  Ulovljen desktop.ini bug -> popravljen + test (commit e8b0496).
+  permissions-shares nalaz je iz starog builda (artefakt prije fix-a).
+- Nalazi okačeni na Issue #1 (sanirani).
+- Slijed: GUI smoke na hostu -> opencode.exe (BITS) -> spike 1-2-5 rucno ->
+  oprezne akcije uz odobrenje -> VM Setup kad laptop miruje.
 
 ## AI-GUI spoj (2026-10-06)
 
