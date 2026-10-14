@@ -74,6 +74,9 @@ jobs:
           New-Item -ItemType Directory build/opencode | Out-Null
           Expand-Archive $zip build/opencode
       - run: python -m PyInstaller mujofix.spec
+      - name: Ubaci pinovani OpenCode u dist (kao installer)
+        shell: pwsh
+        run: Copy-Item build/opencode dist/MujoFix/opencode -Recurse
       - name: SHA-256 checksums
         shell: pwsh
         run: |
