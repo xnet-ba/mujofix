@@ -40,6 +40,9 @@
 - Host scan alpha exea (2026-10-13): 5 nalaza, 0 skipped, svih 9 scannera OK.
   Ulovljen desktop.ini bug -> popravljen + test (commit e8b0496).
   permissions-shares nalaz je iz starog builda (artefakt prije fix-a).
+- GUI smoke na hostu (2026-10-14): MujoFix.exe radi stabilno u Console sesiji
+  (PID 2752, 65MB, bez crasha i missing DLL); screenshot 1707x1067 sacuvan na
+  laptopu (mujofix-shared/gui.png) — vizualni pregled ostaje za ljudske oci.
 - Nalazi okačeni na Issue #1 (sanirani).
 - Slijed: GUI smoke na hostu -> opencode.exe (BITS) -> spike 1-2-5 rucno ->
   oprezne akcije uz odobrenje -> VM Setup kad laptop miruje.
