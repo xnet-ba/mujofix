@@ -11,9 +11,12 @@ from __future__ import annotations
 
 import re
 import subprocess
+import time
 
 from mujofix.actions.base import Action, ActionContext, register
 from mujofix.platform import windows
+
+VERIFY_TIMEOUT_S = 30
 
 
 def _sc(*args: str) -> subprocess.CompletedProcess[str]:
@@ -62,7 +65,13 @@ class RestartService(Action):
             raise RuntimeError(f"start pao: {proc.stderr.strip()[-200:]}")
 
     def verify(self, ctx: ActionContext, state: dict) -> tuple[bool, str]:
+        # Servis nakon starta prolazi kroz START_PENDING; cekamo RUNNING.
+        # Bez cekanja verify lazno pada (ulovljeno na pravom hostu).
+        deadline = time.time() + VERIFY_TIMEOUT_S
         now = _state(state["service"])
+        while now != "RUNNING" and time.time() < deadline:
+            time.sleep(1)
+            now = _state(state["service"])
         if now == "RUNNING":
             return True, f"{state['service']} radi"
         return False, f"{state['service']} stanje: {now}"

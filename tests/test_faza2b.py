@@ -191,6 +191,18 @@ class TestRestartService(unittest.TestCase):
                 self.assertIn(("stop", "Spooler"), fake.calls)
                 self.assertIn(("start", "Spooler"), fake.calls)
 
+    def test_verify_waits_through_start_pending(self):
+        # Regresija s pravog hosta: verify je pucao dok servis starta.
+        states = iter(["START_PENDING", "START_PENDING", "RUNNING"])
+        with patch("mujofix.platform.windows.is_windows", return_value=True), \
+             patch.object(service_mod, "_state",
+                          side_effect=lambda name: next(states)), \
+             patch.object(service_mod.time, "sleep", return_value=None):
+            action = RestartService("Spooler")
+            ok, message = action.verify(
+                ActionContext(quarantine_dir="/tmp"), {"service": "Spooler"})
+        self.assertTrue(ok, message)
+
     def test_missing_service_precondition_fails(self):
         fake = FakeSC({})
         with patch("mujofix.platform.windows.is_windows", return_value=True), \
