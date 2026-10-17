@@ -37,9 +37,19 @@
 - Repo fajlovi: README.md (HTML), README.en.md, LICENSE (MIT),
   CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG (0.1.0), .editorconfig,
   Issue/PR sabloni.
-- Odluka: build je spreman; puna VM matrica je opciona, ne kapija. In-app
-  auto-update nije implementiran (nadogradnja rucno preko GitHub Releases
-  + SHA-256).
+- Odluka: build je spreman; puna VM matrica je opciona, ne kapija.
+- Auto-update (provjera GitHub Releases) implementiran kao kod:
+  `mujofix/update.py` (Qt-free: `check_for_update`, `download` uz sha256,
+  `apply_update`, `launch_artifact`) + `mujofix/version.py` (verzija iz
+  CHANGELOG.md) + CLI `mujofix update [--apply]`. In-GUI dugme = sljedeci
+  korak. Mrezni put + pokretanje preuzetog artefakta: netestirano na VM-u;
+  provjera protiv pravog GitHub API-ja radi (v0.1.0 prepoznat kao najnoviji).
+- `mujofix.spec`: CHANGELOG.md ide u build (runtime verzija) + `pathex=[SPEC_DIR]`
+  (ranije se `mujofix.scanners` gubio u lokalnom Linux buildu jer se oslanjao na
+  CWD). Validirano lokalnim PyInstaller 6.22.3 buildom: bundlovani
+  `MujoFixCLI update` ispise "Verzija 0.1.0 je najnovija."
+- 137/137 sa PySide6 (offscreen); Qt-free lokalno 125 uz 3 ocekivana
+  import error-a (PySide6 nije instaliran). CI ubuntu + windows.
 
 ## v0.1.0-alpha.1 — PRE-RELEASE za VM testiranje (2026-10-06)
 
@@ -196,7 +206,7 @@ kreiranje repoa. Push ide preko `origin` (SSH).
   startup-count, config-path-missing, config-temp-var, network-proxy,
   duplicates-found (samo `certain` grupe).
 - Svaka akcija: test apply -> verify -> rollback -> stanje identicno originalu.
-- 115/115 testova (lokalno Qt-free 107; CI ubuntu + windows zelen).
+- 137/137 sa PySide6 (offscreen); Qt-free lokalno 125 uz 3 import error-a.
 
 ## Faza 1 — gotovo (kod + Linux dokazi, Win VM ceka)
 

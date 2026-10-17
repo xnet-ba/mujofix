@@ -3,16 +3,19 @@
 # Format provjeren lokalnim Linux buildom (PyInstaller 6.22); Win exe iz CI-ja.
 # Verzija se cita iz CHANGELOG.md (vrh, "## [x.y.z]").
 
+import os
 import re
 
 with open("CHANGELOG.md", encoding="utf-8") as handle:
     match = re.search(r"## \[(\d+\.\d+\.\d+)\]", handle.read())
 VERSION = match.group(1) if match else "0.0.0"
 
+SPEC_DIR = os.path.dirname(os.path.abspath(SPEC))
+
 common = dict(
-    pathex=[],
+    pathex=[SPEC_DIR],
     binaries=[],
-    datas=[("mujofix/i18n", "mujofix/i18n")],
+    datas=[("mujofix/i18n", "mujofix/i18n"), ("CHANGELOG.md", ".")],
     hiddenimports=[],
     hookspath=[],
     runtime_hooks=[],

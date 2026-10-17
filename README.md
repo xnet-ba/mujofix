@@ -155,6 +155,9 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
 # Skeniranje (engine radi i iz CLI-ja)
 PYTHONPATH=mujofix python3 -m mujofix.cli scan --summary
 
+# Provjera ažuriranja (--apply preuzme, provjeri sha256 i pokrene; Windows)
+PYTHONPATH=mujofix python3 -m mujofix.cli update
+
 # Faza 0 SPIKE (opciono, uz živi model)
 python3 scripts/phase0_spike.py --model <provider/model>
 

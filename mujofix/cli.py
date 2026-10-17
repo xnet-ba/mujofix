@@ -26,6 +26,7 @@ from mujofix.scanners import services as _services  # noqa: E402,F401
 from mujofix.scanners import suspicious as _suspicious  # noqa: E402,F401
 from mujofix.scanners import startup as _startup  # noqa: E402,F401
 from mujofix.scanners.base import REGISTRY, ScanContext  # noqa: E402
+from mujofix import update as update_mod  # noqa: E402
 
 
 def run_scan(names: list[str] | None) -> list[dict]:
@@ -60,6 +61,27 @@ def summarize(reports: list[dict]) -> str:
             f"{counts['LOW']} mala")
 
 
+def _cmd_update(args) -> int:
+    try:
+        info = update_mod.check_for_update(api_url=args.api)
+    except update_mod.UpdateError as exc:
+        print(f"Provjera update-a nije uspjela: {exc}")
+        return 1
+    if not info["available"]:
+        print(f"Verzija {info['current']} je najnovija.")
+        return 0
+    print(f"Nova verzija: {info['latest']} (imam {info['current']}).")
+    if not args.apply:
+        return 0
+    try:
+        result = update_mod.apply_update(info)
+    except update_mod.UpdateError as exc:
+        print(f"Update nije uspio: {exc}")
+        return 1
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="mujofix", description="MujoFix engine CLI")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -69,7 +91,15 @@ def main(argv: list[str] | None = None) -> int:
     scan.add_argument("--out", default=None,
                       help="upisi nalaze za MCP server "
                            "(mujofix_mcp.py --findings <fajl>)")
+    upd = sub.add_parser("update", help="provjeri ima li nova verzija")
+    upd.add_argument("--apply", action="store_true",
+                     help="preuzmi, provjeri sha256 i pokreni (Windows)")
+    upd.add_argument("--api", default=update_mod.RELEASES_API)
     args = parser.parse_args(argv)
+
+    if args.cmd == "update":
+        return _cmd_update(args)
+
     reports = run_scan(args.scanner)
     if args.out:
         findings = [f for r in reports for f in r["findings"]

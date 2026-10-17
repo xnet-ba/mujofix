@@ -5,8 +5,12 @@
 - Auto-fix: `quarantine_duplicates` (potvrđeni sha256 duplikati u karantin, jedna kopija ostaje).
 - Elevacija: gumb "Pokreni kao administrator" + izvršavanje `needs_elevation`
   akcija kad je proces admin (`windows.is_admin`/`relaunch_elevated`).
+- Auto-update: provjera GitHub Releases (`mujofix update`), preuzimanje
+  uz sha256 verifikaciju (`mujofix update --apply`); `mujofix/update.py`,
+  `mujofix/version.py`.
 ### Napomene
 - Elevator (pravi UAC prompt) i Win izgled ostaju netestirani na VM-u.
+- Auto-update mrežni put i pokretanje preuzetog artefakta: netestirano na VM-u.
 
 ## [0.1.0] - 2026-10-06
 ### Dodano
