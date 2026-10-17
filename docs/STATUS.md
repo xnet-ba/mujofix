@@ -141,7 +141,7 @@ kreiranje repoa. Push ide preko `origin` (SSH).
 - network (DNS CRITICAL, TCP latencija, hosts hijack, proxy, Winsock),
   config (PATH rupe, TEMP var, power saver, CBS/SFC tragovi),
   drivers (pnputil, stariji od 8 god; nekoristeni programi se ne laziju),
-  duplicates (velicina->64KB->sha256, >2GB "vjerovatno", nikad auto-brisanje),
+  duplicates (velicina->64KB->sha256; potvrdjeni visak -> karantin s rollback-om, >2GB "vjerovatno" = preporuka),
   suspicious ("sumnjivo, razlozi", potpis, Defender samo citanje),
   permissions (UAC OFF = CRITICAL, ACL, share-ovi).
 - 100/100 testova prolazi. Svi Win-specficni pozivi su mockovani;
@@ -183,16 +183,18 @@ kreiranje repoa. Push ide preko `origin` (SSH).
 
 - `actions/base.py`: Action ugovor (precondition/snapshot/apply/verify/rollback),
   Runner (pad nakon snapshot-a -> rollback), dry-run, karantin, audit log.
-- 6 akcija: disable_startup_item (HKCU/HKLM, UAC samo za HKLM),
+- 7 akcija: disable_startup_item (HKCU/HKLM, UAC samo za HKLM),
   clean_temp (starije od 7 dana u karantin, manifest), restart_service (`sc`,
   treba UAC, rizik srednji), remove_path_entry (mrtvi PATH unos, HKCU/HKLM,
   cuva registry tip), fix_temp_var (TEMP/TMP u HKCU Environment),
-  disable_proxy (HKCU Internet Settings, ProxyEnable=0).
+  disable_proxy (HKCU Internet Settings, ProxyEnable=0),
+  quarantine_duplicates (potvrdjeni sha256 duplikati u karantin, jedna ostaje).
 - `actions/mapping.py`: finding_to_actions izdvojen iz Qt-a (testabilno bez
   PySide6); pokriva disk-temp, disk-wu-cache, services-auto-stopped,
-  startup-count, config-path-missing, config-temp-var, network-proxy.
+  startup-count, config-path-missing, config-temp-var, network-proxy,
+  duplicates-found (samo `certain` grupe).
 - Svaka akcija: test apply -> verify -> rollback -> stanje identicno originalu.
-- 113/113 testova (lokalno Qt-free 105; CI ubuntu + windows zelen).
+- 115/115 testova (lokalno Qt-free 107; CI ubuntu + windows zelen).
 
 ## Faza 1 — gotovo (kod + Linux dokazi, Win VM ceka)
 

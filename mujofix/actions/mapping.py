@@ -5,6 +5,7 @@ Prazna lista = nalaz je samo preporuka (nema sigurne auto-popravke).
 
 from __future__ import annotations
 
+from mujofix.actions.duplicates import QuarantineDuplicates
 from mujofix.actions.env import FixTempVar, RemovePathEntry
 from mujofix.actions.proxy import DisableProxy
 from mujofix.actions.service import RestartService
@@ -36,4 +37,9 @@ def finding_to_actions(finding: dict) -> list:
         return [FixTempVar(evidence["var"])]
     if fid == "network-proxy" and evidence.get("proxy", {}).get("registry"):
         return [DisableProxy()]
+    if fid == "duplicates-found":
+        groups = evidence.get("groups", [])
+        if any(g.get("certain") and len(g.get("paths", [])) >= 2
+               for g in groups):
+            return [QuarantineDuplicates(groups)]
     return []

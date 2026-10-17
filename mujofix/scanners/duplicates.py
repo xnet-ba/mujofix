@@ -2,8 +2,9 @@
 
 Fajlovi veci od 2 GB se ne hasiraju cijeli (granica); slazu se po velicini +
 parcijalnom hashu i prijavljuju kao "vjerovatno duplikat" (nesigurnost je
-izricita). Sistemski folderi se preskacu. Duplikati se NIKAD ne brisu
-automatski: reversible=False, bez akcijske mape.
+izricita). Sistemski folderi se preskacu. Potvrdjeni duplikati se NIKAD ne
+brisu — akcija seli visak u karantin (jedna kopija ostaje), rollback vraca.
+Grupe "vjerovatno" (>2 GB) ostaju samo preporuka, bez akcije.
 """
 
 from __future__ import annotations
@@ -122,12 +123,13 @@ class DuplicatesScanner(Scanner):
             id="duplicates-found", scanner=self.name,
             title=(f"{len(groups)} grupa duplikata "
                    f"(~{wasted // 1024**2} MB viška)"),
-            why="Iste velike datoteke na vise mjesta jedu disk. Brisanje je "
-                "rucno — aplikacija nista ne brise automatski.",
+            why="Iste velike datoteke na vise mjesta jedu disk. Potvrdjene "
+                "kopije idu u karantin (jedna ostaje) — nista se ne brise, "
+                "rollback vraca sve.",
             severity="MEDIUM" if wasted >= 1024**3 else "LOW",
-            impact=f"moguce oslobadjanje ~{wasted // 1024**2} MB (rucno)",
-            risk="nema: samo pregled, bez akcije",
-            reversible=False,
+            impact=f"moguce oslobadjanje ~{wasted // 1024**2} MB (karantin)",
+            risk="srednji: prva kopija ostaje, ostale u karantin; rollback vraca",
+            reversible=True,
             evidence={"groups": groups[:20],
                       "wasted_bytes": wasted, "walked_files": walked},
             tech_details="velicina -> sha256(64KB) -> puni sha256",

@@ -87,7 +87,7 @@ class TestDuplicatesScanner(unittest.TestCase):
             sorted(os.path.basename(p)
                    for p in finding.evidence["groups"][0]["paths"]),
             ["a.bin", "b.bin"])
-        self.assertFalse(finding.reversible)  # nikad auto-brisanje
+        self.assertTrue(finding.reversible)  # karantin + rollback, bez brisanja
 
     def test_small_files_ignored(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from mujofix.actions import env as env_mod
 from mujofix.actions.base import CATALOG, ActionContext, Runner
+from mujofix.actions.duplicates import QuarantineDuplicates
 from mujofix.actions.env import FixTempVar, RemovePathEntry
 from mujofix.actions.proxy import INTERNET_SETTINGS, DisableProxy
 
@@ -142,9 +143,44 @@ class TestDisableProxy(unittest.TestCase):
                 self.assertIn("nije ukljucen", result.message)
 
 
+class TestQuarantineDuplicates(unittest.TestCase):
+    @staticmethod
+    def _mk(tmp, name, data=b"isti podaci"):
+        path = os.path.join(tmp, name)
+        with open(path, "wb") as handle:
+            handle.write(data)
+        return path
+
+    def test_roundtrip_keeps_one(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            qdir = os.path.join(tmp, "q")
+            first = self._mk(tmp, "a.bin")
+            second = self._mk(tmp, "b.bin")
+            action = QuarantineDuplicates(
+                [{"certain": True, "size": 11, "paths": [first, second]}])
+            result = _run(action, qdir)
+            self.assertTrue(result.ok and result.verified, result.message)
+            self.assertTrue(os.path.exists(first))
+            self.assertFalse(os.path.exists(second))
+            action.rollback(ActionContext(quarantine_dir=qdir), result.state)
+            self.assertTrue(os.path.exists(second))
+
+    def test_uncertain_group_is_recommendation_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            first = self._mk(tmp, "a.bin")
+            second = self._mk(tmp, "b.bin")
+            action = QuarantineDuplicates(
+                [{"certain": False, "paths": [first, second]}])
+            result = _run(action, tmp)
+            self.assertFalse(result.ok)
+            self.assertIn("potvrdjenih", result.message)
+            self.assertTrue(os.path.exists(second))
+
+
 class TestWiring(unittest.TestCase):
     def test_new_actions_registered(self):
-        for name in ("remove_path_entry", "fix_temp_var", "disable_proxy"):
+        for name in ("remove_path_entry", "fix_temp_var", "disable_proxy",
+                     "quarantine_duplicates"):
             self.assertIn(name, CATALOG)
 
     def test_findings_map_to_actions(self):
@@ -158,6 +194,14 @@ class TestWiring(unittest.TestCase):
             names("network-proxy", {"proxy": {"registry": "h:8080"}}),
             ["disable_proxy"])
         self.assertEqual(names("network-proxy", {"proxy": {"HTTP_PROXY": "x"}}), [])
+        self.assertEqual(
+            names("duplicates-found",
+                  {"groups": [{"certain": True, "paths": ["a", "b"]}]}),
+            ["quarantine_duplicates"])
+        self.assertEqual(
+            names("duplicates-found",
+                  {"groups": [{"certain": False, "paths": ["a", "b"]}]}),
+            [])
 
 
 if __name__ == "__main__":
