@@ -2,8 +2,9 @@
 
 Tok: SCAN (worker nit) -> sazetak + stiklirana lista -> POPRAVI SVE ->
 progres po koracima (sigurno zaustavljanje izmedju koraka) -> izvjestaj +
-"Poništi sve" (rollback obrnutim redom). Akcije koje traze UAC se preskacu
-uz objasnjenje (elevator proces dolazi u Fazi 6) — nista se ne lazira.
+"Poništi sve" (rollback obrnutim redom). Akcije koje traze UAC se izvrsavaju
+samo kad je proces vec admin; inace se preskacu uz dugme "Pokreni kao
+administrator" (nista se ne lazira).
 """
 
 from __future__ import annotations
@@ -43,6 +44,7 @@ from mujofix.ai.provider import (  # noqa: E402
 )
 from mujofix.ai.sanitize import sanitize  # noqa: E402
 from mujofix.i18n.strings import tr  # noqa: E402
+from mujofix.platform import windows  # noqa: E402
 from mujofix.ui.consent import ConsentDialog, SentLogViewer  # noqa: E402
 
 QUARANTINE_SUBDIR = "quarantine"
@@ -75,6 +77,7 @@ class MainWindow(QMainWindow):
         self._ctx = ActionContext(
             quarantine_dir=quarantine_dir or default_quarantine_dir())
         self._runner = Runner()
+        self._is_admin = windows.is_admin()
         self._findings: list[dict] = []
         self._undone: list = []  # (action, state) uspjesnih, za "Ponisti sve"
         self._worker: QThread | None = None
@@ -130,6 +133,11 @@ class MainWindow(QMainWindow):
         self.btn_fix.setEnabled(False)
         self.btn_fix.clicked.connect(self.start_fix)
         layout.addWidget(self.btn_fix)
+
+        self.btn_elevate = QPushButton(self._t("elevate_button"))
+        self.btn_elevate.setVisible(windows.is_windows() and not self._is_admin)
+        self.btn_elevate.clicked.connect(self.elevate)
+        layout.addWidget(self.btn_elevate)
 
         ai_row = QHBoxLayout()
         self.btn_explain = QPushButton(self._t("explain_ai"))
@@ -246,6 +254,20 @@ class MainWindow(QMainWindow):
         if self._chain is not None:
             SentLogViewer(self._chain.sent_log, self).exec()
 
+    # -- ELEVACIJA -----------------------------------------------------------
+    def elevate(self):
+        """Ponovo pokreni kao admin (UAC); trenutni prozor se zatvara."""
+        try:
+            started = windows.relaunch_elevated()
+        except windows.NotSupported as exc:
+            self._log(str(exc))
+            return
+        if started:
+            self._log(self._t("elevate_started"))
+            QApplication.instance().quit()
+        else:
+            self._log(self._t("elevate_denied"))
+
     # -- FIX -----------------------------------------------------------------
     def start_fix(self):
         approved = self.approved_findings()
@@ -266,7 +288,7 @@ class MainWindow(QMainWindow):
             if self._stop_requested:
                 self._log("zaustavljeno, vraćam tekući korak po runneru")
                 break
-            if action.needs_elevation:
+            if action.needs_elevation and not self._is_admin:
                 self._log(self._t("uac_note", a=action.name))
                 skipped += 1
                 self.progress.setValue(self.progress.value() + 1)

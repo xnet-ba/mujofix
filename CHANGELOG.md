@@ -1,5 +1,13 @@
 # Changelog (semantičko verzioniranje; `mujofix.spec` čita vrh ovog fajla)
 
+## [Unreleased]
+### Dodano
+- Auto-fix: `quarantine_duplicates` (potvrđeni sha256 duplikati u karantin, jedna kopija ostaje).
+- Elevacija: gumb "Pokreni kao administrator" + izvršavanje `needs_elevation`
+  akcija kad je proces admin (`windows.is_admin`/`relaunch_elevated`).
+### Napomene
+- Elevator (pravi UAC prompt) i Win izgled ostaju netestirani na VM-u.
+
 ## [0.1.0] - 2026-10-06
 ### Dodano
 - Faza 0: OpenCode runtime (127.0.0.1 + lozinka), agent `mujofix`, MCP stub, spike skripta.

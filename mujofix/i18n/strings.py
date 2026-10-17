@@ -16,8 +16,13 @@ STRINGS = {
         "summary_many": "Tvoj računar ima {n} problema.",
         "sev_line": "🔴 {c} ozbiljna   🟠 {m} srednja   🟢 {l} mala",
         "no_autofix": "nema automatske popravke u ovoj fazi (samo preporuka)",
-        "uac_note": ("Treba admin dozvolu — Windows će pitati za potvrdu. "
-                     "Elevator dolazi u Fazi 6, zasad preskačem: {a}"),
+        "uac_note": ("Treba admin dozvolu — pokreni MujoFix kao administrator "
+                     "pa ponovi: {a}"),
+        "elevate_button": "Pokreni kao administrator",
+        "elevate_started": ("Zatražena je admin dozvola. Ako je prihvatiš, "
+                            "MujoFix se otvara u novom prozoru — skeniraj i "
+                            "popravi ponovo."),
+        "elevate_denied": "Elevacija odbijena ili nije uspjela.",
         "report_ok": "Popravljeno: {ok}, preskočeno: {skip}, palo: {fail}.",
         "theme": "Tamna tema",
         "explain_ai": "Objasni nalaze (AI)",
@@ -38,8 +43,12 @@ STRINGS = {
         "summary_many": "Your PC has {n} issues.",
         "sev_line": "🔴 {c} critical   🟠 {m} medium   🟢 {l} low",
         "no_autofix": "no automatic fix in this phase (recommendation only)",
-        "uac_note": ("Needs admin approval — Windows will ask. "
-                     "Elevator lands in Phase 6, skipping for now: {a}"),
+        "uac_note": ("Needs admin approval — run MujoFix as administrator and "
+                     "retry: {a}"),
+        "elevate_button": "Run as administrator",
+        "elevate_started": ("Admin access requested. If you accept, MujoFix "
+                            "reopens in a new window — scan and fix again."),
+        "elevate_denied": "Elevation declined or failed.",
         "report_ok": "Fixed: {ok}, skipped: {skip}, failed: {fail}.",
         "theme": "Dark theme",
         "explain_ai": "Explain findings (AI)",

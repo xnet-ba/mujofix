@@ -40,6 +40,34 @@ def is_supported() -> bool:
     return major == 10 and build >= WIN10_22H2_BUILD
 
 
+def is_admin() -> bool:
+    """Je li proces pokrenut kao administrator. Ne-Windows: False. Netestirano."""
+    if not is_windows():
+        return False
+    import ctypes
+
+    try:
+        return bool(ctypes.windll.shell32.IsUserAnAdmin())
+    except Exception:
+        return False
+
+
+def relaunch_elevated() -> bool:
+    """Ponovo pokreni istu aplikaciju kao admin (UAC prompt).
+
+    True ako je Windows prihvatio zahtjev, False ako je korisnik odbio.
+    Netestirano na Win10/11 VM-u; na ne-Windowsu dize NotSupported.
+    """
+    if not is_windows():
+        raise NotSupported("elevacija postoji samo na Windowsu")
+    import ctypes
+
+    params = " ".join(f'"{arg}"' for arg in sys.argv[1:])
+    result = ctypes.windll.shell32.ShellExecuteW(
+        None, "runas", sys.executable, params or None, None, 1)
+    return int(result) > 32  # ShellExecuteW vraca >32 kad uspije
+
+
 def read_reg_values(hive: str, path: str) -> dict[str, str]:
     """Vrati {ime: vrijednost} potkljuca. Hive: 'HKCU' ili 'HKLM'."""
     if not is_windows():

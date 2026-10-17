@@ -13,6 +13,10 @@
   u bilo kojoj komandi; OpenCode proces nikad elevated.
 - Akcije nad sistemom postoje samo kroz katalog + validator; AI samo objasnjava
   i predlaze. MCP alati nikad ne mijenjaju sistem.
+- Elevacija: akcije s `needs_elevation` izvrsavaju se samo kad je proces vec
+  admin (`windows.is_admin()`). Inace se preskacu; korisnik klikom bira
+  "Pokreni kao administrator" (`windows.relaunch_elevated`, runas). Nikad
+  auto-relaunch bez klika i nikad lazna tvrdnja da je popravka uspjela.
 - Akcije: jedan modul po domeni (`temp.py`, `startup.py`, `service.py`, `env.py`,
   `proxy.py`); nalaz -> akcija mapira se u `actions/mapping.py` (bez Qt-a, da se
   testira bez PySide6). Novi nalaz bez rollback-a ostaje samo preporuka.

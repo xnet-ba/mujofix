@@ -60,6 +60,30 @@ class ElevatedFake(Action):
         pass
 
 
+class ElevatedOk(Action):
+    """Elevated akcija koja se smije izvrsiti (kad je proces admin)."""
+
+    name = "fake-elevated-ok"
+    description = "test"
+    risk = "test"
+    needs_elevation = True
+
+    def precondition(self, ctx):
+        return True, ""
+
+    def snapshot(self, ctx):
+        return {}
+
+    def apply(self, ctx, state):
+        pass
+
+    def verify(self, ctx, state):
+        return True, "popravljeno"
+
+    def rollback(self, ctx, state):
+        pass
+
+
 class TestGuiFlow(unittest.TestCase):
     def make_window(self, findings: list[dict]):
         qtmp = tempfile.TemporaryDirectory()
@@ -132,6 +156,28 @@ class TestGuiFlow(unittest.TestCase):
                 qtmp.cleanup()
         finally:
             mw.finding_to_actions = real_map
+
+    def test_elevated_runs_when_admin(self):
+        from unittest.mock import patch
+
+        from mujofix.ui import main_window as mw
+        real_map = mw.finding_to_actions
+        elevated = dict(disk_temp_finding("/x"))
+        elevated["id"] = "fake-elevated"
+        mw.finding_to_actions = lambda f: ([ElevatedOk()]
+                                           if f["id"] == "fake-elevated" else [])
+        with patch("mujofix.platform.windows.is_admin", return_value=True):
+            try:
+                window, qtmp = self.make_window([elevated])
+                try:
+                    window.start_fix()  # admin: elevated se izvrsava, ne skace
+                    self.assertIn("Popravljeno: 1", window.lbl_report.text())
+                    self.assertTrue(window.btn_undo.isEnabled())
+                finally:
+                    window.close()
+                    qtmp.cleanup()
+            finally:
+                mw.finding_to_actions = real_map
 
 
 if __name__ == "__main__":

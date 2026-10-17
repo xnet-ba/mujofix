@@ -172,10 +172,12 @@ kreiranje repoa. Push ide preko `origin` (SSH).
 - `ui/main_window.py`: jedan ekran — SCAN (worker nit), sazetak, stiklirana
   lista (sve/pojedinacno/nista), tehnicki detalji na preklopnik, POPRAVI SVE,
   progres + sigurno zaustavljanje, izvjestaj, "Ponisti sve" (rollback obrnutim
-  redom). UAC akcije se preskacu uz objasnjenje (elevator = Faza 6).
+  redom). UAC akcije se izvrsavaju kad je proces admin; inace skip uz gumb
+  "Pokreni kao administrator" (`windows.relaunch_elevated`, ShellExecuteW runas).
 - `i18n/strings.py`: bs default + en struktura.
 - `requirements.txt`: PySide6>=6.6. Testovi GUI-a: venv python +
-  QT_QPA_PLATFORM=offscreen (3 testa: tok, fix+undo roundtrip, UAC skip).
+  QT_QPA_PLATFORM=offscreen (4 testa: tok, fix+undo roundtrip, UAC skip,
+  elevated se izvrsava kad je admin). Elevator netestiran na pravom UAC-u.
 - 57/57 testova prolazi. Izgled na Win11 (fontovi, DPI, tamni rezim) NIJE
   vidjen — treba screenshot s VM-a.
 

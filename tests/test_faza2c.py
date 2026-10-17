@@ -177,6 +177,21 @@ class TestQuarantineDuplicates(unittest.TestCase):
             self.assertTrue(os.path.exists(second))
 
 
+class TestElevation(unittest.TestCase):
+    def test_is_admin_false_off_windows(self):
+        from mujofix.platform import windows
+        if windows.is_windows():
+            self.skipTest("samo ne-Windows grana")
+        self.assertFalse(windows.is_admin())
+
+    def test_relaunch_elevated_unsupported_off_windows(self):
+        from mujofix.platform import windows
+        if windows.is_windows():
+            self.skipTest("samo ne-Windows grana")
+        with self.assertRaises(windows.NotSupported):
+            windows.relaunch_elevated()
+
+
 class TestWiring(unittest.TestCase):
     def test_new_actions_registered(self):
         for name in ("remove_path_entry", "fix_temp_var", "disable_proxy",
