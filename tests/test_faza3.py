@@ -138,6 +138,8 @@ class TestGuiFlow(unittest.TestCase):
                 qtmp.cleanup()
 
     def test_no_autofix_and_elevated_skipped(self):
+        from unittest.mock import patch
+
         from mujofix.ui import main_window as mw
         real_map = mw.finding_to_actions
         elevated = dict(disk_temp_finding("/x"))
@@ -145,15 +147,16 @@ class TestGuiFlow(unittest.TestCase):
         mw.finding_to_actions = lambda f: ([ElevatedFake()]
                                            if f["id"] == "fake-elevated" else [])
         try:
-            window, qtmp = self.make_window([unknown_finding(), elevated])
-            try:
-                window.start_fix()  # nepoznat: nema akcije; elevated: UAC skip
-                self.assertIn("Popravljeno: 0", window.lbl_report.text())
-                self.assertIn("admin", window.log.toPlainText())
-                self.assertFalse(window.btn_undo.isEnabled())
-            finally:
-                window.close()
-                qtmp.cleanup()
+            with patch("mujofix.platform.windows.is_admin", return_value=False):
+                window, qtmp = self.make_window([unknown_finding(), elevated])
+                try:
+                    window.start_fix()  # nepoznat: nema akcije; elevated: UAC skip
+                    self.assertIn("Popravljeno: 0", window.lbl_report.text())
+                    self.assertIn("admin", window.log.toPlainText())
+                    self.assertFalse(window.btn_undo.isEnabled())
+                finally:
+                    window.close()
+                    qtmp.cleanup()
         finally:
             mw.finding_to_actions = real_map
 
