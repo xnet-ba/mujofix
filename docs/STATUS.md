@@ -183,11 +183,16 @@ kreiranje repoa. Push ide preko `origin` (SSH).
 
 - `actions/base.py`: Action ugovor (precondition/snapshot/apply/verify/rollback),
   Runner (pad nakon snapshot-a -> rollback), dry-run, karantin, audit log.
-- 3 akcije: disable_startup_item (HKCU/HKLM, UAC samo za HKLM),
+- 6 akcija: disable_startup_item (HKCU/HKLM, UAC samo za HKLM),
   clean_temp (starije od 7 dana u karantin, manifest), restart_service (`sc`,
-  treba UAC, rizik srednji).
+  treba UAC, rizik srednji), remove_path_entry (mrtvi PATH unos, HKCU/HKLM,
+  cuva registry tip), fix_temp_var (TEMP/TMP u HKCU Environment),
+  disable_proxy (HKCU Internet Settings, ProxyEnable=0).
+- `actions/mapping.py`: finding_to_actions izdvojen iz Qt-a (testabilno bez
+  PySide6); pokriva disk-temp, disk-wu-cache, services-auto-stopped,
+  startup-count, config-path-missing, config-temp-var, network-proxy.
 - Svaka akcija: test apply -> verify -> rollback -> stanje identicno originalu.
-- 54/54 testova prolazi.
+- 113/113 testova (lokalno Qt-free 105; CI ubuntu + windows zelen).
 
 ## Faza 1 — gotovo (kod + Linux dokazi, Win VM ceka)
 
