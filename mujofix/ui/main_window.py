@@ -34,9 +34,7 @@ from PySide6.QtWidgets import (  # noqa: E402
 
 from mujofix import cli  # noqa: E402
 from mujofix.actions.base import ActionContext, Runner  # noqa: E402
-from mujofix.actions.service import RestartService  # noqa: E402
-from mujofix.actions.startup import DisableStartupItem  # noqa: E402
-from mujofix.actions.temp import CleanTemp  # noqa: E402
+from mujofix.actions.mapping import finding_to_actions  # noqa: E402
 from mujofix.ai.provider import (  # noqa: E402
     AIRequest,
     FallbackChain,
@@ -55,27 +53,6 @@ def default_quarantine_dir() -> str:
     path = os.path.join(base, "MujoFix", QUARANTINE_SUBDIR)
     os.makedirs(path, exist_ok=True)
     return path
-
-
-def finding_to_actions(finding: dict) -> list:
-    """Pretvori nalaz u akcije kataloga; prazno = samo preporuka."""
-    fid = finding.get("id", "")
-    evidence = finding.get("evidence", {})
-    if fid == "disk-temp" and evidence.get("temp_dir"):
-        return [CleanTemp(evidence["temp_dir"])]
-    if fid == "disk-wu-cache" and evidence.get("path"):
-        return [CleanTemp(evidence["path"])]
-    if fid == "services-auto-stopped":
-        return [RestartService(name) for name in evidence.get("sample", [])]
-    if fid == "startup-count":
-        actions = []
-        for item in evidence.get("items", []):
-            source = item.get("source", "")
-            if "\\" in source and source[:4] in ("HKCU", "HKLM"):
-                hive, path = source.split("\\", 1)
-                actions.append(DisableStartupItem(hive, path, item["name"]))
-        return actions
-    return []
 
 
 class ScanWorker(QThread):
