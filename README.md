@@ -6,7 +6,7 @@
 
 **Klikneš SCAN — aplikacija nađe probleme, prevede ih u običan jezik, predloži plan popravki, ti odobriš, ona popravi, provjeri i vrati nazad ako nešto pođe po zlu.**
 
-[![Status](https://img.shields.io/badge/status-Faza_1-blue)](docs/STATUS.md)
+[![Status](https://img.shields.io/badge/status-v0.1.0--alpha-blue)](docs/STATUS.md)
 [![Licenca](https://img.shields.io/badge/licenca-MIT-green)](LICENSE)
 [![Platforma](https://img.shields.io/badge/Windows-10%20%7C%2011-blue)](docs/STATUS.md)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-yellow)](AGENTS.md)
@@ -136,28 +136,30 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
 
 <table>
   <tr><th>Faza</th><th>Sadržaj</th><th>Stanje</th></tr>
-  <tr><td><b>0 — SPIKE</b></td><td>Dokaz: bundlovani OpenCode kao child, besplatni modeli, MCP alat, zabrana shell-a, offline</td><td>🟡 kod gotov, čeka Win VM</td></tr>
-  <tr><td><b>1</b></td><td>Skeleton + CLI scanner (startup, disk, servisi) + model nalaza</td><td>🟢 gotovo (Linux dokazi)</td></tr>
-  <tr><td><b>2</b></td><td>Action katalog + runner (snapshot/verify/rollback)</td><td>🔵 u radu</td></tr>
-  <tr><td><b>3</b></td><td>GUI (sažetak, plan, odobravanje, progres, izvještaj)</td><td>⚪ planirano</td></tr>
-  <tr><td><b>4</b></td><td>Puni AI sloj (MCP, validator, fallback, pristanak, offline)</td><td>⚪ planirano</td></tr>
-  <tr><td><b>5</b></td><td>Preostali moduli (mreža, drajveri, duplikati, procesi, permisije…)</td><td>⚪ planirano</td></tr>
-  <tr><td><b>6</b></td><td>Installer, potpisivanje, auto-update, javni release</td><td>⚪ planirano</td></tr>
+  <tr><td><b>0 — SPIKE</b></td><td>Bundlovani OpenCode kao child, besplatni modeli, MCP alat, zabrana shell-a, offline</td><td>🟢 kod + dokaz na hostu (1–2); 3–5 čekaju živi model</td></tr>
+  <tr><td><b>1</b></td><td>Skeleton + CLI scanner (startup, disk, servisi) + model nalaza</td><td>🟢 gotovo (Linux + host dokazi)</td></tr>
+  <tr><td><b>2</b></td><td>Action katalog + runner (snapshot/verify/rollback)</td><td>🟢 gotovo (5/5 akcija na hostu)</td></tr>
+  <tr><td><b>3</b></td><td>GUI (sažetak, plan, odobravanje, progres, izvještaj)</td><td>🟢 gotovo (GUI smoke na hostu)</td></tr>
+  <tr><td><b>4</b></td><td>Puni AI sloj (MCP, validator, fallback, pristanak, offline)</td><td>🟢 kod gotov (offline default; Zen ToS neprovjeren)</td></tr>
+  <tr><td><b>5</b></td><td>Preostali moduli (mreža, drajveri, duplikati, procesi, permisije…)</td><td>🟢 gotovo (9/9 scannera na hostu, 0 skipped)</td></tr>
+  <tr><td><b>6</b></td><td>Installer, potpisivanje, auto-update, javni release</td><td>🟡 kod gotov; build/release odluka otvorena (nepotpisan)</td></tr>
 </table>
+
+<p>Sve faze su implementirane u kodu i potvrđene <i>host-direct</i> na pravom Windows 11 računaru (scan 9/9, 5/5 akcija uz rollback, GUI smoke, spike 1–2). Puna VM matrica (Win10 + Win11, čist sistem) ostaje kao opciona, produžena validacija — vidi <a href="docs/TESTING.md">docs/TESTING.md</a>.</p>
 
 <p>Detalji po sesiji: <a href="docs/STATUS.md">docs/STATUS.md</a> • Pravila za kodere: <a href="AGENTS.md">AGENTS.md</a></p>
 
-### Pokretanje (za developere, trenutno)
+### Pokretanje (za developere)
 
 ```bash
 # Skeniranje (engine radi i iz CLI-ja)
 PYTHONPATH=mujofix python3 -m mujofix.cli scan --summary
 
-# Faza 0 SPIKE (na Win10/Win11 VM-u, uz Zen model)
+# Faza 0 SPIKE (opciono, uz živi model)
 python3 scripts/phase0_spike.py --model <provider/model>
 
-# Testovi
-python3 -m unittest discover -s mujofix/tests
+# Dokaz akcija na pravom Windowsu (apply -> verify -> rollback)
+python3 scripts/host_proof.py
 ```
 
 ---
@@ -169,5 +171,5 @@ python3 -m unittest discover -s mujofix/tests
 ---
 
 <div align="center">
-<sub>MujoFix je open source (MIT). Treće strane i licence: <a href="THIRD_PARTY_NOTICES.md">THIRD_PARTY_NOTICES.md</a> (u izradi).</sub>
+<sub>MujoFix je open source (MIT). Treće strane i licence: <a href="THIRD_PARTY_NOTICES.md">THIRD_PARTY_NOTICES.md</a>.</sub>
 </div>

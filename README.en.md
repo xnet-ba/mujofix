@@ -53,7 +53,7 @@ Hard-coded blacklist (System32, WinSxS, boot config, BitLocker, Defender read-on
 
 ## 🚦 Status
 
-Phases 0–6 implemented as code with 100 passing mocked unit tests. **Nothing has been validated on a real Windows machine yet** — see [docs/TESTING.md](docs/TESTING.md) (manual Win10/Win11 VM checklist). No signed build, no public release until the VM list passes.
+All phases (0–6) are implemented in code and validated **host-direct on a real Windows 11 machine**: full scan (9/9 scanners, 0 skipped), all 5 fix actions with apply → verify → rollback, GUI smoke, and spike checks 1–2. 104 unit tests pass; CI is green on Ubuntu and Windows. The extended Win10 + Win11 clean-VM matrix remains an **optional** follow-up — see [docs/TESTING.md](docs/TESTING.md). The build is unsigned (SmartScreen warning expected).
 
 ## ⚠️ Disclaimer
 

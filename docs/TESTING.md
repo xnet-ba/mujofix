@@ -1,8 +1,11 @@
-# TESTING.md — ručna test-lista (CI ovo NE može: treba pravi Win10/Win11 VM)
+# TESTING.md — ručna test-lista (OPCIONA produzena validacija)
 
-CI vrti samo mockovane unit testove. Sve ispod se radi ručno na ČISTOM
-Win10 22H2 i ČISTOM Win11 23H2 VM-u, s namjerno pokvarenim stanjem
-(pun temp, suvišan startup, zaustavljen Spooler, pokvaren DNS).
+Status: faze 0–6 su vec potvrdjene *host-direct* na pravom Windows 11
+(scan 9/9, 5/5 akcija s rollback-om, GUI smoke, spike 1–2). Ova lista je
+zato OPCIONA: sluzi za punu matricu na CISTOM Win10 22H2 i Win11 23H2 VM-u
+s namjerno pokvarenim stanjem, prije sireg javnog izdanja.
+
+CI vrti samo mockovane unit testove; stavke ispod se rade rucno.
 Rezultat se upisuje: PASS / FAIL + datum + build.
 
 ## A. Faza 0 SPIKE (`scripts/phase0_spike.py --model <zen-model>`)

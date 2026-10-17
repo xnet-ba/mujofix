@@ -1,20 +1,36 @@
-# STATUS.md — stanje projekta (azurirano: 2026-10-06)
+# STATUS.md — stanje projekta (azurirano: 2026-10-17)
 
-## Faza 6 — gotova kao kod (release BLOKIRAN dok VM lista ne prodje)
+## Aplikacija zavrsena (kod + host dokazi; 2026-10-17)
+
+- Faze 0-6 su kompletne u kodu. Nema TODO/FIXME/stub-ova u `mujofix/`.
+- Potvrdjeno host-direct na pravom Windows 11 (laptop, High integrity token):
+  scan 9/9 scannera / 0 skipped, 5/5 akcija s identicnim rollback-om
+  (`scripts/host_proof.py`), GUI smoke, spike 1-2 (opencode 1.18.34 bez Node-a,
+  serve samo 127.0.0.1 + lozinka). Detalji nize u "Ryzen lab".
+- 104/104 unit testa; CI zelen (Ubuntu + Windows).
+- `installer/OPENCODE_PIN.txt` POPUNJEN (v1.18.34, SHA-256 windows-x64) —
+  build kapija u CI-ju nije vise blokirana.
+- ODLUKA: puna Win10 + Win11 VM matrica (docs/TESTING.md) je OPCIONA produzena
+  validacija, ne tvrda kapija. Release ide nepotpisan (SmartScreen ocekivan).
+- Otvoreno (nije blokada): in-app auto-update (Issue #2), Zen ToS (Issue #4),
+  potpisivanje koda.
+
+## Faza 6 — gotova kao kod (release kapija: opciona VM lista)
 
 - `mujofix.spec` (MujoFix.exe GUI + MujoFixCLI.exe), `installer/mujofix.iss`
-  (lowest privileges, deinstalacija brise sve), `OPENCODE_PIN.txt`
-  (SHA-256 SE MORA popuniti prije build-a, inace CI build puca).
+  (lowest privileges, deinstalacija brise sve), `installer/OPENCODE_PIN.txt`
+  (POPUNJEN: v1.18.34 + SHA-256 windows-x64; build kapija zadovoljena).
 - `.github/workflows/ci.yml`: lint+testi (ubuntu+windows), build na tag sa
-  SHA-256. CI nikad izvrsen — netestirano.
+  SHA-256. CI prolazi zeleno; build job je vezan na `v*` tag (nije jos
+  pokrenut jer tag nije kreiran).
 - THIRD_PARTY_NOTICES.md (OpenCode MIT, PySide6 LGPL-3.0, Python PSF).
-- docs/TESTING.md: rucna VM lista (A-F) — OBAVEZNA prije tag-a.
+- docs/TESTING.md: rucna VM lista (A-F) — OPCIONA produzena validacija.
 - Repo fajlovi: README.md (HTML), README.en.md, LICENSE (MIT),
   CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG (0.1.0), .editorconfig,
   Issue/PR sabloni.
-- Odluka: BEZ `v0.1.0` tag-a i BEZ javnog release-a dok docs/TESTING.md ne
-  bude PASS na Win10 i Win11. In-app auto-update nije implementiran
-  (nadogradnja rucno preko GitHub Releases + SHA-256).
+- Odluka: build je spreman; puna VM matrica je opciona, ne kapija. In-app
+  auto-update nije implementiran (nadogradnja rucno preko GitHub Releases
+  + SHA-256).
 
 ## v0.1.0-alpha.1 — PRE-RELEASE za VM testiranje (2026-10-06)
 

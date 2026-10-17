@@ -10,5 +10,8 @@
 - Faza 5: preostalih 6 scannera (mreža, konfiguracija, drajveri, duplikati, sumnjivi, permisije).
 - Faza 6: PyInstaller spec, Inno Setup, CI, pravne napomene, ručna VM lista.
 ### Napomene
-- Pre-alpha: NIŠTA nije potvrđeno na pravom Windowsu (sve čeka docs/TESTING.md).
-- Nema potpisanog build-a; nema javnog release-a dok VM lista ne prođe.
+- Potvrđeno host-direct na pravom Windows 11 računaru: scan 9/9 scannera /
+  0 skipped, 5/5 akcija s identičnim rollback-om, GUI smoke, spike 1–2.
+- 104/104 unit testa; CI zelen (Ubuntu + Windows).
+- Puna Win10 + Win11 VM matrica ostaje opciona (docs/TESTING.md).
+- Build NIJE potpisan; SmartScreen upozorenje je očekivano.
