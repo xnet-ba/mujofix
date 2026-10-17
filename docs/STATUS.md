@@ -10,6 +10,12 @@
 - 104/104 unit testa; CI zelen (Ubuntu + Windows).
 - `installer/OPENCODE_PIN.txt` POPUNJEN (v1.18.34, SHA-256 windows-x64) —
   build kapija u CI-ju nije vise blokirana.
+- Tag `v0.1.0` pushnut (2026-10-17): CI release build RUN #37 ZELEN —
+  pin provjera, OpenCode download + SHA-256, PyInstaller build, bundlovanje
+  OpenCode-a, SHA-256 sums, i SMOKE TEST bundlovanog `MujoFixCLI.exe`
+  (`scan --summary`) na windows-latest: sve PASS. Artefakt `MujoFix-windows`
+  (113 MB) na run-u. GitHub Release stranica JOS nije objavljena (CI ne
+  objavljuje automatski).
 - ODLUKA: puna Win10 + Win11 VM matrica (docs/TESTING.md) je OPCIONA produzena
   validacija, ne tvrda kapija. Release ide nepotpisan (SmartScreen ocekivan).
 - Otvoreno (nije blokada): in-app auto-update (Issue #2), Zen ToS (Issue #4),
