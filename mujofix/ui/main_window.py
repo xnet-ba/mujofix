@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (  # noqa: E402
 )
 
 from mujofix import cli  # noqa: E402
+from mujofix import update  # noqa: E402
 from mujofix.actions.base import ActionContext, Runner  # noqa: E402
 from mujofix.actions.mapping import finding_to_actions  # noqa: E402
 from mujofix.ai.provider import (  # noqa: E402
@@ -68,6 +69,29 @@ class ScanWorker(QThread):
         self.done.emit(self._scan_fn())
 
 
+class UpdateWorker(QThread):
+    """info=None -> provjeri; info=<dict> -> preuzmi i pokreni."""
+
+    done = Signal(dict)
+    failed = Signal(str)
+
+    def __init__(self, api_url, info=None, parent=None):
+        super().__init__(parent)
+        self._api = api_url
+        self._info = info
+
+    def run(self):
+        try:
+            if self._info is None:
+                self.done.emit(update.check_for_update(api_url=self._api))
+            else:
+                info = dict(self._info)
+                info["result"] = update.apply_update(info)
+                self.done.emit(info)
+        except Exception as exc:
+            self.failed.emit(str(exc))
+
+
 class MainWindow(QMainWindow):
     def __init__(self, scan_fn=None, quarantine_dir=None, lang: str = "bs"):
         super().__init__()
@@ -81,6 +105,7 @@ class MainWindow(QMainWindow):
         self._findings: list[dict] = []
         self._undone: list = []  # (action, state) uspjesnih, za "Ponisti sve"
         self._worker: QThread | None = None
+        self._upd: QThread | None = None
         self._stop_requested = False
         self._chain: FallbackChain | None = None
         self._build_ui()
@@ -138,6 +163,10 @@ class MainWindow(QMainWindow):
         self.btn_elevate.setVisible(windows.is_windows() and not self._is_admin)
         self.btn_elevate.clicked.connect(self.elevate)
         layout.addWidget(self.btn_elevate)
+
+        self.btn_update = QPushButton(self._t("update_button"))
+        self.btn_update.clicked.connect(self.check_updates)
+        layout.addWidget(self.btn_update)
 
         ai_row = QHBoxLayout()
         self.btn_explain = QPushButton(self._t("explain_ai"))
@@ -267,6 +296,49 @@ class MainWindow(QMainWindow):
             QApplication.instance().quit()
         else:
             self._log(self._t("elevate_denied"))
+
+    # -- AZURIRANJE ----------------------------------------------------------
+    def check_updates(self):
+        self.btn_update.setEnabled(False)
+        self._log(self._t("update_checking"))
+        self._upd = UpdateWorker(update.RELEASES_API, self)
+        self._upd.done.connect(self._on_update_checked)
+        self._upd.failed.connect(self._on_update_failed)
+        self._upd.start()
+
+    def _on_update_checked(self, info: dict):
+        if not info.get("available"):
+            self.btn_update.setEnabled(True)
+            QMessageBox.information(
+                self, self._t("app_title"),
+                self._t("update_uptodate", v=info.get("current", "")))
+            return
+        asset = info.get("asset") or {}
+        answer = QMessageBox.question(
+            self, self._t("update_button"),
+            self._t("update_available", v=info.get("latest", ""),
+                    f=asset.get("name", "")))
+        if answer != QMessageBox.Yes:
+            self.btn_update.setEnabled(True)
+            return
+        self._log(self._t("update_checking"))
+        self._upd = UpdateWorker(update.RELEASES_API, info, self)
+        self._upd.done.connect(self._on_update_applied)
+        self._upd.failed.connect(self._on_update_failed)
+        self._upd.start()
+
+    def _on_update_applied(self, info: dict):
+        path = info.get("result", {}).get("path", "")
+        self._log(self._t("update_done", p=path))
+        QMessageBox.information(self, self._t("app_title"),
+                                self._t("update_done", p=path))
+        QApplication.instance().quit()
+
+    def _on_update_failed(self, message: str):
+        self.btn_update.setEnabled(True)
+        self._log(self._t("update_failed", e=message))
+        QMessageBox.warning(self, self._t("app_title"),
+                            self._t("update_failed", e=message))
 
     # -- FIX -----------------------------------------------------------------
     def start_fix(self):

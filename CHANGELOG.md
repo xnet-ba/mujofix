@@ -7,7 +7,7 @@
   akcija kad je proces admin (`windows.is_admin`/`relaunch_elevated`).
 - Auto-update: provjera GitHub Releases (`mujofix update`), preuzimanje
   uz sha256 verifikaciju (`mujofix update --apply`); `mujofix/update.py`,
-  `mujofix/version.py`.
+  `mujofix/version.py`, GUI dugme "Provjeri ažuriranja".
 ### Napomene
 - Elevator (pravi UAC prompt) i Win izgled ostaju netestirani na VM-u.
 - Auto-update mrežni put i pokretanje preuzetog artefakta: netestirano na VM-u.

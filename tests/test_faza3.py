@@ -182,6 +182,119 @@ class TestGuiFlow(unittest.TestCase):
             finally:
                 mw.finding_to_actions = real_map
 
+    def test_update_worker_emits_result(self):
+        from unittest.mock import patch
+
+        from mujofix.ui import main_window as mw
+        received = []
+        with patch.object(mw.update, "check_for_update",
+                          return_value={"available": False}):
+            worker = mw.UpdateWorker(mw.update.RELEASES_API)
+            worker.done.connect(received.append)
+            worker.start()
+            worker.wait(5000)
+            for _ in range(50):
+                app.processEvents()
+                if received:
+                    break
+                time.sleep(0.02)
+        self.assertTrue(received)
+        self.assertFalse(received[0]["available"])
+
+    def test_update_uptodate_message(self):
+        from unittest.mock import patch
+
+        from mujofix.ui import main_window as mw
+        window, qtmp = self.make_window([])
+        try:
+            with patch.object(mw.QMessageBox, "information") as info_box:
+                window._on_update_checked({"available": False,
+                                           "current": "0.1.0"})
+            self.assertTrue(info_box.called)
+            self.assertTrue(window.btn_update.isEnabled())
+        finally:
+            window.close()
+            qtmp.cleanup()
+
+    def test_update_confirm_starts_apply_worker(self):
+        from unittest.mock import patch
+
+        from mujofix.ui import main_window as mw
+        window, qtmp = self.make_window([])
+        created = []
+
+        class _Signal:
+            def connect(self, *args):
+                pass
+
+        class FakeWorker:
+            def __init__(self, api_url, info=None, parent=None):
+                self.info = info
+                self.done = _Signal()
+                self.failed = _Signal()
+                created.append(self)
+
+            def start(self):
+                pass
+
+        try:
+            info = {"available": True, "current": "0.1.0", "latest": "0.2.0",
+                    "asset": {"name": "x.zip"}}
+            with patch.object(mw, "UpdateWorker", FakeWorker), \
+                 patch.object(mw.QMessageBox, "question",
+                              return_value=mw.QMessageBox.Yes):
+                window._on_update_checked(info)
+            self.assertEqual(len(created), 1)
+            self.assertIs(created[0].info, info)  # info != None -> apply mode
+        finally:
+            window.close()
+            qtmp.cleanup()
+
+    def test_update_declined_enables_button(self):
+        from unittest.mock import patch
+
+        from mujofix.ui import main_window as mw
+        window, qtmp = self.make_window([])
+        created = []
+
+        class FakeWorker:
+            def __init__(self, *args, **kwargs):
+                created.append(args)
+
+            def start(self):
+                pass
+
+        try:
+            with patch.object(mw, "UpdateWorker", FakeWorker), \
+                 patch.object(mw.QMessageBox, "question",
+                              return_value=mw.QMessageBox.No):
+                window._on_update_checked({"available": True, "latest": "0.2.0",
+                                           "asset": {}})
+            self.assertEqual(created, [])
+            self.assertTrue(window.btn_update.isEnabled())
+        finally:
+            window.close()
+            qtmp.cleanup()
+
+    def test_update_applied_and_failed(self):
+        from unittest.mock import patch
+
+        from mujofix.ui import main_window as mw
+        window, qtmp = self.make_window([])
+        try:
+            with patch.object(mw.QMessageBox, "information"), \
+                 patch.object(mw.QApplication, "quit") as quit_fn:
+                window._on_update_applied({"result": {"path": "/tmp/x.zip"}})
+            self.assertTrue(quit_fn.called)
+            self.assertIn("/tmp/x.zip", window.log.toPlainText())
+            with patch.object(mw.QMessageBox, "warning") as warn:
+                window._on_update_failed("boom")
+            self.assertTrue(warn.called)
+            self.assertTrue(window.btn_update.isEnabled())
+        finally:
+            window.close()
+            qtmp.cleanup()
+
 
 if __name__ == "__main__":
     unittest.main()

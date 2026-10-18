@@ -23,6 +23,13 @@ STRINGS = {
                             "MujoFix se otvara u novom prozoru — skeniraj i "
                             "popravi ponovo."),
         "elevate_denied": "Elevacija odbijena ili nije uspjela.",
+        "update_button": "Provjeri ažuriranja",
+        "update_checking": "Provjeravam ažuriranja...",
+        "update_uptodate": "Imaš najnoviju verziju ({v}).",
+        "update_available": ("Dostupna je nova verzija {v} ({f}). "
+                             "Preuzeti i pokrenuti instalaciju?"),
+        "update_done": "Preuzeto i pokrenuto: {p}. Aplikacija se zatvara.",
+        "update_failed": "Ažuriranje nije uspjelo: {e}",
         "report_ok": "Popravljeno: {ok}, preskočeno: {skip}, palo: {fail}.",
         "theme": "Tamna tema",
         "explain_ai": "Objasni nalaze (AI)",
@@ -49,6 +56,13 @@ STRINGS = {
         "elevate_started": ("Admin access requested. If you accept, MujoFix "
                             "reopens in a new window — scan and fix again."),
         "elevate_denied": "Elevation declined or failed.",
+        "update_button": "Check for updates",
+        "update_checking": "Checking for updates...",
+        "update_uptodate": "You have the latest version ({v}).",
+        "update_available": ("A new version {v} is available ({f}). "
+                             "Download and run the installer?"),
+        "update_done": "Downloaded and started: {p}. The app is closing.",
+        "update_failed": "Update failed: {e}",
         "report_ok": "Fixed: {ok}, skipped: {skip}, failed: {fail}.",
         "theme": "Dark theme",
         "explain_ai": "Explain findings (AI)",
