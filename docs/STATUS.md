@@ -50,14 +50,14 @@
   upisanim configom i tvrdi 200 + `agent.mujofix` + `permission` deny
   (bash/edit/webfetch/websearch/task), preskace se bez binarnog. Zasto je
   `mcp_*` izricito `true`: globalni default je `ask`, a neinteraktivni `run`
-  ne moze dobiti odobrenje. Ukupno 151 test, OK.
+  ne moze dobiti odobrenje. Ukupno 153 testa, OK.
 - IMPLEMENTIRANO 2026-10-18 (zivi AI put, Issue #1 ostatak): `ExplainWorker`
   (QThread) gradi lanac van GUI niti; `build_chain`/`LiveSession` u
   `ai/provider.py` dizu `opencode serve` samo uz pristanak i gase ga na
   zatvaranju prozora (`closeEvent` + `close()` pri novom objasnjenju).
   Svaki kvar (nema binary-ja, server, besplatni model) → offline lanac + iskren
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
-  test_faza4c); ukupno 149 (+2 za V1 config = 151). netestirano: zivi put nije
+  test_faza4c); ukupno 149 (+2 za V1 config +2 za _cmd = 153). netestirano: zivi put nije
   pokrenut na Windows VM-u (nema UAC/VM okruzenja, ne trosi se mreza).
 - ISPRAVLJENO 2026-10-18 (dokazivo lokalno): `OpenCodeProvider` je zvao
   `run --format json` ("raw JSON events", dokumentovano), a plan se izvlaci iz
