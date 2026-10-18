@@ -136,6 +136,27 @@ class TestExplainFlow(unittest.TestCase):
             window.close()
             qtmp.cleanup()
 
+    def test_ai_plan_is_shown_not_silently_dropped(self):
+        """resp.plan se prije ignorisao — korisnik nije vidio AI plan."""
+        from mujofix.ai.provider import AIResponse
+        window, qtmp = make_window([finding()])
+        try:
+            from mujofix.ai.provider import FallbackChain, LiveSession
+            from mujofix.ai.provider import OfflineProvider
+            session = LiveSession(FallbackChain([OfflineProvider()]),
+                                  "offline: test")
+            window._on_explained(
+                session, AIResponse(text="tekst", model="fake",
+                                plan={"steps": [{"action": "clean_temp",
+                                                 "target": "C:/Temp"}]}))
+            log = window.log.toPlainText()
+            self.assertIn("AI predlog plana", log)
+            self.assertIn("Ocisti privremene fajlove", log)
+            self.assertIn("C:/Temp", log)
+        finally:
+            window.close()
+            qtmp.cleanup()
+
     def test_no_consent_blocks_nothing_but_logs(self):
         QSettings("MujoFix", "ai").remove(ConsentDialog.SETTINGS_KEY)
         self.assertIsNone(ConsentDialog.stored_choice())

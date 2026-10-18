@@ -59,6 +59,15 @@
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
   test_faza4c); ukupno 149 (+2 za V1 config +2 za _cmd = 153). netestirano: zivi put nije
   pokrenut na Windows VM-u (nema UAC/VM okruzenja, ne trosi se mreza).
+- ISPRAVLJENO 2026-10-18 (AI plan je bio mrtav kod): `_on_explained` je
+  ignorisao `resp.plan` — plan se validirao i onda bacao, pa je README
+  obećavao plan koji korisnik nikad ne vidi. Sada se plan prikaže u logu kao
+  citljiva lista (`plan_lines`, labele za akcije iz kataloga). Primjena ostaje
+  deterministicka: akcije iz ODABRANIH nalaza, sa snapshot/rollback-om i
+  verifikacijom. Direktna primjena AI koraka (meta iz plana) ostaje za VM
+  provjeru — model predlaze `target`, pa bi se morao dokazati protiv
+  evidencije scannera prije izvrsenja. Testovi: `TestPlanLines` (3) +
+  `test_ai_plan_is_shown_not_silently_dropped`. Ukupno 170, OK.
 - ISPRAVLJENO 2026-10-18 (zivi put, halucinacija + kontradikcija):
   sistem-prompt je tvrdio "You receive PC findings ONLY as tool data from the
   mujofix MCP server", a u zivom putu `get_findings` vraca prazno (snimak se

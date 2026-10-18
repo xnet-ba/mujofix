@@ -43,6 +43,7 @@ from mujofix.ai.provider import (  # noqa: E402
     build_chain,
     build_prompt,
     compact_findings,
+    plan_lines,
 )
 from mujofix.ai.sanitize import sanitize  # noqa: E402
 from mujofix.i18n.strings import tr  # noqa: E402
@@ -340,6 +341,13 @@ class MainWindow(QMainWindow):
         self._chain = session.chain
         self._log(f"[{session.note}]")
         self._log(f"[AI: {resp.model}] {resp.text}")
+        # Plan je PREDLOG koji korisnik vidi; primjena ide preko akcija
+        # odabranih nalaza (deterministicki, sa verify + rollback).
+        plan = plan_lines(resp.plan)
+        if plan:
+            self._log(self._t("plan_ai_header"))
+            for line in plan:
+                self._log("   " + line)
         self.btn_sent.setEnabled(True)
         self.btn_explain.setEnabled(True)
 

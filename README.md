@@ -65,7 +65,7 @@
   <li><b>SCAN</b> — paralelni moduli skeniranja s progres barom i mogućnošću otkazivanja.</li>
   <li><b>ANALIZA</b> — svaki nalaz ima ozbiljnost (<code>CRITICAL / MEDIUM / LOW</code>), procjenu uticaja, rizik popravke i oznaku da li je popravka reverzibilna.</li>
   <li><b>PRIKAZ</b> — jednostavan sažetak običnim jezikom + proširiva lista detalja.</li>
-  <li><b>PLAN</b> — AI sastavi plan popravki (koraci, redoslijed, procjena vremena i rizika). Korisnik odobrava: <b>sve, pojedinačno ili ništa. Bez odobrenja se NIŠTA ne mijenja.</b></li>
+  <li><b>PLAN</b> — AI predloži plan popravki (koraci + redoslijed), koji se prikaže uz objašnjenje; svaki predlog prolazi katalog akcija i validator prije nego se uopšte prikaže. Primjenjuju se akcije <b>odabranih nalaza</b> (deterministički, sa snapshot/rollback tačkom i verifikacijom) — korisnik odobrava: <b>sve, pojedinačno ili ništa. Bez odobrenja se NIŠTA ne mijenja.</b></li>
   <li><b>IZVRŠENJE</b> — prije svakog koraka snapshot/rollback tačka, pa izvršenje.</li>
   <li><b>VERIFIKACIJA</b> — nakon svakog koraka ponovo se izmjeri isto što je nalaz detektovao i potvrdi da je problem stvarno riješen.</li>
   <li><b>ROLLBACK</b> — ako verifikacija padne ili se stanje pogorša, korak se <b>automatski vraća</b> i korisnik se izvijesti.</li>

@@ -21,6 +21,7 @@ from mujofix.ai.provider import (
     compact_findings,
     extract_plan,
     free_zen_models,
+    plan_lines,
 )
 from mujofix.ai.sanitize import DROP_KEYS, sanitize
 
@@ -138,6 +139,28 @@ class TestFallbackChainSanitizesPayload(unittest.TestCase):
         self.assertEqual(example, provider.seen and
                          build_prompt(provider.seen.findings))
 
+
+
+class TestPlanLines(unittest.TestCase):
+    def test_renders_known_actions_with_labels_and_targets(self):
+        lines = plan_lines({"steps": [
+            {"action": "clean_temp", "target": r"C:\Users\x\Temp"},
+            {"action": "restart_service", "target": "Spooler"},
+        ]})
+        self.assertEqual(len(lines), 2)
+        self.assertIn("Ocisti privremene fajlove", lines[0])
+        self.assertIn(r"C:\Users\x\Temp", lines[0])
+        self.assertIn("Restartuj servis", lines[1])
+
+    def test_unknown_action_shows_raw_name_never_hides_it(self):
+        lines = plan_lines({"steps": [{"action": "rm_rf"}]})
+        self.assertEqual(lines, ["1. rm_rf"])
+
+    def test_empty_and_malformed_plans_are_safe(self):
+        self.assertEqual(plan_lines(None), [])
+        self.assertEqual(plan_lines({}), [])
+        self.assertEqual(plan_lines({"steps": ["nope", {"action": "clean_temp"}]}),
+                         ["1. Ocisti privremene fajlove"])
 
 class TestBackoffValues(unittest.TestCase):
     def test_backoff_sequence(self):

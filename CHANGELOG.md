@@ -17,6 +17,8 @@
   razlog. `build_chain`/`LiveSession` drze vlasnistvo nad procesom i gase ga
   na zatvaranju prozora (bez zaostalih procesa). netestirano na Windows VM-u.
 ### Ispravljeno
+- AI plan se nije prikazivao (validirao se pa bacao): sada se prikaze kao
+  citljiva lista koraka; primjena i dalje ide preko akcija odabranih nalaza.
 - Zivi put: prompt je tvrdio da nalazi dolaze samo kao MCP podaci (a u zivom
   putu `get_findings` je prazan) i `get_system_info` je bez snimka vracao
   lazni "spike" fixture modelu koji ne smije izmisljati. Prompt sada opisuje

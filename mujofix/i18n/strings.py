@@ -15,6 +15,7 @@ STRINGS = {
         "summary_none": "Nema problema. Računar je zdrav.",
         "summary_many": "Tvoj računar ima {n} problema.",
         "sev_line": "🔴 {c} ozbiljna   🟠 {m} srednja   🟢 {l} mala",
+        "plan_ai_header": ("AI predlog plana (predlog — primjenjuju se akcije iz odabranih nalaza):"),
         "no_autofix": "nema automatske popravke u ovoj fazi (samo preporuka)",
         "uac_note": ("Treba admin dozvolu — pokreni MujoFix kao administrator "
                      "pa ponovi: {a}"),
@@ -51,6 +52,7 @@ STRINGS = {
         "summary_many": "Your PC has {n} issues.",
         "sev_line": "🔴 {c} critical   🟠 {m} medium   🟢 {l} low",
         "no_autofix": "no automatic fix in this phase (recommendation only)",
+        "plan_ai_header": ("AI draft plan (a draft — the actions of the selected findings are what gets applied):"),
         "uac_note": ("Needs admin approval — run MujoFix as administrator and "
                      "retry: {a}"),
         "elevate_button": "Run as administrator",

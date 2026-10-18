@@ -79,6 +79,30 @@ def compact_findings(findings: list[dict]) -> list[dict]:
     return compact
 
 
+ACTION_LABELS_BS = {
+    "clean_temp": "Ocisti privremene fajlove",
+    "restart_service": "Restartuj servis",
+    "disable_startup_item": "Iskljuci iz autostarta",
+}
+
+
+def plan_lines(plan: dict | None) -> list[str]:
+    """Citljiv prikaz validiranog AI plana. Plan je PREDLOG — primjena ide
+    preko deterministickih akcija odabranih nalaza (sa rollback-om)."""
+    if not isinstance(plan, dict):
+        return []
+    lines = []
+    for step in plan.get("steps", []):
+        if not isinstance(step, dict):
+            continue
+        action = str(step.get("action", ""))
+        target = str(step.get("target", ""))
+        label = ACTION_LABELS_BS.get(action, action or "?")
+        lines.append(f"{len(lines) + 1}. {label}"
+                     + (f" — {target}" if target else ""))
+    return lines
+
+
 def extract_plan(text: str) -> dict | None:
     """Izvuci zadnji ```json ... ``` blok; None ako ga nema."""
     blocks = []
