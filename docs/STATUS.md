@@ -21,8 +21,9 @@
   https://github.com/xnet-ba/mujofix/releases/tag/v0.1.0
 - ODLUKA: puna Win10 + Win11 VM matrica (docs/TESTING.md) je OPCIONA produzena
   validacija, ne tvrda kapija. Release ide nepotpisan (SmartScreen ocekivan).
-- Otvoreno (nije blokada): in-app auto-update (Issue #2), Zen ToS (Issue #4),
-  potpisivanje koda.
+- Otvoreno (nije blokada): Zen ToS (Issue #4), potpisivanje koda, VM validacija
+  stvarnog Windows izvrsavanja (bez UAC/VM okruzenja). Issue #2 (UAC elevator +
+  auto-update) je implementiran kao kod.
 
 ## Faza 6 — gotova kao kod (release kapija: opciona VM lista)
 
