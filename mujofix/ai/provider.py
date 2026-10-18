@@ -312,6 +312,10 @@ def build_chain(consent_on: bool, workdir: str | None = None, *,
                            f"offline: nema OpenCode binary-ja ({exc})")
     server = None
     try:
+        # Bez ovoga server nema svog agenta (`mujofix`) ni MCP alate, pa bi
+        # `run --agent mujofix` pao — config se zato upisuje prije starta.
+        from mujofix.ai.agent_config import mcp_command, write_config
+        write_config(workdir, mcp_command())
         server = (server_factory or opencode_runtime.OpencodeServer)(
             bin_path, workdir)
         server.start()

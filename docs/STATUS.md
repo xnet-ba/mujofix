@@ -59,6 +59,19 @@
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
   test_faza4c); ukupno 149 (+2 za V1 config +2 za _cmd = 153). netestirano: zivi put nije
   pokrenut na Windows VM-u (nema UAC/VM okruzenja, ne trosi se mreza).
+- ISPRAVLJENO 2026-10-18 (zivi put je bio nemoguc u praksi): `write_config`
+  se NIGDJE nije zvao u aplikaciji (samo u testovima) → server je dizan bez
+  `opencode.json`, agent `mujofix` nije postojao, `--agent mujofix` bi pao i
+  zivi put bi uvijek isao na offline. Sada `build_chain` upise config prije
+  starta; radni dir je `%LOCALAPPDATA%\MujoFix\ai` (ne cwd — u EXE-u moze biti
+  nezapisiv, npr. System32). MCP komanda je `mujofix.cli mcp` (nova stdio
+  podkomanda; zamrznuto → `MujoFixCLI.exe mcp` jer GUI exe nema konzolu).
+  Dokaz: `tests/test_mcp_stdio.py` vodi stvarni JSON-RPC handshake
+  (`initialize`, `tools/list` = tačno 5 alata, sortiran katalog, `bash` =
+  greska) + test da `build_chain` upise config. Ukupno 159 testa, OK.
+  Otvoreno: MCP `get_findings` cita iz `--findings`/`MUJOFIX_FINDINGS`; u
+  zivom toku nalazi idu u prompt, pa taj alat vraca prazno stanje — za VM
+  provjeru (da li agent uopste treba taj alat).
 - ISPRAVLJENO 2026-10-18 (dokazivo lokalno): `OpenCodeProvider` je zvao
   `run --format json` ("raw JSON events", dokumentovano), a plan se izvlaci iz
   ```json bloka u TEKSTU → plan se u zivom putu nikad ne bi izvukao. Sada se

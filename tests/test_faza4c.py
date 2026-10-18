@@ -51,7 +51,8 @@ def make_window(findings: list[dict], ai_build_fn=offline_build):
         scan_fn=lambda: [{"scanner": "t", "findings": findings,
                           "skipped": None}],
         quarantine_dir=os.path.join(qtmp.name, "q"),
-        ai_build_fn=ai_build_fn)
+        ai_build_fn=ai_build_fn,
+        ai_workdir=os.path.join(qtmp.name, "ai"))
     window.show()
     window.start_scan()
     window._worker.wait(5000)

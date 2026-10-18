@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import platform as std_platform
 import sys
 
@@ -95,7 +96,18 @@ def main(argv: list[str] | None = None) -> int:
     upd.add_argument("--apply", action="store_true",
                      help="preuzmi, provjeri sha256 i pokreni (Windows)")
     upd.add_argument("--api", default=update_mod.RELEASES_API)
+    # stdio MCP server koji opencode spawn-uje kao svoj alat (vidi agent_config).
+    mcp = sub.add_parser("mcp", help="MujoFix MCP server (stdio, samo za AI)")
+    mcp.add_argument("--findings", default=os.environ.get("MUJOFIX_FINDINGS"),
+                     help="JSON izlaz scannera (default: $MUJOFIX_FINDINGS)")
     args = parser.parse_args(argv)
+
+    if args.cmd == "mcp":
+        from mujofix.ai.mujofix_mcp import load_findings_file, serve
+        if args.findings:
+            load_findings_file(args.findings)
+        serve()
+        return 0
 
     if args.cmd == "update":
         return _cmd_update(args)

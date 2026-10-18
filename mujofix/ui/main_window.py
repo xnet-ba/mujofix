@@ -49,6 +49,7 @@ from mujofix.platform import windows  # noqa: E402
 from mujofix.ui.consent import ConsentDialog, SentLogViewer  # noqa: E402
 
 QUARANTINE_SUBDIR = "quarantine"
+AI_SUBDIR = "ai"
 
 
 def default_quarantine_dir() -> str:
@@ -56,6 +57,17 @@ def default_quarantine_dir() -> str:
     path = os.path.join(base, "MujoFix", QUARANTINE_SUBDIR)
     os.makedirs(path, exist_ok=True)
     return path
+
+
+def default_ai_workdir() -> str:
+    """Radni dir za `opencode serve` — tu se upisuje izolirani opencode.json.
+
+    Ne smije biti cwd (u zamrznutom EXE-u moze biti nezapisiv, npr. System32).
+    Dir ne pravimo ovdje: kreira ga `agent_config.write_config`, a kvar postaje
+    iskren offline razlog umjesto pada GUI-a.
+    """
+    base = os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))
+    return os.path.join(base, "MujoFix", AI_SUBDIR)
 
 
 class ScanWorker(QThread):
@@ -125,12 +137,13 @@ class ExplainWorker(QThread):
 
 class MainWindow(QMainWindow):
     def __init__(self, scan_fn=None, quarantine_dir=None, lang: str = "bs",
-                 ai_build_fn=None):
+                 ai_build_fn=None, ai_workdir=None):
         super().__init__()
         self.lang = lang
         self._t = lambda key, **kw: tr(key, lang, **kw)
         self._scan_fn = scan_fn or (lambda: cli.run_scan(None))
         self._ai_build_fn = ai_build_fn
+        self._ai_workdir = ai_workdir
         self._ctx = ActionContext(
             quarantine_dir=quarantine_dir or default_quarantine_dir())
         self._runner = Runner()
@@ -313,6 +326,7 @@ class MainWindow(QMainWindow):
         self._log("Objašnjavam — AI radi u pozadini…")
         self._ai = ExplainWorker(payload["findings"], username, hostname,
                                  consent_on, build_fn=self._ai_build_fn,
+                                 workdir=self._ai_workdir or default_ai_workdir(),
                                  parent=self)
         self._ai.done.connect(self._on_explained)
         self._ai.failed.connect(self._on_explain_failed)

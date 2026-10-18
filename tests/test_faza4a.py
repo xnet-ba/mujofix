@@ -1,7 +1,9 @@
 """Testovi Faze 4a: lanac, retry/backoff, offline, anonimizacija, plan-parse."""
 
+import json
 import os
 import sys
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -172,8 +174,26 @@ def boom(*_a, **_k):
 class TestBuildChain(unittest.TestCase):
     """build_chain: offline default, ziv Zen samo uz pristanak, nikad ne baca."""
 
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.wd = self._tmp.name
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def test_writes_agent_config_before_start(self):
+        """Bez opencode.json server nema agenta `mujofix` -> config mora biti tu."""
+        server = FakeServer()
+        build_chain(True, self.wd, binary="/x/opencode",
+                    server_factory=lambda _b, _d: server,
+                    model_lister=lambda _b: ["opencode/beam-free"])
+        with open(os.path.join(self.wd, "opencode.json"), encoding="utf-8") as fh:
+            cfg = json.load(fh)
+        self.assertIn("mujofix", cfg["agent"])
+        self.assertIn("mujofix", cfg["mcp"])
+
     def test_consent_off_is_offline_and_no_spawn(self):
-        session = build_chain(False, "/tmp", binary="/x/opencode",
+        session = build_chain(False, self.wd, binary="/x/opencode",
                               server_factory=boom, model_lister=boom)
         self.assertFalse(session.live)
         self.assertIn("pristanak", session.note)
@@ -184,7 +204,7 @@ class TestBuildChain(unittest.TestCase):
         from mujofix.ai import opencode_runtime
         with patch.object(opencode_runtime, "bundled_binary",
                           side_effect=opencode_runtime.OpencodeNotFound("nema")):
-            session = build_chain(True, "/tmp", server_factory=boom)
+            session = build_chain(True, self.wd, server_factory=boom)
         self.assertFalse(session.live)
         self.assertIn("OpenCode", session.note)
 
@@ -194,7 +214,7 @@ class TestBuildChain(unittest.TestCase):
         def factory(_bin, _dir):
             return server
 
-        session = build_chain(True, "/tmp", binary="/x/opencode",
+        session = build_chain(True, self.wd, binary="/x/opencode",
                               server_factory=factory,
                               model_lister=lambda _b: ["opencode/beam-free"])
         self.assertFalse(session.live)
@@ -204,7 +224,7 @@ class TestBuildChain(unittest.TestCase):
 
     def test_no_free_model_closes_server(self):
         server = FakeServer()
-        session = build_chain(True, "/tmp", binary="/x/opencode",
+        session = build_chain(True, self.wd, binary="/x/opencode",
                               server_factory=lambda _b, _d: server,
                               model_lister=lambda _b: ["anthropic/claude"])
         self.assertFalse(session.live)
@@ -213,7 +233,7 @@ class TestBuildChain(unittest.TestCase):
 
     def test_live_chain_prefers_free_marker_over_stealth(self):
         server = FakeServer()
-        session = build_chain(True, "/tmp", binary="/x/opencode",
+        session = build_chain(True, self.wd, binary="/x/opencode",
                               server_factory=lambda _b, _d: server,
                               model_lister=lambda _b: ["opencode/big-pickle",
                                                        "opencode/beam-free"])

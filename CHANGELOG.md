@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 ### Dodano
+- Zivi put je sada stvarno upotrebljiv: `build_chain` prije starta servera
+  upise izolirani `opencode.json` (bez toga server nema agenta `mujofix` ni MCP
+  alate, pa bi `run --agent mujofix` pao). Config ide u
+  `%LOCALAPPDATA%\MujoFix\ai` (ne u cwd, koji u EXE-u moze biti nezapisiv).
+  MCP komanda: `mujofix.cli mcp` (novi stdio mod; zamrznut → `MujoFixCLI.exe`
+  `mcp`, jer GUI exe nema konzolu). Novi `tests/test_mcp_stdio.py` dokazuje
+  stvarni MCP handshake: `initialize`, tačno 5 alata, sortirani katalog,
+  nepoznat alat = greska.
 - Zivi AI put u GUI-ju: uz pristanak se u pozadinskoj niti (`ExplainWorker`)
   digne ugrađeni `opencode serve` (127.0.0.1, slucajna lozinka) i koristi
   besplatan Zen model; bez pristanka ili na svaki kvar (nema binary-ja, server

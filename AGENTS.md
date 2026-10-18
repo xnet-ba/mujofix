@@ -23,6 +23,12 @@
   auto-relaunch bez klika i nikad lazna tvrdnja da je popravka uspjela.
 - Zivi AI: rucni lanci (`FallbackChain`) se ne prave u GUI kodu — koristi
   `ai/provider.build_chain` (offline bez pristanka, ziv Zen uz pristanak).
+  `build_chain` MORA upisati izolirani `opencode.json` prije starta servera
+  (`agent_config.write_config` + `mcp_command`); bez toga server nema agenta
+  `mujofix` ni MCP alate. MCP server se pokrece kao `mujofix.cli mcp`
+  (zamrznuto: `MujoFixCLI.exe mcp`) — GUI exe nema konzolu pa ne moze stdio.
+  Radni dir za server nikad nije cwd: `default_ai_workdir()`
+  (`%LOCALAPPDATA%\MujoFix\ai`).
   Sesiju (`LiveSession`) drzi GUI i UVEK je zatvori na `closeEvent`; nikad ne
   ostavljaj `opencode serve` kao zaostali proces.
 - Agent config (`agent_config.build_config`): samo **V1** oblik (`mcp` mapa,

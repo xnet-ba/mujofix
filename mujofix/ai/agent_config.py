@@ -18,8 +18,22 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 
 AGENT_ID = "mujofix"
+
+
+def mcp_command() -> list[str]:
+    """Komanda kojom opencode spawn-uje MujoFix MCP server (stdio).
+
+    U zamrznutom izdanju GUI exe nema konzolu (i stdio MCP ne bi radio), zato
+    se koristi zaseban konzolni `MujoFixCLI.exe` sa podkomandom `mcp`
+    (recept iz `mujofix/cli.py`, ne novi izlazni fajl).
+    """
+    if getattr(sys, "frozen", False):
+        exe = "MujoFixCLI.exe" if os.name == "nt" else "MujoFixCLI"
+        return [os.path.join(os.path.dirname(sys.executable), exe), "mcp"]
+    return [sys.executable, "-m", "mujofix.cli", "mcp"]
 
 # Svi ugrađeni alati pinovane V1 verzije (opencode agent create --help).
 # Nijedan se ne dozvoljava: agent nalaze dobija samo kroz MujoFix MCP server.
