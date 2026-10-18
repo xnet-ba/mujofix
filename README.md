@@ -149,6 +149,32 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
 
 <p>Detalji po sesiji: <a href="docs/STATUS.md">docs/STATUS.md</a> • Pravila za kodere: <a href="AGENTS.md">AGENTS.md</a></p>
 
+## <h2>⬇️ Instalacija (Windows, EXE)</h2>
+
+<p>Preuzmi sa <a href="https://github.com/xnet-ba/mujofix/releases">Releases</a> stranice:</p>
+
+<ol>
+  <li><b><code>MujoFix-Setup-&lt;verzija&gt;.exe</code></b> — preporučeno (instalater), ili
+      <b><code>MujoFix-v&lt;verzija&gt;.zip</code></b> — portabilna verzija (raspakuj i pokreni <code>MujoFix.exe</code>).</li>
+  <li><b>Provjeri hash</b> (opciono, ali preporučeno) — uz release ide <code>SHA256SUMS.txt</code>:
+<pre># PowerShell, u folderu gdje si preuzeo fajlove:
+$a = (Get-FileHash .\MujoFix-Setup-0.2.0.exe -Algorithm SHA256).Hash.ToLower()
+$b = ((Select-String .\SHA256SUMS.txt -Pattern "MujoFix-Setup-0.2.0.exe").Line -split '\s+')[0]
+$a -eq $b   # mora vratiti True
+</pre></li>
+  <li><b>Pokreni <code>MujoFix-Setup-0.2.0.exe</code>.</b> Instalira se u <code>%LOCALAPPDATA%\MujoFix</code>, <b>bez administratorskih prava</b> (samo za trenutnog korisnika).</li>
+  <li><b>SmartScreen upozorenje je očekivano</b> — build još nije potpisan. Klikni <i>More info</i> → <i>Run anyway</i>.</li>
+  <li>Prečica ide u Start meni; <b>desktop ikona je opciona</b> (kućica u instalaciji, isključena po defaultu).</li>
+  <li><b>Tiha instalacija</b> (npr. više računara): <code>MujoFix-Setup-0.2.0.exe /SILENT</code> (ili <code>/VERYSILENT</code>).</li>
+  <li><b>Deinstalacija:</b> Apps &amp; features → MujoFix. Uklanja i ugrađenu OpenCode kopiju i podatke aplikacije (<code>%LOCALAPPDATA%\MujoFix</code>).</li>
+</ol>
+
+<p><b>Ažuriranje:</b> <code>MujoFixCLI.exe update</code> provjeri ima li nova verzija; <code>update --apply</code> preuzme, provjeri sha256 i pokrene instalater. U GUI-ju isto radi dugme <i>Provjeri ažuriranja</i>.</p>
+
+<p><b>Zahtjevi:</b> Windows 10/11 (64-bit). <b>Nema Node ni Python</b> — OpenCode je ugrađen i pinovan na tačnu verziju.</p>
+
+<p><i>netestirano:</i> instalater se kompajlira u CI na svakom push-u, ali njegovo izvršavanje na čistom Win10/Win11 VM-u je još u toku (<a href="https://github.com/xnet-ba/mujofix/issues/1">Issue #1</a>).</p>
+
 ### Pokretanje (za developere)
 
 ```bash

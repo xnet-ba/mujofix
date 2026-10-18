@@ -29,6 +29,29 @@ MujoFix is an **open-source desktop app** that helps a non-technical user keep a
 - Every fix: snapshot → execute → **verify** → automatic **rollback** on failure.
 - Fully usable **offline, without AI** (offline mode is the default until consent).
 
+## ⬇️ Install (Windows, EXE)
+
+Grab the latest from [Releases](https://github.com/xnet-ba/mujofix/releases):
+
+1. **`MujoFix-Setup-<version>.exe`** — recommended (installer), or **`MujoFix-v<version>.zip`** — portable (unzip, run `MujoFix.exe`).
+2. (Optional) verify the hash against the `SHA256SUMS.txt` from the same release:
+
+```powershell
+$a = (Get-FileHash .\MujoFix-Setup-0.2.0.exe -Algorithm SHA256).Hash.ToLower()
+$b = ((Select-String .\SHA256SUMS.txt -Pattern "MujoFix-Setup-0.2.0.exe").Line -split '\s+')[0]
+$a -eq $b   # must print True
+```
+
+3. Run the setup. It installs to `%LOCALAPPDATA%\MujoFix`, **no admin required** (current user only).
+4. **The SmartScreen warning is expected** — the build is unsigned: *More info* → *Run anyway*.
+5. A Start-menu shortcut is created; the **desktop icon is optional** (unchecked by default).
+6. **Silent install:** `MujoFix-Setup-0.2.0.exe /SILENT` (or `/VERYSILENT`).
+7. **Uninstall:** *Apps & features* → MujoFix. Removes the bundled OpenCode copy and app data (`%LOCALAPPDATA%\MujoFix`).
+
+**Update:** `MujoFixCLI.exe update` checks for a new version; `update --apply` downloads it, verifies sha256 and launches the installer. The GUI has a *Check for updates* button. **Requirements:** Windows 10/11 x64 — **no Node or Python** (OpenCode is bundled and pinned).
+
+*Untested:* the installer is compiled in CI on every push, but running it on a clean Win10/Win11 VM is still pending ([Issue #1](https://github.com/xnet-ba/mujofix/issues/1)).
+
 ## 🔄 How it works
 
 1. **SCAN** — parallel scanner plugins, progress bar, cancellable.
@@ -45,7 +68,7 @@ Startup, services, disk, network, configuration, drivers, large files & duplicat
 
 ## 🤖 AI layer
 
-Bundled, pinned OpenCode as a child process (`opencode serve`, 127.0.0.1 only, per-launch password). The `mujofix` agent has **all built-in tools denied** — only MujoFix MCP tools (read-only + plan validator). Fallback chain: model A → B → C → offline. Consent screen first (what is sent, to whom, real payload example); anonymized before sending; Zen free-tier data terms: **unconfirmed**.
+Bundled, pinned OpenCode as a child process (`opencode serve`, 127.0.0.1 only, per-launch password). The `mujofix` agent has **all built-in tools denied** — only MujoFix MCP tools (read-only + plan validator). Fallback chain: model A → B → C → offline. Consent screen first (what is sent, to whom, real payload example); anonymized before sending; Zen free-tier data terms are **confirmed** (checked 2026-10-18 against the [ToS](https://opencode.ai/legal/terms-of-service) and [Zen docs](https://opencode.ai/v2/docs/console/models/)) — a free Zen tier is **not private**: unpaid accounts' content may be used to improve the service, some free models may use collected data to improve the model during their promo period, and OpenAI/Anthropic requests are retained 30 days.
 
 ## 🛡️ Safety
 
@@ -53,7 +76,7 @@ Hard-coded blacklist (System32, WinSxS, boot config, BitLocker, Defender read-on
 
 ## 🚦 Status
 
-All phases (0–6) are implemented in code and validated **host-direct on a real Windows 11 machine**: full scan (9/9 scanners, 0 skipped), all 5 fix actions with apply → verify → rollback, GUI smoke, and spike checks 1–2. 104 unit tests pass; CI is green on Ubuntu and Windows. The extended Win10 + Win11 clean-VM matrix remains an **optional** follow-up — see [docs/TESTING.md](docs/TESTING.md). The build is unsigned (SmartScreen warning expected).
+All phases (0–6) are implemented in code and validated **host-direct on a real Windows 11 machine**: full scan (9/9 scanners, 0 skipped), all 5 fix actions with apply → verify → rollback, GUI smoke, and spike checks 1–2. 143 unit tests pass; CI is green on Ubuntu and Windows. The extended Win10 + Win11 clean-VM matrix remains an **optional** follow-up — see [docs/TESTING.md](docs/TESTING.md). The build is unsigned (SmartScreen warning expected).
 
 ## ⚠️ Disclaimer
 

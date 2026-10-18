@@ -37,6 +37,11 @@
   besplatnih stealth modela (`big-pickle`); nepoznat `opencode/*` (moguce
   placen) se ne vraca. Dokaz: `opencode models` (pinovani) → 10/415 pogodaka,
   tacno besplatni Zen modeli. Test `test_free_zen_filter` koristi prave ID-jeve.
+- DODANO 2026-10-18: README (bs + en) dobio sekciju "Instalacija (Windows, EXE)"
+  (Setup exe preporucen, zip portabilan, provjera sha256 komandom, per-user bez
+  admina, SmartScreen ocekivan, /SILENT, deinstalacija) + iskrena oznaka da
+  instalater jos nije pokrenut na VM-u. README.en.md ispravljen: Zen uslovi
+  "unconfirmed" → potvrdjeni, broj testova 104 → 143.
 - PRIPREMLJENO 2026-10-18 (za VM korak, Issue #1/#3): `scripts/vm_validate.ps1`
   prosiren (bundlovani opencode + pin, live `update` provjera, opcioni
   `-ApplyUpdate`, nezavisna sha256 provjera setup exe-a) i `docs/TESTING.md`
