@@ -7,6 +7,8 @@ s namjerno pokvarenim stanjem, prije sireg javnog izdanja.
 
 CI vrti samo mockovane unit testove; stavke ispod se rade rucno.
 Rezultat se upisuje: PASS / FAIL + datum + build.
+Automatizovani dio (scan, pin, live update provjera, sha256):
+`scripts/vm_validate.ps1` (uz `-SetupExe` + `-SumsFile` za provjeru setup exe-a).
 
 ## A. Faza 0 SPIKE (`scripts/phase0_spike.py --model <zen-model>`)
 - [ ] 1. Bundlovani OpenCode se pokreće bez Node-a (Win10 / Win11)
@@ -48,3 +50,20 @@ Rezultat se upisuje: PASS / FAIL + datum + build.
 - [ ] OpenCode kopija u %LOCALAPPDATA%\MujoFix\opencode, verzija = pin
 - [ ] Deinstalacija uklanja sve (opencode kopija + podaci)
 - [ ] Build NIJE potpisan → SmartScreen upozorenje je očekivano, ne bug
+- [ ] Instalater je na ENGLESKOM (Inno 6.7.1 nema Bosnian.isl — dokumentovano)
+- [ ] `SHA256SUMS.txt` iz release-a: hash za `MujoFix-Setup-<ver>.exe` odgovara
+      (`Get-FileHash ... -Algorithm SHA256`; provjeri i skriptom `-SetupExe`)
+
+## G. Auto-update + elevacija (v0.2.0+)
+- [ ] `MujoFixCLI.exe update` (bez `--apply`) ispiše "Nova verzija:" ili
+      "je najnovija." i NE mijenja instalaciju
+- [ ] `update --apply` na starijoj instalaciji: preuzme, provjeri sha256 i
+      pokrene installer; verzija nakon toga = nova
+- [ ] Pokvaren/prazan `SHA256SUMS.txt` → update se ODBIJA (nema tihe greške)
+- [ ] Bez interneta: `update` vrati jasnu poruku i app radi dalje
+- [ ] GUI: gumb "Provjeri ažuriranja" ne blokira prozor (radi u niti) i
+      ispiše isti rezultat kao CLI
+- [ ] UAC: akcija s `needs_elevation` se preskoči bez admina i NEMA lažnog
+      "uspješno"; gumb "Pokreni kao administrator" tek tada traži UAC
+- [ ] Nakon `runas` prompta i prihvatanja: akcija se izvrši; odbijanje UAC-a
+      ostavlja stanje nepromijenjeno (bez pola-popravljenog sistema)

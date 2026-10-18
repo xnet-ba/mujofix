@@ -37,6 +37,12 @@
   besplatnih stealth modela (`big-pickle`); nepoznat `opencode/*` (moguce
   placen) se ne vraca. Dokaz: `opencode models` (pinovani) → 10/415 pogodaka,
   tacno besplatni Zen modeli. Test `test_free_zen_filter` koristi prave ID-jeve.
+- PRIPREMLJENO 2026-10-18 (za VM korak, Issue #1/#3): `scripts/vm_validate.ps1`
+  prosiren (bundlovani opencode + pin, live `update` provjera, opcioni
+  `-ApplyUpdate`, nezavisna sha256 provjera setup exe-a) i `docs/TESTING.md`
+  dobio F (SHA256SUMS, engleski installer) i G (auto-update + elevacija).
+  netestirano: PowerShell nije dostupan u razvojnom okruzenju; logika parsiranja
+  suma provjerena na stvarnom `SHA256SUMS.txt` (1 pogodak za setup exe, 64-hex).
 
 ## Faza 6 — gotova kao kod (release kapija: opciona VM lista)
 
