@@ -89,6 +89,46 @@ class TestFallbackChain(unittest.TestCase):
         self.assertNotIn("tajna", logged)
 
 
+class TestFallbackChainSanitizesPayload(unittest.TestCase):
+    """Poslano modelu MORA biti anonimizirano — i isto kao na ekranu log-a."""
+
+    class CapturingProvider(Provider):
+        name = "capture"
+
+        def __init__(self):
+            self.seen = None
+
+        def explain(self, request):
+            self.seen = request
+            return AIResponse(text="ok", model=self.name)
+
+    def _finding(self):
+        return {"id": "f1", "title": "Temp", "severity": "LOW",
+                "evidence": {"path": r"C:\Users\marko\AppData\Local\Temp\x.tmp",
+                             "ip": "192.168.1.50",
+                             "mac": "AA:BB:CC:DD:EE:FF",
+                             "password": "tajna"}}
+
+    def test_model_gets_redacted_findings_not_raw(self):
+        provider = self.CapturingProvider()
+        chain = FallbackChain([provider])
+        chain.explain(AIRequest([self._finding()], "marko", "PC-MARKO"))
+        blob = json.dumps(provider.seen.findings, ensure_ascii=False)
+        self.assertNotIn("marko", blob)
+        self.assertNotIn("192.168.1.50", blob)
+        self.assertNotIn("AA:BB:CC:DD:EE:FF", blob)
+        self.assertNotIn("tajna", blob)
+        self.assertIn("<korisnik>", blob)
+        self.assertIn("<ip>", blob)
+
+    def test_log_equals_what_provider_received(self):
+        provider = self.CapturingProvider()
+        chain = FallbackChain([provider])
+        chain.explain(AIRequest([self._finding()], "marko", "PC-MARKO"))
+        self.assertEqual(chain.sent_log[0]["findings"],
+                         provider.seen.findings)
+
+
 class TestBackoffValues(unittest.TestCase):
     def test_backoff_sequence(self):
         # retries=2, fail 3x pa offline: sleep 1, 2 (2**0, 2**1)

@@ -17,6 +17,10 @@
   razlog. `build_chain`/`LiveSession` drze vlasnistvo nad procesom i gase ga
   na zatvaranju prozora (bez zaostalih procesa). netestirano na Windows VM-u.
 ### Ispravljeno
+- Privatnost: anonimizacija se prije radila SAMO za ekran "sto je poslano",
+  a modelu su isli sirovi nalazi (`C:\Users\<ime>\...`, IP, MAC, serijski).
+  Sada `FallbackChain.explain` anonimizira jednom na ulazu — poslano i
+  logovano su isti payload.
 - `ai/agent_config.py`: agent je bio `mode: "subagent"`, a `opencode run
   --agent mujofix` tada tiho koristi DEFAULT agent (sa svim alatima) —
   zabrana alata se zaobilazila. Sada `mode: "all"`; dokazano protiv pinovanog

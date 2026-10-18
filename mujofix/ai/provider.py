@@ -14,7 +14,7 @@ import json
 import os
 import subprocess
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from mujofix.ai.agent_config import AGENT_ID, offline_explain
 from mujofix.ai.mujofix_mcp import validate_plan
@@ -174,10 +174,15 @@ class FallbackChain(Provider):
         self.name = "lanac:" + ">".join(p.name for p in providers)
 
     def explain(self, request: AIRequest) -> AIResponse:
-        redacted = sanitize({"findings": compact_findings(request.findings),
-                             "model_route": [p.name for p in self.providers]},
+        # Anonimizacija se radi JEDNOM, na ulazu u lanac: tako svaki provider
+        # salje isto sto pise na ekranu "sto je poslano". Prije ovoga se
+        # dogadjalo da se log ocisti a sirovi nalazi (C:\Users\<ime>, IP, MAC)
+        # odu modelu — suprotno obecanju iz ekrana pristanka.
+        findings = sanitize(compact_findings(request.findings),
                             request.username, request.hostname)
-        self.sent_log.append(redacted)
+        request = replace(request, findings=findings)
+        self.sent_log.append({"findings": findings,
+                              "model_route": [p.name for p in self.providers]})
         last_error = "nema providera"
         for provider in self.providers:
             if isinstance(provider, OfflineProvider):

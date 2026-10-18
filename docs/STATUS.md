@@ -59,6 +59,16 @@
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
   test_faza4c); ukupno 149 (+2 za V1 config +2 za _cmd = 153). netestirano: zivi put nije
   pokrenut na Windows VM-u (nema UAC/VM okruzenja, ne trosi se mreza).
+- ISPRAVLJENO 2026-10-18 (privatnost — obecanje je bilo neistinito):
+  `compact_findings` bira polja ali NE anonimizira, a `_prompt` je slao bas te
+  nalaze; `sanitize` se zvao SAMO za `sent_log`. Posljedica: sirovi
+  `C:\Users\<ime>\...`, IP, MAC i serijski brojevi isli su modelu dok je ekran
+  "sto je poslano" prikazivao ociscenu kopiju (podcjenjivao stvarnost) —
+  suprotno tekstu pristanka ("Anonimizacija prije slanja"). Sada se
+  anonimizacija radi JEDNOM na ulazu u `FallbackChain.explain`, pa provider i
+  log vide isti payload (`log == poslano` po konstrukciji). Testovi:
+  `TestFallbackChainSanitizesPayload` (model ne vidi ime/IP/MAC/tajnu; log
+  jednak poslanom). Ukupno 162 testa, OK.
 - ISPRAVLJENO 2026-10-18 (sigurnosno, dokazano protiv pinovanog binarnog):
   agent je bio `mode: "subagent"`, a `opencode run --agent mujofix` tada TIHO
   odbaci nas agent i nastavi sa DEFAULT agentom (puni pristup): "agent

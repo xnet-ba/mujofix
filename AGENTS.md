@@ -21,6 +21,10 @@
   admin (`windows.is_admin()`). Inace se preskacu; korisnik klikom bira
   "Pokreni kao administrator" (`windows.relaunch_elevated`, runas). Nikad
   auto-relaunch bez klika i nikad lazna tvrdnja da je popravka uspjela.
+- Privatnost: anonimizacija se radi JEDNOM, na ulazu u `FallbackChain.explain`
+  (`sanitize(compact_findings(...))`), nikad po provideru i nikad samo za log —
+  poslano i logovano moraju biti isti payload. Novi provider ne smije sam
+  graditi payload iz sirovih nalaza.
 - Zivi AI: rucni lanci (`FallbackChain`) se ne prave u GUI kodu — koristi
   `ai/provider.build_chain` (offline bez pristanka, ziv Zen uz pristanak).
   `build_chain` MORA upisati izolirani `opencode.json` prije starta servera
