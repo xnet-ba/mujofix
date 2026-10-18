@@ -1,10 +1,14 @@
 ; Inno Setup installer (Windows): kompajlirati s ISTOPROK 6.
 ; Bundluje: dist\MujoFix\* + pinovanu OpenCode kopiju iz build\opencode\.
 ; OpenCode verzija + SHA-256: installer/OPENCODE_PIN.txt (rucno odrzavano,
-; provjereno prije svakog release-a). Netestirano na Win.
+; provjereno prije svakog release-a).
+; Verzija se moze ubaciti s /DMyAppVersion=<ver> (CI je cita iz CHANGELOG.md).
+; Kompajlira se u CI (job installer-windows) na svakom push-u.
 
 #define MyAppName "MujoFix"
+#ifndef MyAppVersion
 #define MyAppVersion "0.1.0"
+#endif
 #define MyAppPublisher "MujoFix contributors"
 #define MyAppURL "https://github.com/xnet-ba/mujofix"
 

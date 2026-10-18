@@ -1,4 +1,4 @@
-# STATUS.md — stanje projekta (azurirano: 2026-10-17)
+# STATUS.md — stanje projekta (azurirano: 2026-10-18)
 
 ## Aplikacija zavrsena (kod + host dokazi; 2026-10-17)
 
@@ -48,6 +48,12 @@
   (ranije se `mujofix.scanners` gubio u lokalnom Linux buildu jer se oslanjao na
   CWD). Validirano lokalnim PyInstaller 6.22.3 buildom: bundlovani
   `MujoFixCLI update` ispise "Verzija 0.1.0 je najnovija."
+- Installer (`installer/mujofix.iss`, Inno Setup 6) se od sada kompajlira u CI
+  na svakom push-u (job `installer-windows`: PyInstaller build + ISCC +
+  `MujoFix-Setup-<ver>.exe` kao artefakt; verzija se cita iz CHANGELOG.md preko
+  `/DMyAppVersion`). OpenCode se u tom job-u zamjenjuje placeholderom — pravi
+  pinovani OpenCode ide u release (tag) job. Uvezivanje setup.exe u sam release
+  ostaje sljedeci korak (poslije dokaza iz ovog job-a).
 - 142/142 sa PySide6 (offscreen); Qt-free lokalno 125 uz 3 ocekivana
   import error-a (PySide6 nije instaliran). CI ubuntu + windows.
 
