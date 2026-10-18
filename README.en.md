@@ -58,7 +58,7 @@ $a -eq $b   # must print True
 2. **ANALYZE** — each finding: severity (`CRITICAL / MEDIUM / LOW`), impact, fix risk, reversibility flag.
 3. **PLAN** — AI drafts steps, order, time/risk estimates. User approves.
 4. **EXECUTE → VERIFY → ROLLBACK** — per-step snapshots; failed verification restores the step automatically.
-5. **REPORT** — before/after (freed GB, boot time, startup items) + **"Undo all"**.
+5. **REPORT** — count of fixed / skipped / failed steps + **"Undo all"** via rollback points. (Before/after metrics — freed GB and boot time — are **not implemented**: boot time is not measured anywhere in the code, see `scanners/startup.py`.)
 
 Anti-hallucination: the AI talks **only about evidence the scanner collected**; uncertainty is explicit; every proposal passes a validator (JSON schema + action allowlist). The AI never executes anything — a deterministic executor runs only catalog actions.
 

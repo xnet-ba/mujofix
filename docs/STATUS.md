@@ -59,6 +59,14 @@
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
   test_faza4c); ukupno 149 (+2 za V1 config +2 za _cmd = 153). netestirano: zivi put nije
   pokrenut na Windows VM-u (nema UAC/VM okruzenja, ne trosi se mreza).
+- ISPRAVLJENO 2026-10-18 (README je obećavao mjerenje koje ne postoji):
+  "IZVJEŠTAJ — prije/poslije (oslobođeni GB, vrijeme boot-a, broj startup
+  stavki)" — stvarno se prikazuje samo broj popravljenih/preskocenih/neuspjelih
+  + "Poništi sve". Boot vrijeme se ne mjeri nigdje (to izricito kaze i
+  `scanners/startup.py`). README (bs+en) sada opisuje stvarno stanje.
+- DODANO 2026-10-18: `tests/test_i18n.py` — cuvar da bs/en imaju iste kljuceve,
+  da nema praznih prijevoda i da svaki `tr()`/`_t()` kljuc iz koda postoji
+  (nepostojeci kljuc se u UI prikazivao kao sirovo ime kljuca).
 - ISPRAVLJENO 2026-10-18 (obećanje bez prekidaca): ekran pristanka kaze "AI
   se može isključiti bilo kad", a `ConsentDialog` se prikazivao SAMO kad
   izbora nema — ko jednom pristane, nije mogao vratiti offline (niti ponovo
