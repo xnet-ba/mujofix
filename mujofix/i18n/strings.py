@@ -28,7 +28,8 @@ STRINGS = {
         "update_uptodate": "Imaš najnoviju verziju ({v}).",
         "update_available": ("Dostupna je nova verzija {v} ({f}). "
                              "Preuzeti i pokrenuti instalaciju?"),
-        "update_done": "Preuzeto i pokrenuto: {p}. Aplikacija se zatvara.",
+        "update_done": ("Preuzeto: {p}. Ako se otvorio instalater, prati "
+                        "njegove korake. Aplikacija se zatvara."),
         "update_failed": "Ažuriranje nije uspjelo: {e}",
         "report_ok": "Popravljeno: {ok}, preskočeno: {skip}, palo: {fail}.",
         "theme": "Tamna tema",
@@ -61,7 +62,8 @@ STRINGS = {
         "update_uptodate": "You have the latest version ({v}).",
         "update_available": ("A new version {v} is available ({f}). "
                              "Download and run the installer?"),
-        "update_done": "Downloaded and started: {p}. The app is closing.",
+        "update_done": ("Downloaded: {p}. If an installer opened, follow its "
+                        "steps. The app is closing."),
         "update_failed": "Update failed: {e}",
         "report_ok": "Fixed: {ok}, skipped: {skip}, failed: {fail}.",
         "theme": "Dark theme",
