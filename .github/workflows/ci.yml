@@ -131,7 +131,7 @@ jobs:
           $out = & $iscc "/DMyAppVersion=$ver" "installer\mujofix.iss" 2>&1 | Out-String
           Write-Output $out
           if ($LASTEXITCODE -ne 0) { Write-Output "::error::$out"; throw "ISCC failed" }
-      - name: SHA-256 checksums (sha256sum format: "<hash>  <ime>")
+      - name: SHA-256 checksums (sha256sum format)
         shell: pwsh
         run: |
           $files = @(Get-ChildItem dist -Recurse -File) + @(Get-ChildItem installer/Output -File -Filter *.exe)
