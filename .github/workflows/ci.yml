@@ -68,24 +68,13 @@ jobs:
           if (-not $iscc) {
             $iscc = (Get-ChildItem "$env:ProgramFiles","${env:ProgramFiles(x86)}" -Filter ISCC.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
           }
-          $iss = 'installer\mujofix.iss'
-          $bs = $false
-          if ($iscc) {
-            $bs = Test-Path (Join-Path (Split-Path $iscc) 'Languages\Bosnian.isl')
-            if (-not $bs) {
-              $txt = Get-Content $iss -Raw
-              $txt = [regex]::Replace($txt, '(?ms)^\[Languages\].*?(?=^\[)', '')
-              $iss = 'installer\mujofix_ci.iss'
-              Set-Content $iss $txt -Encoding UTF8
-            }
-          }
-          Write-Output "ISCC=$iscc VER=$ver BOSNIAN=$bs ISS=$iss"
+          Write-Output "ISCC=$iscc VER=$ver"
           if (-not $iscc) { Write-Output "::error::ISCC.exe nije nadjen"; throw "ISCC missing" }
-          $out = & $iscc "/DMyAppVersion=$ver" $iss 2>&1 | Out-String
+          $out = & $iscc "/DMyAppVersion=$ver" "installer\mujofix.iss" 2>&1 | Out-String
           Write-Output $out
           if ($LASTEXITCODE -ne 0) {
             $flat = ($out -replace "\r?\n", ' | ')
-            Write-Output "::error::ISCC exit $LASTEXITCODE BOSNIAN=$bs :: $flat"
+            Write-Output "::error::ISCC exit $LASTEXITCODE :: $flat"
             throw "ISCC failed"
           }
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

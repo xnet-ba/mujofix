@@ -13,12 +13,15 @@
 #define MyAppURL "https://github.com/xnet-ba/mujofix"
 
 [Setup]
+; SourceDir = repo root. Inno inace trazi Source putanje relativno na folder
+; ovog .iss-a, pa bi se "dist\MujoFix\*" trazio u installer\dist\MujoFix\*.
+SourceDir=..
 AppId={{3F4A1B2C-9D8E-4F7A-A6B5-C4D3E2F1A0B9}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 DefaultDirName={localappdata}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-OutputDir=Output
+OutputDir=installer\Output
 OutputBaseFilename=MujoFix-Setup-{#MyAppVersion}
 Compression=lzma2
 SolidCompression=yes
@@ -26,8 +29,9 @@ PrivilegesRequired=lowest
 UninstallDisplayName={#MyAppName}
 ; BEZ potpisa: ne tvrdimo da je build potpisan (SmartScreen ce upozoriti)
 
-[Languages]
-Name: "bosnian"; MessagesFile: "compiler:Languages\Bosnian.isl"
+; Inno Setup 6.7.1 ne isporucuje Bosnian.isl, pa je installer na engleskom
+; (Default.isl). Ako se doda installer\Languages\Bosnian.isl, vrati [Languages]
+; sekciju:  Name: "bosnian"; MessagesFile: "compiler:Languages\Bosnian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "Ikona na desktopu"; Flags: unchecked
