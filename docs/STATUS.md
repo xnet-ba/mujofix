@@ -67,6 +67,14 @@
   `update.parse_sha256sums` ne moze parsirati — verifikacija je tiho bila
   mrtva. Sada `update` preferira setup `.exe` i njegov hash se stvarno
   provjerava. (`pick_asset` bira `.exe` > `.zip`; potvrdjeno lokalno.)
+- Release `v0.2.0` OBJAVLJEN (tag `v0.2.0`, build job prosao prvi put
+  end-to-end): asseti `MujoFix-Setup-0.2.0.exe` (~76 MB),
+  `MujoFix-v0.2.0.zip` (~115 MB), `SHA256SUMS.txt`. Provjereno protiv zivog
+  release-a: `check_for_update('0.1.0')` -> dostupno, bira setup.exe, a njegov
+  hash postoji u SHA256SUMS (211 unosa); `check_for_update('0.2.0')` -> nema
+  update-a. Ostaje netestirano samo stvarno Windows izvrsavanje (UAC prompt +
+  instalacija) — to trazi VM.
+  https://github.com/xnet-ba/mujofix/releases/tag/v0.2.0
 - 142/142 sa PySide6 (offscreen); Qt-free lokalno 125 uz 3 ocekivana
   import error-a (PySide6 nije instaliran). CI ubuntu + windows.
 
