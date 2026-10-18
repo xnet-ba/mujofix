@@ -10,7 +10,8 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from PySide6.QtWidgets import QApplication, QDialog
+from PySide6.QtWidgets import (QApplication, QDialog, QLabel,
+                               QPushButton)
 
 from mujofix.ai.mujofix_mcp import MAX_PLAN_STEPS, validate_plan
 from mujofix.ui.consent import ConsentDialog, SentLogViewer
@@ -137,6 +138,22 @@ class TestConsent(unittest.TestCase):
         view = viewer.findChild(QPlainTextEdit)
         self.assertIn("findings", view.toPlainText())
         viewer.close()
+
+
+    def test_english_consent_dialog_is_translated(self):
+        from mujofix.ui.consent import ConsentDialog
+        dlg = ConsentDialog("primjer", lang="en")
+        try:
+            self.assertIn("consent", dlg.windowTitle().lower())
+            texts = [b.text() for b in dlg.findChildren(QPushButton)]
+            self.assertIn("I accept AI", texts)
+            self.assertIn("Stay offline", texts)
+            labels = " ".join(lb.text() for lb in dlg.findChildren(QLabel))
+            self.assertIn("SENT (anonymized)", labels)
+            self.assertNotIn("Šalje se", labels)
+            self.assertNotIn("Ostajem", labels)
+        finally:
+            dlg.close()
 
 
 if __name__ == "__main__":

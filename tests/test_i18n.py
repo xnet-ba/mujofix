@@ -33,5 +33,28 @@ class TestStrings(unittest.TestCase):
         missing = sorted(k for k in used if k not in STRINGS["bs"])
         self.assertEqual(missing, [], f"kljucevi bez prijevoda: {missing}")
 
+    def test_no_hardcoded_bosnian_text_in_ui(self):
+        """Hardkodovan bs tekst se ne prevede — engleski UI bi ga prikazao."""
+        root = os.path.join(os.path.dirname(__file__), "..", "mujofix", "ui")
+        pats = [
+            re.compile(r'self\._log\(\s*(f?"[^"]*")'),
+            re.compile(r'(?:setText|setWindowTitle|setToolTip|QLabel|'
+                       r'QPushButton|QCheckBox|QGroupBox|QMessageBox\.\w+)'
+                       r'\(\s*(f?"[^"]*")'),
+        ]
+        bad = []
+        for name in sorted(os.listdir(root)):
+            if not name.endswith(".py"):
+                continue
+            with open(os.path.join(root, name), encoding="utf-8") as fh:
+                src = fh.read()
+            for i, line in enumerate(src.split("\n"), 1):
+                for p in pats:
+                    for m in p.finditer(line):
+                        if any(c in m.group(1) for c in "čćžšđ"):
+                            bad.append(f"{name}:{i}: {line.strip()}")
+        self.assertEqual(bad, [], "hardkodovan (nepreveden) tekst:\n" +
+                         "\n".join(bad))
+
     def test_unknown_key_falls_back_to_key(self):
         self.assertEqual(tr("nema_ovog_kljuca", "bs"), "nema_ovog_kljuca")

@@ -64,6 +64,13 @@
   stavki)" — stvarno se prikazuje samo broj popravljenih/preskocenih/neuspjelih
   + "Poništi sve". Boot vrijeme se ne mjeri nigdje (to izricito kaze i
   `scanners/startup.py`). README (bs+en) sada opisuje stvarno stanje.
+- ISPRAVLJENO 2026-10-18 (engleski UI je curio bosanski): hardkodovan tekst
+  van `tr()` — naslovi i dugmad ekrana pristanka ("Prihvatam AI"/"Ostajem
+  offline"), naslov pregleda poslanog, i log poruke u main_window. Sada svi
+  idu kroz `tr()` (consent/sent-log dobili parametar `lang`), dodat
+  `CATEGORIES_EN`. Cuvar `test_no_hardcoded_bosnian_text_in_ui` pada ako se
+  vrati hardkodovan tekst; `test_english_consent_dialog_is_translated`
+  provjerava stvarni tekst dialoga na engleskom.
 - DODANO 2026-10-18: `tests/test_i18n.py` — cuvar da bs/en imaju iste kljuceve,
   da nema praznih prijevoda i da svaki `tr()`/`_t()` kljuc iz koda postoji
   (nepostojeci kljuc se u UI prikazivao kao sirovo ime kljuca).

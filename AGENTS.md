@@ -54,4 +54,7 @@
 - Akcije: jedan modul po domeni (`temp.py`, `startup.py`, `service.py`, `env.py`,
   `proxy.py`); nalaz -> akcija mapira se u `actions/mapping.py` (bez Qt-a, da se
   testira bez PySide6). Novi nalaz bez rollback-a ostaje samo preporuka.
+- UI tekst nikad hardkodovan: ide kroz `tr()`/`self._t()`, oba jezika
+  (bs+en) — `tests/test_i18n.py` pada i na nepostojeci kljuc i na
+  hardkodovan bosanski tekst u `mujofix/ui/`.
 - Na kraju sesije azuriraj ovaj fajl i `docs/STATUS.md`.

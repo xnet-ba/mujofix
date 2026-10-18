@@ -256,7 +256,7 @@ class MainWindow(QMainWindow):
     def start_scan(self):
         self.btn_scan.setEnabled(False)
         self.btn_cancel.setEnabled(True)
-        self._log("scan...")
+        self._log(self._t("log_scanning"))
         self._worker = ScanWorker(self._scan_fn, self)
         self._worker.done.connect(self._on_scan_done)
         self._worker.start()
@@ -333,7 +333,8 @@ class MainWindow(QMainWindow):
         text = (self._example_prompt() if self._findings
                 else self._t("ai_example_none"))
         dlg = ConsentDialog(text, self,
-                            current=ConsentDialog.stored_choice())
+                            current=ConsentDialog.stored_choice(),
+                            lang=self.lang)
         dlg.exec()
         choice = ConsentDialog.stored_choice()
         self._log(self._t("ai_state_now",
@@ -345,14 +346,15 @@ class MainWindow(QMainWindow):
         payload = sanitize({"findings": compact_findings(self._findings)},
                            username, hostname)
         if ConsentDialog.stored_choice() is None:
-            dlg = ConsentDialog(build_prompt(payload["findings"]), self)
+            dlg = ConsentDialog(build_prompt(payload["findings"]), self,
+                                lang=self.lang)
             if dlg.exec() != dlg.Accepted:
-                self._log("AI odbijen — ostajem u offline modu.")
+                self._log(self._t("log_ai_declined"))
         # Bez pristanka lanac je offline; sa pristankom se u pozadini proba ziv
         # Zen (free model), a svaki kvar se iskreno prijavi i vrati na offline.
         consent_on = ConsentDialog.stored_choice() == "on"
         self.btn_explain.setEnabled(False)
-        self._log("Objašnjavam — AI radi u pozadini…")
+        self._log(self._t("log_ai_explaining"))
         self._ai = ExplainWorker(payload["findings"], username, hostname,
                                  consent_on, build_fn=self._ai_build_fn,
                                  workdir=self._ai_workdir or default_ai_workdir(),
@@ -379,12 +381,12 @@ class MainWindow(QMainWindow):
         self.btn_explain.setEnabled(True)
 
     def _on_explain_failed(self, message: str):
-        self._log(f"AI nije uspio: {message}")
+        self._log(self._t("log_ai_failed", m=message))
         self.btn_explain.setEnabled(True)
 
     def show_sent_log(self):
         if self._chain is not None:
-            SentLogViewer(self._chain.sent_log, self).exec()
+            SentLogViewer(self._chain.sent_log, self, lang=self.lang).exec()
 
     # -- ELEVACIJA -----------------------------------------------------------
     def elevate(self):
@@ -461,7 +463,7 @@ class MainWindow(QMainWindow):
         ok = skipped = failed = 0
         for finding, action in steps:
             if self._stop_requested:
-                self._log("zaustavljeno, vraćam tekući korak po runneru")
+                self._log(self._t("fix_stopped"))
                 break
             if action.needs_elevation and not self._is_admin:
                 self._log(self._t("uac_note", a=action.name))
@@ -489,9 +491,9 @@ class MainWindow(QMainWindow):
             try:
                 action.rollback(self._ctx, state)
                 count += 1
-                self._log(f"poništeno: {action.name}")
+                self._log(self._t("undo_one", a=action.name))
             except Exception as exc:
-                self._log(f"PONIŠTAVANJE PALO {action.name}: {exc}")
+                self._log(self._t("undo_failed", a=action.name, e=exc))
         self._undone = []
         self.btn_undo.setEnabled(False)
         self.lbl_report.setText(self.lbl_report.text()
