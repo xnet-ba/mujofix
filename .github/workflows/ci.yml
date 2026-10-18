@@ -54,11 +54,6 @@ jobs:
       - run: pip install -r requirements.txt pyinstaller
       - name: PyInstaller build (isti spec kao release)
         run: python -m PyInstaller mujofix.spec
-      - name: Placeholder za OpenCode (u release-u ga puni tag job)
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory build/opencode | Out-Null
-          Set-Content build/opencode/PLACEHOLDER.txt "CI validacija: pravi OpenCode ide u release job-u"
       - name: Inno Setup (kompajliraj installer)
         shell: pwsh
         run: |
@@ -114,26 +109,43 @@ jobs:
           New-Item -ItemType Directory build/opencode | Out-Null
           Expand-Archive $zip build/opencode
       - run: python -m PyInstaller mujofix.spec
-      - name: Ubaci pinovani OpenCode u dist (kao installer)
-        shell: pwsh
-        run: Copy-Item build/opencode dist/MujoFix/opencode -Recurse
-      - name: SHA-256 checksums
+      - name: Ubaci pinovani OpenCode u dist (za installer i zip)
         shell: pwsh
         run: |
-          Get-ChildItem dist -Recurse -File |
-            Get-FileHash -Algorithm SHA256 |
-            Format-Table -AutoSize |
-            Out-File $env:RUNNER_TEMP/SHA256SUMS.txt
-          Move-Item $env:RUNNER_TEMP/SHA256SUMS.txt dist/SHA256SUMS.txt
+          Copy-Item build/opencode dist/MujoFix/opencode -Recurse
+          Copy-Item installer/OPENCODE_PIN.txt dist/MujoFix/opencode/
       - name: Smoke test bundlovanog CLI-ja (pravi Win exe)
         shell: pwsh
         run: |
           .\dist\MujoFix\MujoFixCLI.exe scan --summary
           if ($LASTEXITCODE -ne 0) { throw "bundlovani CLI pao" }
+      - name: Inno Setup installer
+        shell: pwsh
+        run: |
+          choco install innosetup --no-progress -y
+          $ver = python -c "import re;print(re.search(r'## \[(\d+\.\d+\.\d+)\]', open('CHANGELOG.md',encoding='utf-8').read()).group(1))"
+          $iscc = (Get-Command iscc.exe -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) {
+            $iscc = (Get-ChildItem "$env:ProgramFiles","${env:ProgramFiles(x86)}" -Filter ISCC.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+          }
+          $out = & $iscc "/DMyAppVersion=$ver" "installer\mujofix.iss" 2>&1 | Out-String
+          Write-Output $out
+          if ($LASTEXITCODE -ne 0) { Write-Output "::error::$out"; throw "ISCC failed" }
+      - name: SHA-256 checksums (sha256sum format: "<hash>  <ime>")
+        shell: pwsh
+        run: |
+          $files = @(Get-ChildItem dist -Recurse -File) + @(Get-ChildItem installer/Output -File -Filter *.exe)
+          $files | ForEach-Object {
+            $h = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$h  $($_.Name)"
+          } | Out-File dist/SHA256SUMS.txt -Encoding ascii
+          Get-Content dist/SHA256SUMS.txt
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: MujoFix-windows
-          path: dist/
+          path: |
+            dist/
+            installer/Output/
       - name: Zapakuj dist za release
         shell: pwsh
         run: Compress-Archive -Path dist\* -DestinationPath "MujoFix-$env:GITHUB_REF_NAME.zip"
@@ -142,7 +154,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          $setup = (Get-ChildItem 'installer/Output' -Filter *.exe | Select-Object -First 1).FullName
           gh release create "$env:GITHUB_REF_NAME" `
             --title "MujoFix $env:GITHUB_REF_NAME" `
             --generate-notes `
-            "MujoFix-$env:GITHUB_REF_NAME.zip" dist\SHA256SUMS.txt
+            "MujoFix-$env:GITHUB_REF_NAME.zip" `
+            $setup `
+            dist\SHA256SUMS.txt

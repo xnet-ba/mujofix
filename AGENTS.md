@@ -2,6 +2,10 @@
 
 - Stack: Python 3.11+, PySide6 (od Faze 3), PyInstaller + Inno Setup. Samo stdlib
   gdje god je moguce; bez novih zavisnosti bez potvrde.
+- Installer: `installer/mujofix.iss` se kompajlira u CI (job `installer-windows`)
+  na svakom push-u; `SourceDir=..` (repo root), `OutputDir=installer\Output`.
+  Release dodaje `MujoFix-Setup-<ver>.exe`, a `SHA256SUMS.txt` mora biti
+  `sha256sum` format (`<hash>  <ime>`) da bi ga `mujofix.update` verifikovao.
 - Mali koraci: jedan modul/akcija po iteraciji, max ~5 fajlova odjednom.
   Poslije svakog koraka: `py_compile` + `unittest`, pa tek onda dalje.
 - Potpun pokretljiv kod, bez pseudo-koda i bez TODO za kriticne dijelove.

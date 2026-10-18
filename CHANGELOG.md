@@ -10,6 +10,18 @@
   `mujofix/version.py`, GUI dugme "Provjeri ažuriranja".
 - CI kompajlira Inno Setup installer na svakom push-u (job
   `installer-windows`, artefakt `MujoFix-Setup-<ver>.exe`).
+
+### Ispravke
+
+- `SHA256SUMS.txt` u release-u je sada u `sha256sum` formatu (`<hash>  <ime>`).
+  Prije je nastajao iz `Format-Table` (ljudska tabela), pa
+  `update.parse_sha256sums` nije mogao naci hash — verifikacija preuzetog
+  fajla je tiho bila preskocena.
+- `installer/mujofix.iss`: `SourceDir=..` (Source putanje su relativne na repo
+  root), `OutputDir=installer\Output`, bez `[Languages]` (Inno 6.7.1 ne
+  isporucuje `Bosnian.isl`). Prvi put stvarno kompajliran.
+- Release sada prilaze `MujoFix-Setup-<ver>.exe` (koji `update` preferira nad
+  `.zip`).
 ### Napomene
 - Elevator (pravi UAC prompt) i Win izgled ostaju netestirani na VM-u.
 - Auto-update mrežni put i pokretanje preuzetog artefakta: netestirano na VM-u.

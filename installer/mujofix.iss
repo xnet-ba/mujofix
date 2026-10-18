@@ -1,5 +1,5 @@
 ; Inno Setup installer (Windows): kompajlirati s ISTOPROK 6.
-; Bundluje: dist\MujoFix\* + pinovanu OpenCode kopiju iz build\opencode\.
+; Bundluje sve iz dist\MujoFix\ (ukljucujuci opencode\ koji CI ubaci u dist).
 ; OpenCode verzija + SHA-256: installer/OPENCODE_PIN.txt (rucno odrzavano,
 ; provjereno prije svakog release-a).
 ; Verzija se moze ubaciti s /DMyAppVersion=<ver> (CI je cita iz CHANGELOG.md).
@@ -38,7 +38,6 @@ Name: "desktopicon"; Description: "Ikona na desktopu"; Flags: unchecked
 
 [Files]
 Source: "dist\MujoFix\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
-Source: "build\opencode\*"; DestDir: "{app}\opencode"; Flags: ignoreversion recursesubdirs
 Source: "installer\OPENCODE_PIN.txt"; DestDir: "{app}\opencode"; Flags: ignoreversion
 
 [Icons]

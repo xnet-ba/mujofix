@@ -51,9 +51,21 @@
 - Installer (`installer/mujofix.iss`, Inno Setup 6) se od sada kompajlira u CI
   na svakom push-u (job `installer-windows`: PyInstaller build + ISCC +
   `MujoFix-Setup-<ver>.exe` kao artefakt; verzija se cita iz CHANGELOG.md preko
-  `/DMyAppVersion`). OpenCode se u tom job-u zamjenjuje placeholderom — pravi
-  pinovani OpenCode ide u release (tag) job. Uvezivanje setup.exe u sam release
-  ostaje sljedeci korak (poslije dokaza iz ovog job-a).
+  `/DMyAppVersion`). U tom job-u `dist` nema OpenCode (ne skida se pin), pa
+  installer nema opencode\ — dovoljno za dokaz da se `.iss` kompajlira; pravi
+  pinovani OpenCode ide u release (tag) job.
+- Installer je prvi put STVARNO kompajliran (prije ovoga `.iss` nikad nije
+  prosao ISCC). Popravke: `SourceDir=..` (Inno trazi `Source` relativno na
+  folder `.iss`-a, pa se `dist\MujoFix\*` trazio u `installer\dist\`),
+  `OutputDir=installer\Output`, i `[Languages]` uklonjen jer Inno 6.7.1 ne
+  isporucuje `Bosnian.isl` (installer je na engleskom). Opencode/PIN se sada
+  ubacuju u `dist` i bundluju odatle (bez dupliranja iz `build\opencode`).
+- Release sada ukljucuje `MujoFix-Setup-<ver>.exe` (osim zip-a), a
+  `SHA256SUMS.txt` se pise u pravom `sha256sum` formatu (`<hash>  <ime>`).
+  Prije je CI pisao `Format-Table` izlaz (ljudska tabela) koji
+  `update.parse_sha256sums` ne moze parsirati — verifikacija je tiho bila
+  mrtva. Sada `update` preferira setup `.exe` i njegov hash se stvarno
+  provjerava. (`pick_asset` bira `.exe` > `.zip`; potvrdjeno lokalno.)
 - 142/142 sa PySide6 (offscreen); Qt-free lokalno 125 uz 3 ocekivana
   import error-a (PySide6 nije instaliran). CI ubuntu + windows.
 
