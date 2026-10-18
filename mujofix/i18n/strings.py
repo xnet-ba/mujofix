@@ -36,6 +36,11 @@ STRINGS = {
         "theme": "Tamna tema",
         "explain_ai": "Objasni nalaze (AI)",
         "sent_log": "Šta je poslano AI-ju",
+        "ai_settings": "AI: uključi/isključi",
+        "ai_state_now": "AI: {s}",
+        "ai_state_on": "uključen",
+        "ai_state_off": "isključen (offline mod)",
+        "ai_example_none": ("Još nema nalaza — primjer zahtjeva se pojavi poslije skeniranja."),
     },
     "en": {
         "app_title": "MujoFix — AI mechanic for Windows",
@@ -71,6 +76,11 @@ STRINGS = {
         "theme": "Dark theme",
         "explain_ai": "Explain findings (AI)",
         "sent_log": "What was sent to the AI",
+        "ai_settings": "AI: on/off",
+        "ai_state_now": "AI: {s}",
+        "ai_state_on": "on",
+        "ai_state_off": "off (offline mode)",
+        "ai_example_none": ("No findings yet — an example request appears after a scan."),
     },
 }
 

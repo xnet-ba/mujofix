@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 ### Dodano
+- Dugme "AI: uključi/isključi": pristanak se moze promijeniti bilo kad
+  (prije se ekran prikazivao samo jednom, pa je obecanje "iskljuci bilo kad"
+  bilo netacno).
 - Zivi put je sada stvarno upotrebljiv: `build_chain` prije starta servera
   upise izolirani `opencode.json` (bez toga server nema agenta `mujofix` ni MCP
   alate, pa bi `run --agent mujofix` pao). Config ide u

@@ -51,7 +51,8 @@ CATEGORIES_BS = (
 class ConsentDialog(QDialog):
     SETTINGS_KEY = "ai/consent"
 
-    def __init__(self, example_text: str, parent=None):
+    def __init__(self, example_text: str, parent=None,
+                 current: str | None = None):
         super().__init__(parent)
         self.setWindowTitle("MujoFix — pristanak za AI")
         self.resize(560, 480)
@@ -64,6 +65,10 @@ class ConsentDialog(QDialog):
         cats = QLabel(CATEGORIES_BS)
         cats.setWordWrap(True)
         layout.addWidget(cats)
+        if current is not None:
+            layout.addWidget(QLabel(
+                "AI je trenutno UKLJUČEN." if current == "on"
+                else "AI je trenutno ISKLJUČEN (offline mod)."))
         layout.addWidget(QLabel(
             "Ovaj tačan tekst ide modelu (nalazi su anonimizirani):"))
         example = QPlainTextEdit(

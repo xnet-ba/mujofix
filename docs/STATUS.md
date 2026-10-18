@@ -59,6 +59,15 @@
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
   test_faza4c); ukupno 149 (+2 za V1 config +2 za _cmd = 153). netestirano: zivi put nije
   pokrenut na Windows VM-u (nema UAC/VM okruzenja, ne trosi se mreza).
+- ISPRAVLJENO 2026-10-18 (obećanje bez prekidaca): ekran pristanka kaze "AI
+  se može isključiti bilo kad", a `ConsentDialog` se prikazivao SAMO kad
+  izbora nema — ko jednom pristane, nije mogao vratiti offline (niti ponovo
+  ukljuciti). Sada postoji dugme "AI: uključi/isključi"
+  (`MainWindow.open_consent_settings`) koje uvijek otvara isti izbor, prikazuje
+  trenutno stanje, i loguje stvarno stanje poslije izbora. Testovi:
+  `test_ai_can_be_turned_off_after_consent` (izbor off -> log + sljedece
+  objasnjenje ide offline lancem), `test_settings_button_exists_after_consent`.
+  Ukupno 174, OK.
 - ISPRAVLJENO 2026-10-18 (izolacija je bila laz): config se MERGE-ovao sa
   korisnickim globalnim `~/.config/opencode`, pa je nas agent naslijedio
   globalne MCP servere i pluginove. Dokazano protiv pinovanog binarnog

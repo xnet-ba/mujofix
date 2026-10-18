@@ -157,6 +157,40 @@ class TestExplainFlow(unittest.TestCase):
             window.close()
             qtmp.cleanup()
 
+    def test_ai_can_be_turned_off_after_consent(self):
+        """Pristanak je obecavao 'iskljuci bilo kad'; prije nije postojao put."""
+        from unittest.mock import patch
+        window, qtmp = make_window([finding()])
+        try:
+            QSettings("MujoFix", "ai").setValue(ConsentDialog.SETTINGS_KEY, "on")
+
+            def user_chooses_offline(dlg):
+                QSettings("MujoFix", "ai").setValue(
+                    ConsentDialog.SETTINGS_KEY, "off")
+                return 0
+
+            with patch.object(ConsentDialog, "exec", user_chooses_offline):
+                window.open_consent_settings()
+            self.assertEqual(ConsentDialog.stored_choice(), "off")
+            self.assertIn("isključen", window.log.toPlainText())
+
+            window._findings = [finding()]
+            window.explain_findings()
+            wait_for_explain(window)
+            self.assertIn("offline", window.log.toPlainText())
+        finally:
+            window.close()
+            qtmp.cleanup()
+
+    def test_settings_button_exists_after_consent(self):
+        window, qtmp = make_window([finding()])
+        try:
+            self.assertTrue(hasattr(window, "btn_consent"))
+            self.assertTrue(window.btn_consent.isEnabled())
+        finally:
+            window.close()
+            qtmp.cleanup()
+
     def test_no_consent_blocks_nothing_but_logs(self):
         QSettings("MujoFix", "ai").remove(ConsentDialog.SETTINGS_KEY)
         self.assertIsNone(ConsentDialog.stored_choice())

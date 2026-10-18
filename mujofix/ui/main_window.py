@@ -225,8 +225,11 @@ class MainWindow(QMainWindow):
         self.btn_sent = QPushButton(self._t("sent_log"))
         self.btn_sent.setEnabled(False)
         self.btn_sent.clicked.connect(self.show_sent_log)
+        self.btn_consent = QPushButton(self._t("ai_settings"))
+        self.btn_consent.clicked.connect(self.open_consent_settings)
         ai_row.addWidget(self.btn_explain)
         ai_row.addWidget(self.btn_sent)
+        ai_row.addWidget(self.btn_consent)
         layout.addLayout(ai_row)
 
         self.progress = QProgressBar()
@@ -306,7 +309,8 @@ class MainWindow(QMainWindow):
         return [f for f in self._findings if f["id"] in approved_ids]
 
     # -- AI OBJASNJENJE ------------------------------------------------------
-    def explain_findings(self):
+    def _identity(self) -> tuple[str, str]:
+        """(korisnik, racunar) — treba za anonimizaciju prije slanja."""
         try:
             username = getpass.getuser()
         except OSError:
@@ -315,6 +319,29 @@ class MainWindow(QMainWindow):
             hostname = std_socket.gethostname()
         except OSError:
             hostname = ""
+        return username, hostname
+
+    def _example_prompt(self) -> str:
+        """Tacan tekst zahtjeva za OVE nalaze (isti koji gradi i provider)."""
+        username, hostname = self._identity()
+        payload = sanitize({"findings": compact_findings(self._findings)},
+                           username, hostname)
+        return build_prompt(payload["findings"])
+
+    def open_consent_settings(self):
+        """Ukljuci/iskljuci AI bilo kad — obecanje iz ekrana pristanka."""
+        text = (self._example_prompt() if self._findings
+                else self._t("ai_example_none"))
+        dlg = ConsentDialog(text, self,
+                            current=ConsentDialog.stored_choice())
+        dlg.exec()
+        choice = ConsentDialog.stored_choice()
+        self._log(self._t("ai_state_now",
+                          s=self._t("ai_state_on" if choice == "on"
+                                    else "ai_state_off")))
+
+    def explain_findings(self):
+        username, hostname = self._identity()
         payload = sanitize({"findings": compact_findings(self._findings)},
                            username, hostname)
         if ConsentDialog.stored_choice() is None:
