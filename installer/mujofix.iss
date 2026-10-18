@@ -7,7 +7,7 @@
 
 #define MyAppName "MujoFix"
 #ifndef MyAppVersion
-#define MyAppVersion "0.1.0"
+#define MyAppVersion "0.2.0"
 #endif
 #define MyAppPublisher "MujoFix contributors"
 #define MyAppURL "https://github.com/xnet-ba/mujofix"

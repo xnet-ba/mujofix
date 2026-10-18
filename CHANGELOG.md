@@ -1,6 +1,8 @@
 # Changelog (semantičko verzioniranje; `mujofix.spec` čita vrh ovog fajla)
 
 ## [Unreleased]
+
+## [0.2.0] - 2026-10-18
 ### Dodano
 - Auto-fix: `quarantine_duplicates` (potvrđeni sha256 duplikati u karantin, jedna kopija ostaje).
 - Elevacija: gumb "Pokreni kao administrator" + izvršavanje `needs_elevation`

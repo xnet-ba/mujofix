@@ -6,7 +6,7 @@
 
 **Klikneš SCAN — aplikacija nađe probleme, prevede ih u običan jezik, predloži plan popravki, ti odobriš, ona popravi, provjeri i vrati nazad ako nešto pođe po zlu.**
 
-[![Status](https://img.shields.io/badge/status-v0.1.0--alpha-blue)](docs/STATUS.md)
+[![Status](https://img.shields.io/badge/status-v0.2.0-blue)](docs/STATUS.md)
 [![Licenca](https://img.shields.io/badge/licenca-MIT-green)](LICENSE)
 [![Platforma](https://img.shields.io/badge/Windows-10%20%7C%2011-blue)](docs/STATUS.md)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-yellow)](AGENTS.md)
