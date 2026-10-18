@@ -21,6 +21,9 @@
   admin (`windows.is_admin()`). Inace se preskacu; korisnik klikom bira
   "Pokreni kao administrator" (`windows.relaunch_elevated`, runas). Nikad
   auto-relaunch bez klika i nikad lazna tvrdnja da je popravka uspjela.
+- Tvrdnje o privatnosti / AI uslovima (consent, README) samo iz primarnih
+  izvora (ToS, docs) + datum provjere + link; nikad rijeci "privatno" bez
+  dokaza. Dok se ne potvrdi: "NEPOTVRDJENO".
 - Akcije: jedan modul po domeni (`temp.py`, `startup.py`, `service.py`, `env.py`,
   `proxy.py`); nalaz -> akcija mapira se u `actions/mapping.py` (bez Qt-a, da se
   testira bez PySide6). Novi nalaz bez rollback-a ostaje samo preporuka.

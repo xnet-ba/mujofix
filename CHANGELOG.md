@@ -1,6 +1,13 @@
 # Changelog (semantičko verzioniranje; `mujofix.spec` čita vrh ovog fajla)
 
 ## [Unreleased]
+### Promijenjeno
+- Pristanak (consent) i README: uslovi OpenCode Zen besplatne razine su
+  potvrđeni iz primarnih izvora (ToS + Zen docs, 2026-10-18) — umjesto
+  "NEPOTVRĐENI" stoji konkretna tvrdnja (neplaćeni računi: sadržaj se smije
+  koristiti za unapređenje usluge; pojedini besplatni modeli mogu koristiti
+  podatke za poboljšanje modela; dio zahtjeva se čuva 30 dana). Dodat test
+  koji čuva to stanje.
 
 ## [0.2.0] - 2026-10-18
 ### Dodano

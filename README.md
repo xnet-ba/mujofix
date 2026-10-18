@@ -115,7 +115,7 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
   <li><b>Izvršenje je ISKLJUČIVO u Coreu.</b> OpenCode objašnjava i predlaže, validator provjerava (JSON schema + allowlista), korisnik odobrava, deterministički executor izvršava. OpenCode nikad ne izvršava komande.</li>
   <li>Agent <code>mujofix</code>: <b>svi ugrađeni alati zabranjeni</b> (bash, edit, write, web…), dozvoljeni samo MujoFix MCP alati, deny po defaultu.</li>
   <li><b>Fallback lanac:</b> model A → B → C → <b>OFFLINE mod</b> (predefinisana objašnjenja bez AI-ja).</li>
-  <li><b>Privatnost:</b> prije prvog korištenja AI-ja — ekran pristanka (koji podaci idu, kome, primjer payload-a). Anonimizacija prije slanja; default je offline dok korisnik ne pristane.</li>
+  <li><b>Privatnost:</b> prije prvog korištenja AI-ja — ekran pristanka (koji podaci idu, kome, primjer payload-a). Anonimizacija prije slanja; default je offline dok korisnik ne pristane. <b>Besplatni Zen modeli nisu privatni</b> (potvrđeno iz <a href="https://opencode.ai/legal/terms-of-service">ToS</a> i <a href="https://opencode.ai/v2/docs/console/models/">Zen docs</a>, 2026-10-18): provajderi su uglavnom zero-retention, ali za neplaćene račune sadržaj se smije koristiti za unapređenje usluge, pojedini besplatni modeli tokom promo perioda mogu koristiti poslane podatke za poboljšanje modela, dio zahtjeva (OpenAI/Anthropic) čuva se 30 dana.</li>
 </ul>
 
 ---

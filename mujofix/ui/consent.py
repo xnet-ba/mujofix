@@ -2,8 +2,15 @@
 
 Default je offline dok korisnik ne pristane. Izbor se pamti u QSettings.
 Besplatni modeli su cloud: podaci napustaju racunar — dialog pokazuje
-kategorije + primjer STVARNOG (anonimiziranog) payload-a. Uslovi OpenCode Zen
-razine: NEPOTVRDJENI, dialog to izricito kaze (ne tvrdi "privatno").
+kategorije + primjer STVARNOG (anonimiziranog) payload-a.
+
+Uslovi OpenCode Zen besplatne razine: POTVRDJENI (provjereno 2026-10-18) iz
+primarnih izvora — https://opencode.ai/legal/terms-of-service (za neplacene
+racune sadrzaj se smije koristiti za unapredjenje usluge) i
+https://opencode.ai/v2/docs/console/models/ (provajderi uglavnom
+zero-retention, ali pojedini besplatni modeli tokom promo perioda mogu
+koristiti podatke za poboljsanje modela; dio zahtjeva se cuva 30 dana).
+Dialog zato izricito kaze da besplatna razina NIJE privatna.
 """
 
 from __future__ import annotations
@@ -29,8 +36,14 @@ CATEGORIES_BS = (
     "foldera, imena servisa, verzija Windowsa.\n"
     "Nikad se ne šalje: sadržaj tvojih fajlova, lozinke, tokeni, "
     "korisničko ime, hostname, IP/MAC adrese.\n"
-    "Kome: odabrani AI provider (cloud). Uslovi čuvanja podataka na "
-    "besplatnoj razini: NEPOTVRĐENI — ne tvrdimo da su podaci privatni.\n"
+    "Kome: odabrani AI provider (cloud).\n"
+    "POTVRDJENO (OpenCode Zen, 2026-10-18): besplatna razina NIJE privatna. "
+    "Provajderi su uglavnom zero-retention, ALI: za neplacene racune sadrzaj "
+    "smije koristiti za unapredjenje usluge; pojedini besplatni modeli tokom "
+    "promo perioda mogu koristiti poslane podatke za poboljsanje modela; "
+    "NVIDIA besplatni endpointi se loguju; zahtjevi ka OpenAI/Anthropic "
+    "modelima cuvaju se 30 dana. Ne salji licne ili povjerljive podatke.\n"
+    "Izvori: opencode.ai/legal/terms-of-service | opencode.ai/v2/docs/console/models/\n"
     "AI se može isključiti bilo kad (povratak na offline mod)."
 )
 

@@ -21,9 +21,21 @@
   https://github.com/xnet-ba/mujofix/releases/tag/v0.1.0
 - ODLUKA: puna Win10 + Win11 VM matrica (docs/TESTING.md) je OPCIONA produzena
   validacija, ne tvrda kapija. Release ide nepotpisan (SmartScreen ocekivan).
-- Otvoreno (nije blokada): Zen ToS (Issue #4), potpisivanje koda, VM validacija
-  stvarnog Windows izvrsavanja (bez UAC/VM okruzenja). Issue #2 (UAC elevator +
-  auto-update) je implementiran kao kod.
+- RIJESENO 2026-10-18 (Issue #4): Zen ToS/privatnost besplatne razine
+  POTVRDJENI iz primarnih izvora (ToS eff. 2026-08-15: za neplacene racune
+  sadrzaj se smije koristiti za unapredjenje usluge; Zen docs: provajderi
+  uglavnom zero-retention, ali pojedini besplatni modeli tokom promo perioda
+  koriste podatke za poboljsanje modela, NVIDIA endpointi se loguju,
+  OpenAI/Anthropic se cuvaju 30 dana). Consent tekst + README azurirani sa
+  "NEPOTVRDJENI" na konkretnu tvrdnju + izvori; test cuva to stanje.
+- Otvoreno (nije blokada): potpisivanje koda, VM validacija stvarnog Windows
+  izvrsavanja (bez UAC/VM okruzenja). Issue #2 (UAC elevator + auto-update) je
+  implementiran kao kod.
+- NALAZ (nije popravljeno): `ai/provider.py:free_zen_models` filtrira modele po
+  podstringu "zen", a stvarni Zen model ID-jevi to ne sadrze (npr.
+  `opencode/big-pickle`, `...-free`) — funkcija trenutno ne koristi se u GUI-ju
+  (GUI lanac je offline-only), pa nema efekta; srediti kad se Zen provajder
+  stvarno poveze (filtrirati po `free`/pricing podacima, ne po imenu).
 
 ## Faza 6 — gotova kao kod (release kapija: opciona VM lista)
 
@@ -188,7 +200,7 @@ kreiranje repoa. Push ide preko `origin` (SSH).
   net-share parser je lazno prijavljivao header/footer — popravljen
   (cita samo tijelo) + regresioni test; novi artefakt cist.
 
-## Faza 4 — gotova (kod + Linux dokazi, Win VM + Zen ToS cekaju)
+## Faza 4 — gotova (kod + Linux dokazi, Win VM ceka)
 
 - `ai/provider.py`: apstraktan Provider (zamjenjiv Ollama/OpenAI-kompatibilnim),
   OpenCodeProvider (`run --attach`, agent mujofix), FallbackChain (retry s
@@ -199,10 +211,11 @@ kreiranje repoa. Push ide preko `origin` (SSH).
 - `ai/mujofix_mcp.py`: `--findings` s pravim podacima scannera (dokazan stdio
   roundtrip), validator + cap 20 koraka + prazna akcija se odbija.
 - `ui/consent.py`: ekran pristanka (kategorije + primjer STVARNOG payload-a +
-  NEPOTVRDJENI Zen uslovi) + SentLogViewer; default offline, izbor u QSettings.
+  POTVRDJENI Zen uslovi besplatne razine + izvori) + SentLogViewer; default
+  offline, izbor u QSettings.
 - 77/77 testova prolazi.
-- NIJE: Zen ToS i dalje neprovjeren (upisano kao nepoznato); tacke 3/4 spikea
-  uz pravi model; izgled consent ekrana na Win11.
+- NIJE: tacke 3/4 spikea uz pravi model; izgled consent ekrana na Win11.
+  (Zen ToS je rijesen 2026-10-18 — vidi "RIJESENO" na vrhu.)
 
 ## Faza 3 — gotova (kod + Linux offscreen dokazi, Win izgled netestiran)
 

@@ -124,6 +124,13 @@ class TestConsent(unittest.TestCase):
         dlg2.reject()
         self.assertEqual(ConsentDialog.stored_choice(), "off")
 
+    def test_consent_text_states_confirmed_zen(self):
+        from mujofix.ui.consent import CATEGORIES_BS
+        self.assertIn("POTVRDJENO", CATEGORIES_BS)
+        self.assertNotIn("NEPOTVR", CATEGORIES_BS)
+        self.assertIn("opencode.ai/legal/terms-of-service", CATEGORIES_BS)
+        self.assertIn("opencode.ai/v2/docs/console/models/", CATEGORIES_BS)
+
     def test_sent_log_viewer_builds(self):
         from PySide6.QtWidgets import QPlainTextEdit
         viewer = SentLogViewer([{"findings": []}])
