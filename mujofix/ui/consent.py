@@ -2,7 +2,7 @@
 
 Default je offline dok korisnik ne pristane. Izbor se pamti u QSettings.
 Besplatni modeli su cloud: podaci napustaju racunar — dialog pokazuje
-kategorije + primjer STVARNOG (anonimiziranog) payload-a.
+kategorije + TACAN tekst zahtjeva (anonimiziran) koji ide modelu.
 
 Uslovi OpenCode Zen besplatne razine: POTVRDJENI (provjereno 2026-10-18) iz
 primarnih izvora — https://opencode.ai/legal/terms-of-service (za neplacene
@@ -51,7 +51,7 @@ CATEGORIES_BS = (
 class ConsentDialog(QDialog):
     SETTINGS_KEY = "ai/consent"
 
-    def __init__(self, example_payload: dict, parent=None):
+    def __init__(self, example_text: str, parent=None):
         super().__init__(parent)
         self.setWindowTitle("MujoFix — pristanak za AI")
         self.resize(560, 480)
@@ -64,9 +64,11 @@ class ConsentDialog(QDialog):
         cats = QLabel(CATEGORIES_BS)
         cats.setWordWrap(True)
         layout.addWidget(cats)
-        layout.addWidget(QLabel("Primjer stvarnog payload-a koji bi se poslao:"))
+        layout.addWidget(QLabel(
+            "Ovaj tačan tekst ide modelu (nalazi su anonimizirani):"))
         example = QPlainTextEdit(
-            json.dumps(example_payload, indent=2, ensure_ascii=False))
+            example_text if isinstance(example_text, str)
+            else json.dumps(example_text, indent=2, ensure_ascii=False))
         example.setReadOnly(True)
         layout.addWidget(example, stretch=1)
         self.chk_remember = QCheckBox("Zapamti izbor")

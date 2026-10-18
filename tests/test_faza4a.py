@@ -17,6 +17,7 @@ from mujofix.ai.provider import (
     Provider,
     ProviderError,
     build_chain,
+    build_prompt,
     compact_findings,
     extract_plan,
     free_zen_models,
@@ -127,6 +128,15 @@ class TestFallbackChainSanitizesPayload(unittest.TestCase):
         chain.explain(AIRequest([self._finding()], "marko", "PC-MARKO"))
         self.assertEqual(chain.sent_log[0]["findings"],
                          provider.seen.findings)
+
+    def test_consent_example_is_exactly_the_sent_prompt(self):
+        """Ekran pristanka mora prikazati isti tekst koji odlazi modelu."""
+        raw = [self._finding()]
+        example = build_prompt(sanitize(compact_findings(raw), "marko", "PC-MARKO"))
+        provider = self.CapturingProvider()
+        FallbackChain([provider]).explain(AIRequest(raw, "marko", "PC-MARKO"))
+        self.assertEqual(example, provider.seen and
+                         build_prompt(provider.seen.findings))
 
 
 class TestBackoffValues(unittest.TestCase):

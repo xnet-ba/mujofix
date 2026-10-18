@@ -59,6 +59,11 @@
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
   test_faza4c); ukupno 149 (+2 za V1 config +2 za _cmd = 153). netestirano: zivi put nije
   pokrenut na Windows VM-u (nema UAC/VM okruzenja, ne trosi se mreza).
+- ISPRAVLJENO 2026-10-18 (pristanak): ekran je prikazivao scan payload
+  (`{"findings": ...}`) pod natpisom "stvarni payload", a modelu ide prompt
+  tekst. Sada i ekran i provider koriste istu funkciju (`build_prompt`) nad
+  istim anonimiziranim nalazima — prikaz ne moze odlutati od zahtjeva.
+  Test: `test_consent_example_is_exactly_the_sent_prompt`. Ukupno 163, OK.
 - ISPRAVLJENO 2026-10-18 (privatnost — obecanje je bilo neistinito):
   `compact_findings` bira polja ali NE anonimizira, a `_prompt` je slao bas te
   nalaze; `sanitize` se zvao SAMO za `sent_log`. Posljedica: sirovi

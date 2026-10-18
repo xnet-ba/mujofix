@@ -17,6 +17,8 @@
   razlog. `build_chain`/`LiveSession` drze vlasnistvo nad procesom i gase ga
   na zatvaranju prozora (bez zaostalih procesa). netestirano na Windows VM-u.
 ### Ispravljeno
+- Ekran pristanka prikazuje tacan tekst zahtjeva (i onaj koji stvarno ide
+  modelu): ista funkcija `build_prompt` gradi i primjer i zahtjev.
 - Privatnost: anonimizacija se prije radila SAMO za ekran "sto je poslano",
   a modelu su isli sirovi nalazi (`C:\Users\<ime>\...`, IP, MAC, serijski).
   Sada `FallbackChain.explain` anonimizira jednom na ulazu — poslano i

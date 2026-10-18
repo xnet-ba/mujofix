@@ -41,6 +41,7 @@ from mujofix.ai.provider import (  # noqa: E402
     AIRequest,
     FallbackChain,
     build_chain,
+    build_prompt,
     compact_findings,
 )
 from mujofix.ai.sanitize import sanitize  # noqa: E402
@@ -316,7 +317,7 @@ class MainWindow(QMainWindow):
         payload = sanitize({"findings": compact_findings(self._findings)},
                            username, hostname)
         if ConsentDialog.stored_choice() is None:
-            dlg = ConsentDialog(payload, self)
+            dlg = ConsentDialog(build_prompt(payload["findings"]), self)
             if dlg.exec() != dlg.Accepted:
                 self._log("AI odbijen — ostajem u offline modu.")
         # Bez pristanka lanac je offline; sa pristankom se u pozadini proba ziv
