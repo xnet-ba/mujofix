@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import abc
 import json
+import os
 import subprocess
 import time
 from dataclasses import dataclass, field
@@ -245,3 +246,79 @@ def free_zen_models(models: list[str]) -> list[str]:
         if "free" in tail or tail in ZEN_FREE_STEALTH:
             out.append(m.strip())
     return out
+
+
+def _close_quietly(server) -> None:
+    """Gasenje servera ne smije srusiti pozivaoca (zatvaranje app-a, kvar)."""
+    if server is None:
+        return
+    try:
+        server.close()
+    except Exception:
+        pass
+
+
+class LiveSession:
+    """Ziv provider + `opencode serve` proces koji ga drzi.
+
+    Vlasnistvo je izricito: ko napravi sesiju zove `close()` (GUI na zatvaranju
+    ili pri novom objasnjenju). Bez toga bi `opencode serve` ostao zaostali
+    proces. `live=False` znaci offline lanac (uz razlog u `note`).
+    """
+
+    def __init__(self, chain: "FallbackChain", note: str, server=None) -> None:
+        self.chain = chain
+        self.note = note
+        self._server = server
+
+    @property
+    def live(self) -> bool:
+        return self._server is not None
+
+    def close(self) -> None:
+        server, self._server = self._server, None
+        _close_quietly(server)
+
+
+def build_chain(consent_on: bool, workdir: str | None = None, *,
+                binary: str | None = None, server_factory=None,
+                model_lister=None) -> LiveSession:
+    """Lanac za objasnjenje: offline po defaultu, zivi Zen uz pristanak.
+
+    Nikad ne baca i nikad ne pokrece proces bez pristanka. Svaki neuspjeh
+    (nema binary-ja, server se ne digne, nema besplatnog modela) daje offline
+    lanac + iskren razlog u `note` — bez tvrdnje da AI radi.
+    """
+    if not consent_on:
+        return LiveSession(FallbackChain([OfflineProvider()]),
+                           "offline: pristanak nije dat")
+    from mujofix.ai import opencode_runtime
+
+    workdir = workdir or os.getcwd()
+    try:
+        bin_path = binary or opencode_runtime.bundled_binary()
+    except Exception as exc:
+        return LiveSession(FallbackChain([OfflineProvider()]),
+                           f"offline: nema OpenCode binary-ja ({exc})")
+    server = None
+    try:
+        server = (server_factory or opencode_runtime.OpencodeServer)(
+            bin_path, workdir)
+        server.start()
+        models = free_zen_models((model_lister or list_models)(bin_path))
+    except Exception as exc:
+        _close_quietly(server)
+        return LiveSession(FallbackChain([OfflineProvider()]),
+                           f"offline: zivi model nedostupan ({exc})")
+    if not models:
+        _close_quietly(server)
+        return LiveSession(FallbackChain([OfflineProvider()]),
+                           "offline: nema besplatnog Zen modela")
+    # "-free" marker ispred stealth modela (stealth je za prikupljanje
+    # povratnih informacija), pa abecedno — deterministicki izbor.
+    chosen = sorted(models, key=lambda m: ("-free" not in m.lower(),
+                                           m.lower()))[0]
+    provider = OpenCodeProvider(bin_path, server.url, server.password,
+                                workdir, chosen)
+    return LiveSession(FallbackChain([provider, OfflineProvider()]),
+                       f"zivi model: {chosen}", server=server)

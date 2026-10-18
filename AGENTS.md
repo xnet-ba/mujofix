@@ -21,6 +21,10 @@
   admin (`windows.is_admin()`). Inace se preskacu; korisnik klikom bira
   "Pokreni kao administrator" (`windows.relaunch_elevated`, runas). Nikad
   auto-relaunch bez klika i nikad lazna tvrdnja da je popravka uspjela.
+- Zivi AI: rucni lanci (`FallbackChain`) se ne prave u GUI kodu — koristi
+  `ai/provider.build_chain` (offline bez pristanka, ziv Zen uz pristanak).
+  Sesiju (`LiveSession`) drzi GUI i UVEK je zatvori na `closeEvent`; nikad ne
+  ostavljaj `opencode serve` kao zaostali proces.
 - Tvrdnje o privatnosti / AI uslovima (consent, README) samo iz primarnih
   izvora (ToS, docs) + datum provjere + link; nikad rijeci "privatno" bez
   dokaza. Dok se ne potvrdi: "NEPOTVRDJENO".

@@ -40,7 +40,7 @@ from mujofix.actions.mapping import finding_to_actions  # noqa: E402
 from mujofix.ai.provider import (  # noqa: E402
     AIRequest,
     FallbackChain,
-    OfflineProvider,
+    build_chain,
     compact_findings,
 )
 from mujofix.ai.sanitize import sanitize  # noqa: E402
@@ -92,12 +92,45 @@ class UpdateWorker(QThread):
             self.failed.emit(str(exc))
 
 
+class ExplainWorker(QThread):
+    """Gradi lanac (moze dizati `opencode serve`) i objasnjava — van GUI niti.
+
+    Dizanje servera i poziv modela znaju potrajati, pa ne smiju blokirati
+    prozor. Sesiju vraca u `done` da je GUI moze drzati i ugasiti na kraju.
+    """
+
+    done = Signal(object, object)  # LiveSession, AIResponse
+    failed = Signal(str)
+
+    def __init__(self, findings, username, hostname, consent_on,
+                 build_fn=None, workdir=None, parent=None):
+        super().__init__(parent)
+        self._findings = findings
+        self._username = username
+        self._hostname = hostname
+        self._consent_on = consent_on
+        self._build = build_fn or build_chain
+        self._workdir = workdir
+
+    def run(self):
+        try:
+            session = self._build(self._consent_on, self._workdir)
+            resp = session.chain.explain(
+                AIRequest(self._findings, self._username, self._hostname))
+        except Exception as exc:
+            self.failed.emit(str(exc))
+            return
+        self.done.emit(session, resp)
+
+
 class MainWindow(QMainWindow):
-    def __init__(self, scan_fn=None, quarantine_dir=None, lang: str = "bs"):
+    def __init__(self, scan_fn=None, quarantine_dir=None, lang: str = "bs",
+                 ai_build_fn=None):
         super().__init__()
         self.lang = lang
         self._t = lambda key, **kw: tr(key, lang, **kw)
         self._scan_fn = scan_fn or (lambda: cli.run_scan(None))
+        self._ai_build_fn = ai_build_fn
         self._ctx = ActionContext(
             quarantine_dir=quarantine_dir or default_quarantine_dir())
         self._runner = Runner()
@@ -106,6 +139,8 @@ class MainWindow(QMainWindow):
         self._undone: list = []  # (action, state) uspjesnih, za "Ponisti sve"
         self._worker: QThread | None = None
         self._upd: QThread | None = None
+        self._ai: QThread | None = None
+        self._session = None
         self._stop_requested = False
         self._chain: FallbackChain | None = None
         self._build_ui()
@@ -271,13 +306,31 @@ class MainWindow(QMainWindow):
             dlg = ConsentDialog(payload, self)
             if dlg.exec() != dlg.Accepted:
                 self._log("AI odbijen — ostajem u offline modu.")
-        # Lanac je trenutno offline-only; zivi model se kaci kad server radi
-        # (VM validacija, Issue #1). Bezbednost ne zavisi od modela.
-        self._chain = FallbackChain([OfflineProvider()])
-        resp = self._chain.explain(
-            AIRequest(payload["findings"], username, hostname))
+        # Bez pristanka lanac je offline; sa pristankom se u pozadini proba ziv
+        # Zen (free model), a svaki kvar se iskreno prijavi i vrati na offline.
+        consent_on = ConsentDialog.stored_choice() == "on"
+        self.btn_explain.setEnabled(False)
+        self._log("Objašnjavam — AI radi u pozadini…")
+        self._ai = ExplainWorker(payload["findings"], username, hostname,
+                                 consent_on, build_fn=self._ai_build_fn,
+                                 parent=self)
+        self._ai.done.connect(self._on_explained)
+        self._ai.failed.connect(self._on_explain_failed)
+        self._ai.start()
+
+    def _on_explained(self, session, resp):
+        if self._session is not None:
+            self._session.close()  # prethodni `opencode serve` ne smije ostati
+        self._session = session
+        self._chain = session.chain
+        self._log(f"[{session.note}]")
         self._log(f"[AI: {resp.model}] {resp.text}")
         self.btn_sent.setEnabled(True)
+        self.btn_explain.setEnabled(True)
+
+    def _on_explain_failed(self, message: str):
+        self._log(f"AI nije uspio: {message}")
+        self.btn_explain.setEnabled(True)
 
     def show_sent_log(self):
         if self._chain is not None:
@@ -401,6 +454,15 @@ class MainWindow(QMainWindow):
 
     def _log(self, message: str):
         self.log.appendPlainText(message)
+
+    def closeEvent(self, event):
+        """Ugasi zivi `opencode serve` (bez zavisnosti od GC-a)."""
+        if self._ai is not None and self._ai.isRunning():
+            self._ai.wait(3000)  # kratko: sprijeci trku sa gasenjem sesije
+        if self._session is not None:
+            self._session.close()
+            self._session = None
+        super().closeEvent(event)
 
 
 def main() -> int:

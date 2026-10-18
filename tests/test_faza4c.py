@@ -34,12 +34,24 @@ def finding() -> dict:
     }
 
 
-def make_window(findings: list[dict]):
+def offline_build(consent_on, workdir=None):
+    """Testni builder: nikad ne dira mrezu (bez zivog `opencode serve`)."""
+    from mujofix.ai.provider import (
+        FallbackChain,
+        LiveSession,
+        OfflineProvider,
+    )
+    return LiveSession(FallbackChain([OfflineProvider()]),
+                       "offline: test (bez zivog modela)")
+
+
+def make_window(findings: list[dict], ai_build_fn=offline_build):
     qtmp = tempfile.TemporaryDirectory()
     window = MainWindow(
         scan_fn=lambda: [{"scanner": "t", "findings": findings,
                           "skipped": None}],
-        quarantine_dir=os.path.join(qtmp.name, "q"))
+        quarantine_dir=os.path.join(qtmp.name, "q"),
+        ai_build_fn=ai_build_fn)
     window.show()
     window.start_scan()
     window._worker.wait(5000)
@@ -49,6 +61,16 @@ def make_window(findings: list[dict]):
             break
         time.sleep(0.02)
     return window, qtmp
+
+
+def wait_for_explain(window, timeout_s: float = 5.0):
+    """Sacekaj ExplainWorker + dostavu signala u GUI nit."""
+    window._ai.wait(int(timeout_s * 1000))
+    for _ in range(int(timeout_s * 50)):
+        app.processEvents()
+        if window.btn_explain.isEnabled():
+            break
+        time.sleep(0.02)
 
 
 class TestExplainFlow(unittest.TestCase):
@@ -63,11 +85,52 @@ class TestExplainFlow(unittest.TestCase):
         try:
             self.assertTrue(window.btn_explain.isEnabled())
             window.explain_findings()  # bez dijaloga (choice vec postavljen)
+            wait_for_explain(window)
             log = window.log.toPlainText()
             self.assertIn("Privremeni fajlovi", log)
             self.assertIn("[AI: offline]", log)
+            self.assertIn("offline: test", log)
             self.assertTrue(window.btn_sent.isEnabled())
+            self.assertTrue(window.btn_explain.isEnabled())
             self.assertEqual(len(window._chain.sent_log), 1)
+        finally:
+            window.close()
+            qtmp.cleanup()
+
+    def test_live_note_logged_and_server_closed_on_window_close(self):
+        closed: list[int] = []
+
+        class FakeServer:
+            def close(self):
+                closed.append(1)
+
+        def live_build(consent_on, workdir=None):
+            from mujofix.ai.provider import (
+                AIResponse,
+                FallbackChain,
+                LiveSession,
+                Provider,
+            )
+
+            class FakeProvider(Provider):
+                name = "fake"
+
+                def explain(self, request):
+                    return AIResponse(text="zdravo", model="fake", plan=None)
+
+            return LiveSession(FallbackChain([FakeProvider()]),
+                               "zivi model: fake", server=FakeServer())
+
+        window, qtmp = make_window([finding()], ai_build_fn=live_build)
+        try:
+            window.explain_findings()
+            wait_for_explain(window)
+            log = window.log.toPlainText()
+            self.assertIn("zivi model: fake", log)
+            self.assertIn("[AI: fake] zdravo", log)
+            self.assertTrue(window._session.live)
+            window.close()
+            self.assertEqual(closed, [1])
         finally:
             window.close()
             qtmp.cleanup()

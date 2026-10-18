@@ -1,6 +1,13 @@
 # Changelog (semantičko verzioniranje; `mujofix.spec` čita vrh ovog fajla)
 
 ## [Unreleased]
+### Dodano
+- Zivi AI put u GUI-ju: uz pristanak se u pozadinskoj niti (`ExplainWorker`)
+  digne ugrađeni `opencode serve` (127.0.0.1, slucajna lozinka) i koristi
+  besplatan Zen model; bez pristanka ili na svaki kvar (nema binary-ja, server
+  se ne digne, nema besplatnog modela) lanac ostaje **offline** uz iskren
+  razlog. `build_chain`/`LiveSession` drze vlasnistvo nad procesom i gase ga
+  na zatvaranju prozora (bez zaostalih procesa). netestirano na Windows VM-u.
 ### Ispravljeno
 - `free_zen_models` je vracao prazno (filtrirao po "zen", stvarni ID-jevi su
   `opencode/<id>`); sada prepoznaje besplatne Zen modele po stvarnom prefiksu
