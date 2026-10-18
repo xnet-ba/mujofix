@@ -229,5 +229,26 @@ class TestBuildChain(unittest.TestCase):
         self.assertEqual(server.closed, 1)
 
 
+class TestOpenCodeProviderCmd(unittest.TestCase):
+    def _provider(self):
+        return OpenCodeProvider("/x/opencode", "http://127.0.0.1:1", "pw",
+                                "/tmp", "opencode/beam-free")
+
+    def test_cmd_has_no_forbidden_flag_and_uses_text_output(self):
+        from mujofix.ai.opencode_runtime import FORBIDDEN_FLAGS
+        cmd = self._provider()._cmd("ping")
+        for flag in FORBIDDEN_FLAGS:
+            self.assertNotIn(flag, cmd)
+        # --format json = raw event stream; plan se cita iz teksta → ne smije.
+        self.assertNotIn("--format", cmd)
+        self.assertIn("--attach", cmd)
+        self.assertEqual(cmd[cmd.index("--model") + 1], "opencode/beam-free")
+
+    def test_forbidden_flag_would_raise(self):
+        provider = self._provider()
+        provider.workdir = "--auto"
+        self.assertRaises(ProviderError, provider._cmd, "ping")
+
+
 if __name__ == "__main__":
     unittest.main()

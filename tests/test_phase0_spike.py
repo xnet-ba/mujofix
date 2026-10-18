@@ -73,24 +73,34 @@ class TestRuntimeSafety(unittest.TestCase):
 
 
 class TestAgentConfig(unittest.TestCase):
-    def test_deny_covers_dangerous_tools(self):
+    def test_denies_every_builtin_tool(self):
         cfg = build_config(["python", "mcp.py"])
-        perms = cfg["agents"][AGENT_ID]["permissions"]
-        denied = {p["action"] for p in perms if p["effect"] == "deny"}
-        for action in ("shell", "edit", "write", "webfetch", "websearch", "task"):
-            self.assertIn(action, denied)
-        self.assertEqual(len(DENIED_ACTIONS), len(denied))
+        tools = cfg["agent"][AGENT_ID]["tools"]
+        for action in ("bash", "read", "edit", "glob", "grep", "webfetch",
+                       "task", "todowrite", "websearch", "lsp", "skill"):
+            self.assertIs(tools[action], False, action)
+        self.assertEqual(len(DENIED_ACTIONS), 11)
+        self.assertIs(tools["mcp_*"], True)
+
+    def test_v1_shape_not_v2(self):
+        """V2 oblik (agents + permissions) pinovani binarni odbija sa 400."""
+        cfg = build_config(["python", "mcp.py"])
+        self.assertIn("agent", cfg)
+        self.assertNotIn("agents", cfg)
+        self.assertNotIn("permissions", cfg["agent"][AGENT_ID])
+        self.assertIn("prompt", cfg["agent"][AGENT_ID])
 
     def test_no_auto_update_no_share(self):
         cfg = build_config(["python", "mcp.py"])
         self.assertEqual(cfg["update"], "disable")
         self.assertEqual(cfg["share"], "manual")
 
-    def test_mcp_server_registered(self):
+    def test_mcp_server_registered_as_map(self):
         cfg = build_config(["python", "mcp.py"])
-        srv = cfg["mcp"]["servers"]["mujofix"]
+        srv = cfg["mcp"]["mujofix"]  # V1: mapa ime -> server
         self.assertEqual(srv["type"], "local")
         self.assertEqual(srv["command"], ["python", "mcp.py"])
+        self.assertNotIn("servers", cfg["mcp"])
 
     def test_write_config_stays_in_workdir(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -98,6 +108,41 @@ class TestAgentConfig(unittest.TestCase):
             self.assertEqual(os.path.dirname(path), tmp)
             with open(path, encoding="utf-8") as handle:
                 json.load(handle)
+
+
+class TestAgentConfigAcceptedByPinnedBinary(unittest.TestCase):
+    """Dokaz protiv stvarnog binarnog: config se prihvata i alati su zabranjeni.
+
+    Preskace se ako pinovani opencode nije dostupan (npr. cist CI bez binarnog).
+    """
+
+    def setUp(self):
+        try:
+            self.binary = bundled_binary()
+        except OpencodeNotFound:
+            self.skipTest("nema pinovanog opencode binarnog")
+
+    def test_server_accepts_config_and_denies_builtins(self):
+        import base64
+        import urllib.request
+
+        workdir = tempfile.mkdtemp()
+        write_config(workdir, ["python", "-m", "mujofix.ai.mujofix_mcp"])
+        server = OpencodeServer(binary=self.binary, workdir=workdir).start()
+        try:
+            req = urllib.request.Request(server.url + "/config")
+            req.add_header("Authorization", "Basic " + base64.b64encode(
+                f"{server.username}:{server.password}".encode()).decode())
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                self.assertEqual(resp.status, 200)  # nevalidan config bi bio 400
+                cfg = json.load(resp)
+        finally:
+            server.close()
+        agent = cfg["agent"][AGENT_ID]
+        self.assertIn("mujofix", cfg["mcp"])
+        permission = agent.get("permission", {})
+        for action in ("bash", "edit", "webfetch", "websearch", "task"):
+            self.assertEqual(permission.get(action), "deny", action)
 
 
 class TestValidator(unittest.TestCase):

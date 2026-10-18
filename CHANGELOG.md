@@ -9,6 +9,14 @@
   razlog. `build_chain`/`LiveSession` drze vlasnistvo nad procesom i gase ga
   na zatvaranju prozora (bez zaostalih procesa). netestirano na Windows VM-u.
 ### Ispravljeno
+- `ai/agent_config.py`: config je bio V2 oblik koji pinovani (V1) opencode
+  odbija (`ConfigInvalidError`, 400) — zivi put bi pao pri startu. Sada V1
+  (`mcp` mapa, `agent`, `prompt`, `tools`: svi ugradjeni alati `false`,
+  `mcp_*: true`); imena alata iz pinovanog `agent create --help`. Novi
+  integracioni test to dokazuje protiv stvarnog binarnog (200 + deny).
+- `ai/provider.py`: `run --format json` daje event stream, a plan se cita iz
+  ```json bloka u tekstu — plan se nikad ne bi izvukao. Vraceno na default
+  (tekstualni) izlaz; `_cmd()` izdvojen i pokriven testom.
 - `free_zen_models` je vracao prazno (filtrirao po "zen", stvarni ID-jevi su
   `opencode/<id>`); sada prepoznaje besplatne Zen modele po stvarnom prefiksu
   `opencode/` + "-free" marker (+ lista stealth modela), a potencijalno placene

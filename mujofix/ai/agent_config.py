@@ -1,9 +1,17 @@
 """Agent 'mujofix': izolirana OpenCode konfiguracija + offline fallback.
 
-Kljucevi provjereni uz opencode.ai v2 docs (agents.<id>.permissions deny,
-update:"disable", share:"manual", mcp.servers local stdio) i binary 1.18.34.
-Efektivna zabrana alata se ne vjeruje kljucevima na rijec nego se dokazuje
-empirijski (Faza 0, tacka 4: pokusaj poziva shell-a mora biti odbijen).
+Oblik je dokazan empirijski na pinovanom binarnom (V1), ne po pamcenju:
+- `opencode serve` u workdir-u sa ovim opencode.json -> GET /config vraca 200,
+  `agent.mujofix` postoji i binarni sam izvede `permission` deny za sve
+  ugrađene alate.
+- V2 oblik (`agents` + `permissions` lista) binarni ODBIJA:
+  "V2 permissions are not supported by OpenCode V1" (ConfigInvalidError, 400)
+  -> cijeli zivi put bi pao pri startu.
+- Imena alata su uzeta iz `opencode agent create --help` (pinovana verzija):
+  bash, read, edit, glob, grep, webfetch, task, todowrite, websearch, lsp,
+  skill. `shell`/`write`/`patch` ne postoje kao alati u V1.
+- MCP alati: globalni default je `mcp_*: ask`, sto u neinteraktivnom `run`
+  toku ne moze dobiti odobrenje — zato je agentu `mcp_*` izricito dozvoljen.
 """
 
 from __future__ import annotations
@@ -13,15 +21,20 @@ import os
 
 AGENT_ID = "mujofix"
 
-# Sve ugradjene akcije koje smiju mijenjati sistem ili izlaziti na mrezu.
+# Svi ugrađeni alati pinovane V1 verzije (opencode agent create --help).
+# Nijedan se ne dozvoljava: agent nalaze dobija samo kroz MujoFix MCP server.
 DENIED_ACTIONS = (
-    "shell",
+    "bash",
+    "read",
     "edit",
-    "write",
-    "patch",
+    "glob",
+    "grep",
     "webfetch",
-    "websearch",
     "task",
+    "todowrite",
+    "websearch",
+    "lsp",
+    "skill",
 )
 
 SYSTEM_PROMPT = (
@@ -39,28 +52,28 @@ SYSTEM_PROMPT = (
 
 
 def build_config(mcp_command: list[str]) -> dict:
-    """Vrati sadrzaj opencode.json za izolirani rad aplikacije."""
+    """Vrati sadrzaj opencode.json za izolirani rad aplikacije (V1 oblik)."""
     return {
         "$schema": "https://opencode.ai/config.json",
         "update": "disable",
         "share": "manual",
         "mcp": {
-            "servers": {
-                "mujofix": {
-                    "type": "local",
-                    "command": mcp_command,
-                }
+            "mujofix": {
+                "type": "local",
+                "command": mcp_command,
+                "enabled": True,
             }
         },
-        "agents": {
+        "agent": {
             AGENT_ID: {
                 "description": "MujoFix objasnjavac nalaza (bez izvrsavanja)",
                 "mode": "subagent",
-                "system": SYSTEM_PROMPT,
-                "permissions": [
-                    {"action": action, "resource": "*", "effect": "deny"}
-                    for action in DENIED_ACTIONS
-                ],
+                "prompt": SYSTEM_PROMPT,
+                # svi ugrađeni alati zabranjeni; samo MujoFix MCP alati smiju.
+                "tools": {
+                    **{action: False for action in DENIED_ACTIONS},
+                    "mcp_*": True,
+                },
             }
         },
     }

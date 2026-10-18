@@ -37,14 +37,36 @@
   besplatnih stealth modela (`big-pickle`); nepoznat `opencode/*` (moguce
   placen) se ne vraca. Dokaz: `opencode models` (pinovani) → 10/415 pogodaka,
   tacno besplatni Zen modeli. Test `test_free_zen_filter` koristi prave ID-jeve.
+- ISPRAVLJENO 2026-10-18 (kriticno, dokazano protiv pinovanog binarnog):
+  `ai/agent_config.py` je pisan po V2 dokumentaciji (`agents` + `permissions`
+  lista, `mcp.servers`), a pinovani opencode je V1 i takav config ODBIJA:
+  `GET /config` → 400 `ConfigInvalidError`, "V2 permissions are not supported
+  by OpenCode V1" → cijeli zivi put bi pao pri startu. Sada V1 oblik:
+  `mcp` mapa (`mujofix`), `agent` (jednina), `prompt`, `tools` mapa sa svim
+  ugrađenim alatima `false` + `mcp_*: true`. Imena alata uzeta iz pinovanog
+  `opencode agent create --help` (bash, read, edit, glob, grep, webfetch, task,
+  todowrite, websearch, lsp, skill) — stari `shell`/`write`/`patch` ne postoje
+  kao alati. Dokaz: novi integracioni test digne stvarni `opencode serve` sa
+  upisanim configom i tvrdi 200 + `agent.mujofix` + `permission` deny
+  (bash/edit/webfetch/websearch/task), preskace se bez binarnog. Zasto je
+  `mcp_*` izricito `true`: globalni default je `ask`, a neinteraktivni `run`
+  ne moze dobiti odobrenje. Ukupno 151 test, OK.
 - IMPLEMENTIRANO 2026-10-18 (zivi AI put, Issue #1 ostatak): `ExplainWorker`
   (QThread) gradi lanac van GUI niti; `build_chain`/`LiveSession` u
   `ai/provider.py` dizu `opencode serve` samo uz pristanak i gase ga na
   zatvaranju prozora (`closeEvent` + `close()` pri novom objasnjenju).
   Svaki kvar (nema binary-ja, server, besplatni model) → offline lanac + iskren
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
-  test_faza4c); ukupno 149. netestirano: zivi put nije pokrenut na Windows VM-u
-  (nema UAC/VM okruzenja, ne trosi se mreza u ovom okruzenju).
+  test_faza4c); ukupno 149 (+2 za V1 config = 151). netestirano: zivi put nije
+  pokrenut na Windows VM-u (nema UAC/VM okruzenja, ne trosi se mreza).
+- ISPRAVLJENO 2026-10-18 (dokazivo lokalno): `OpenCodeProvider` je zvao
+  `run --format json` ("raw JSON events", dokumentovano), a plan se izvlaci iz
+  ```json bloka u TEKSTU → plan se u zivom putu nikad ne bi izvukao. Sada se
+  koristi default (tekstualni) izlaz; `_cmd()` izdvojen i testiran (nema
+  zabranjenih flagova, nema `--format`). Dokaz o flagovima: `run --help`
+  pinovanog binarnog (svi flagovi postoje); napomena — CLI ne odbija nepoznate
+  flagove (kontrolni eksperiment sa `--nope` ne prijavi gresku), pa je
+  `--help` jedini autoritet.
 - DODANO 2026-10-18: README (bs + en) dobio sekciju "Instalacija (Windows, EXE)"
   (Setup exe preporucen, zip portabilan, provjera sha256 komandom, per-user bez
   admina, SmartScreen ocekivan, /SILENT, deinstalacija) + iskrena oznaka da

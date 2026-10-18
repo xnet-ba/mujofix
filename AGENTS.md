@@ -25,6 +25,13 @@
   `ai/provider.build_chain` (offline bez pristanka, ziv Zen uz pristanak).
   Sesiju (`LiveSession`) drzi GUI i UVEK je zatvori na `closeEvent`; nikad ne
   ostavljaj `opencode serve` kao zaostali proces.
+- Agent config (`agent_config.build_config`): samo **V1** oblik (`mcp` mapa,
+  `agent`, `prompt`, `tools`). V2 oblik (`agents` + `permissions` lista) V1
+  binarni odbija sa 400 (`ConfigInvalidError`) — tada pada cijeli zivi put.
+  Svaka promjena configa: pokreni integracioni test u `test_phase0_spike.py`
+  (digne stvarni `opencode serve` i trazi 200 + deny). Imena alata samo iz
+  `opencode agent create --help` pinovane verzije; izmisljena imena
+  (`shell`, `write`, `patch`) tiho ne rade nista.
 - Tvrdnje o privatnosti / AI uslovima (consent, README) samo iz primarnih
   izvora (ToS, docs) + datum provjere + link; nikad rijeci "privatno" bez
   dokaza. Dok se ne potvrdi: "NEPOTVRDJENO".
