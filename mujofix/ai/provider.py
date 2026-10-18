@@ -220,7 +220,28 @@ def list_models(binary: str) -> list[str]:
     return seen[:100]
 
 
+# Dokaz: pinovani opencode, `opencode models` (2026-10-18) — 10 unosa
+# `opencode/*`, svi besplatni (Zen free tier). Marker "-free" nosi 9;
+# `big-pickle` je besplatni stealth model (Zen docs) bez markera.
+ZEN_FREE_PREFIX = "opencode/"
+ZEN_FREE_STEALTH = ("big-pickle",)
+
+
 def free_zen_models(models: list[str]) -> list[str]:
-    """Filtriraj samo besplatne Zen modele; imena se ne hardkodiraju drugdje."""
-    return [m for m in models if "zen" in m.lower()
-            and any(tag in m.lower() for tag in ("free", "zen"))]
+    """Besplatni Zen modeli (provajder `opencode/`).
+
+    Ne pretpostavlja "svaki `opencode/*` je besplatan": vraca one s "-free"
+    markerom ili iz izricite liste besplatnih stealth modela. Nepoznat
+    `opencode/*` unos (moguce placen) se NE vraca — cilj je nikad ne potrositi
+    novac bez korisnikovog izbora. Ime nije pouzdan izvor cijene, pa se lista
+    stealth modela odrzava rucno (vidi Zen docs).
+    """
+    out = []
+    for m in models:
+        n = m.strip().lower()
+        if not n.startswith(ZEN_FREE_PREFIX):
+            continue
+        tail = n[len(ZEN_FREE_PREFIX):]
+        if "free" in tail or tail in ZEN_FREE_STEALTH:
+            out.append(m.strip())
+    return out

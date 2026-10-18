@@ -31,11 +31,12 @@
 - Otvoreno (nije blokada): potpisivanje koda, VM validacija stvarnog Windows
   izvrsavanja (bez UAC/VM okruzenja). Issue #2 (UAC elevator + auto-update) je
   implementiran kao kod.
-- NALAZ (nije popravljeno): `ai/provider.py:free_zen_models` filtrira modele po
-  podstringu "zen", a stvarni Zen model ID-jevi to ne sadrze (npr.
-  `opencode/big-pickle`, `...-free`) — funkcija trenutno ne koristi se u GUI-ju
-  (GUI lanac je offline-only), pa nema efekta; srediti kad se Zen provajder
-  stvarno poveze (filtrirati po `free`/pricing podacima, ne po imenu).
+- POPRAVLJENO 2026-10-18: `ai/provider.py:free_zen_models` je filtrirao po
+  podstringu "zen", a Zen modeli su `opencode/<id>` → vracao je prazno. Sada
+  filtrira po stvarnom prefiksu `opencode/` + "-free" marker, uz izricitu listu
+  besplatnih stealth modela (`big-pickle`); nepoznat `opencode/*` (moguce
+  placen) se ne vraca. Dokaz: `opencode models` (pinovani) → 10/415 pogodaka,
+  tacno besplatni Zen modeli. Test `test_free_zen_filter` koristi prave ID-jeve.
 
 ## Faza 6 — gotova kao kod (release kapija: opciona VM lista)
 

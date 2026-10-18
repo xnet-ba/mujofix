@@ -136,10 +136,13 @@ class TestPlanParse(unittest.TestCase):
         self.assertNotIn("password", compact[0])
 
     def test_free_zen_filter(self):
-        models = ["openai/gpt-5", "opencode-zen/free-xyz",
-                  "anthropic/claude", "ZEN-free-abc"]
+        models = ["opencode/big-pickle", "opencode/deepseek-v4.1-flash-free",
+                  "opencode/orion-pro", "anthropic/claude", "openai/gpt-5",
+                  "openrouter/google/gemma-4-31b-it:free", "opencode/beam-free"]
         self.assertEqual(free_zen_models(models),
-                         ["opencode-zen/free-xyz", "ZEN-free-abc"])
+                         ["opencode/big-pickle",
+                          "opencode/deepseek-v4.1-flash-free",
+                          "opencode/beam-free"])
 
 
 if __name__ == "__main__":

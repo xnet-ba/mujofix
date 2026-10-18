@@ -1,6 +1,11 @@
 # Changelog (semantičko verzioniranje; `mujofix.spec` čita vrh ovog fajla)
 
 ## [Unreleased]
+### Ispravljeno
+- `free_zen_models` je vracao prazno (filtrirao po "zen", stvarni ID-jevi su
+  `opencode/<id>`); sada prepoznaje besplatne Zen modele po stvarnom prefiksu
+  `opencode/` + "-free" marker (+ lista stealth modela), a potencijalno placene
+  ne ukljucuje.
 ### Promijenjeno
 - Pristanak (consent) i README: uslovi OpenCode Zen besplatne razine su
   potvrđeni iz primarnih izvora (ToS + Zen docs, 2026-10-18) — umjesto
