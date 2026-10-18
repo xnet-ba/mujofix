@@ -63,9 +63,31 @@ jobs:
         shell: pwsh
         run: |
           choco install innosetup --no-progress -y
-          $m = (Select-String -Path CHANGELOG.md -Pattern '## \[(\d+\.\d+\.\d+)\]' | Select-Object -First 1)
-          $ver = $m.Matches[0].Groups[1].Value
-          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DMyAppVersion=$ver installer\mujofix.iss
+          $ver = python -c "import re;print(re.search(r'## \[(\d+\.\d+\.\d+)\]', open('CHANGELOG.md',encoding='utf-8').read()).group(1))"
+          $iscc = (Get-Command iscc.exe -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) {
+            $iscc = (Get-ChildItem "$env:ProgramFiles","${env:ProgramFiles(x86)}" -Filter ISCC.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+          }
+          $iss = 'installer\mujofix.iss'
+          $bs = $false
+          if ($iscc) {
+            $bs = Test-Path (Join-Path (Split-Path $iscc) 'Languages\Bosnian.isl')
+            if (-not $bs) {
+              $txt = Get-Content $iss -Raw
+              $txt = [regex]::Replace($txt, '(?ms)^\[Languages\].*?(?=^\[)', '')
+              $iss = 'installer\mujofix_ci.iss'
+              Set-Content $iss $txt -Encoding UTF8
+            }
+          }
+          Write-Output "ISCC=$iscc VER=$ver BOSNIAN=$bs ISS=$iss"
+          if (-not $iscc) { Write-Output "::error::ISCC.exe nije nadjen"; throw "ISCC missing" }
+          $out = & $iscc "/DMyAppVersion=$ver" $iss 2>&1 | Out-String
+          Write-Output $out
+          if ($LASTEXITCODE -ne 0) {
+            $flat = ($out -replace "\r?\n", ' | ')
+            Write-Output "::error::ISCC exit $LASTEXITCODE BOSNIAN=$bs :: $flat"
+            throw "ISCC failed"
+          }
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: MujoFix-installer
