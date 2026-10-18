@@ -69,9 +69,16 @@
   "izolirani opencode.json". Sada `build_chain` dize server sa
   `XDG_CONFIG_HOME=<workdir>/config-home` (`agent_config.config_home`).
   Kredencijali (auth.json) su u DATA diru, ne u config diru, pa zivi model
-  ostaje prijavljen. Testovi: `TestIsolatedConfigHome` (2). Ukupno 172, OK.
+  ostaje prijavljen — dokazano: `opencode auth list` sa izolovanim
+  XDG_CONFIG_HOME cita isti `~/.local/share/opencode/auth.json`. Testovi: `TestIsolatedConfigHome` (2). Ukupno 172, OK.
   NEPROVJERENO (VM): da li pinovani binarni na Windowsu postuje
   XDG_CONFIG_HOME (na Linuxu dokazano) — ako ne, izolacija ne radi na Win.
+  NEPROVJERENO (VM): da li pinovani binarni na Windowsu postuje
+  XDG_CONFIG_HOME.
+  NEPROVJERENO (nema Zen auth na dev masini): uspjesan poziv besplatnog
+  `opencode/*` modela. Na ovoj masini je jedini kredencijal OpenRouter, pa
+  `run --model opencode/beam-free` vrati prazan odgovor -> provider baci
+  ProviderError -> lanac iskreno padne na offline (bez lazne tvrdnje).
 - ISPRAVLJENO 2026-10-18 (AI plan je bio mrtav kod): `_on_explained` je
   ignorisao `resp.plan` — plan se validirao i onda bacao, pa je README
   obećavao plan koji korisnik nikad ne vidi. Sada se plan prikaže u logu kao
