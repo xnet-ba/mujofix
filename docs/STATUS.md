@@ -59,6 +59,19 @@
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
   test_faza4c); ukupno 149 (+2 za V1 config +2 za _cmd = 153). netestirano: zivi put nije
   pokrenut na Windows VM-u (nema UAC/VM okruzenja, ne trosi se mreza).
+- ISPRAVLJENO 2026-10-18 (izolacija je bila laz): config se MERGE-ovao sa
+  korisnickim globalnim `~/.config/opencode`, pa je nas agent naslijedio
+  globalne MCP servere i pluginove. Dokazano protiv pinovanog binarnog
+  (`GET /config` sa i bez `XDG_CONFIG_HOME`): bez izolacije MCP =
+  [context7, gitnexus, mujofix, playwright] i 8 pluginova; sa izolacijom MCP =
+  [mujofix], 0 pluginova. Uz `mcp_*: true` to je znacilo da nas agent ima
+  playwright (browser) i pluginove koji izvrsavaju tudji kod — suprotno tvrdnji
+  "izolirani opencode.json". Sada `build_chain` dize server sa
+  `XDG_CONFIG_HOME=<workdir>/config-home` (`agent_config.config_home`).
+  Kredencijali (auth.json) su u DATA diru, ne u config diru, pa zivi model
+  ostaje prijavljen. Testovi: `TestIsolatedConfigHome` (2). Ukupno 172, OK.
+  NEPROVJERENO (VM): da li pinovani binarni na Windowsu postuje
+  XDG_CONFIG_HOME (na Linuxu dokazano) — ako ne, izolacija ne radi na Win.
 - ISPRAVLJENO 2026-10-18 (AI plan je bio mrtav kod): `_on_explained` je
   ignorisao `resp.plan` — plan se validirao i onda bacao, pa je README
   obećavao plan koji korisnik nikad ne vidi. Sada se plan prikaže u logu kao

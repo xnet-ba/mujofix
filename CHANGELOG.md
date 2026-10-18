@@ -17,6 +17,10 @@
   razlog. `build_chain`/`LiveSession` drze vlasnistvo nad procesom i gase ga
   na zatvaranju prozora (bez zaostalih procesa). netestirano na Windows VM-u.
 ### Ispravljeno
+- Izolacija configa: nas `opencode.json` se stapao sa korisnickim globalnim
+  (`~/.config/opencode`) — agent je dobijao globalne MCP servere (npr.
+  playwright) i pluginove. Server se sada dize sa izolovanim
+  `XDG_CONFIG_HOME` (kredencijali ostaju u data diru, zivi model radi).
 - AI plan se nije prikazivao (validirao se pa bacao): sada se prikaze kao
   citljiva lista koraka; primjena i dalje ide preko akcija odabranih nalaza.
 - Zivi put: prompt je tvrdio da nalazi dolaze samo kao MCP podaci (a u zivom

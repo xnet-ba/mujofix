@@ -99,6 +99,22 @@ def build_config(mcp_command: list[str]) -> dict:
     }
 
 
+def config_home(workdir: str) -> str:
+    """Zaseban config-home za `opencode serve` (XDG_CONFIG_HOME).
+
+    Bez ovoga se nas `opencode.json` MERGE-uje sa korisnickim globalnim
+    (~/.config/opencode): nas agent naslijedi globalne MCP servere (npr.
+    playwright), `external_directory` pravila i pluginove. Dokazano protiv
+    pinovanog binarnog: `opencode debug config` sa izolovanim config-home
+    vidi SAMO nas MCP i 0 pluginova (bez toga: 4 MCP servera). Kredencijali
+    (auth.json) su u DATA diru, ne u config diru, pa zivi model ostaje
+    prijavljen.
+    """
+    path = os.path.join(workdir, "config-home")
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
 def write_config(workdir: str, mcp_command: list[str]) -> str:
     """Upisi opencode.json u radni direktorij aplikacije (ne u ~/.config)."""
     os.makedirs(workdir, exist_ok=True)

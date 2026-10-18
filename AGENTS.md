@@ -35,6 +35,10 @@
   (zamrznuto: `MujoFixCLI.exe mcp`) — GUI exe nema konzolu pa ne moze stdio.
   Radni dir za server nikad nije cwd: `default_ai_workdir()`
   (`%LOCALAPPDATA%\MujoFix\ai`).
+  Server se dize sa `XDG_CONFIG_HOME=<workdir>/config-home`
+  (`agent_config.config_home`): bez toga se nas config stapa sa korisnickim
+  globalnim (globalni MCP serveri + pluginovi u nasem agentu, dokazano protiv
+  binarnog). Nikad ne diraj DATA dir — tu je `auth.json`.
   Sesiju (`LiveSession`) drzi GUI i UVEK je zatvori na `closeEvent`; nikad ne
   ostavljaj `opencode serve` kao zaostali proces.
 - Agent config (`agent_config.build_config`): samo **V1** oblik (`mcp` mapa,

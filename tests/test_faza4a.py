@@ -258,7 +258,7 @@ class TestBuildChain(unittest.TestCase):
         """Bez opencode.json server nema agenta `mujofix` -> config mora biti tu."""
         server = FakeServer()
         build_chain(True, self.wd, binary="/x/opencode",
-                    server_factory=lambda _b, _d: server,
+                    server_factory=lambda _b, _d, **kw: server,
                     model_lister=lambda _b: ["opencode/beam-free"])
         with open(os.path.join(self.wd, "opencode.json"), encoding="utf-8") as fh:
             cfg = json.load(fh)
@@ -284,7 +284,7 @@ class TestBuildChain(unittest.TestCase):
     def test_server_failure_closes_process_and_falls_back(self):
         server = FakeServer(fail_start=True)
 
-        def factory(_bin, _dir):
+        def factory(_bin, _dir, **kw):
             return server
 
         session = build_chain(True, self.wd, binary="/x/opencode",
@@ -298,7 +298,7 @@ class TestBuildChain(unittest.TestCase):
     def test_no_free_model_closes_server(self):
         server = FakeServer()
         session = build_chain(True, self.wd, binary="/x/opencode",
-                              server_factory=lambda _b, _d: server,
+                              server_factory=lambda _b, _d, **kw: server,
                               model_lister=lambda _b: ["anthropic/claude"])
         self.assertFalse(session.live)
         self.assertEqual(server.closed, 1)
@@ -307,7 +307,7 @@ class TestBuildChain(unittest.TestCase):
     def test_live_chain_prefers_free_marker_over_stealth(self):
         server = FakeServer()
         session = build_chain(True, self.wd, binary="/x/opencode",
-                              server_factory=lambda _b, _d: server,
+                              server_factory=lambda _b, _d, **kw: server,
                               model_lister=lambda _b: ["opencode/big-pickle",
                                                        "opencode/beam-free"])
         self.assertTrue(session.live)
@@ -321,6 +321,41 @@ class TestBuildChain(unittest.TestCase):
         session.close()  # idempotentno: drugi close ne dira server ponovo
         self.assertEqual(server.closed, 1)
 
+
+class TestIsolatedConfigHome(unittest.TestCase):
+    def test_config_home_is_inside_workdir_and_created(self):
+        from mujofix.ai.agent_config import config_home
+        with tempfile.TemporaryDirectory() as wd:
+            path = config_home(wd)
+            self.assertTrue(path.startswith(wd))
+            self.assertTrue(os.path.isdir(path))
+
+    def test_build_chain_isolates_global_config(self):
+        """Bez XDG_CONFIG_HOME nas agent naslijedi globalne MCP/pluginove."""
+        captured = {}
+
+        class Server:
+            url = "http://127.0.0.1:1"
+            password = "x"
+
+            def start(self):
+                return self
+
+            def close(self):
+                pass
+
+        def factory(_bin, _dir, **kw):
+            captured.update(kw)
+            return Server()
+
+        with tempfile.TemporaryDirectory() as wd:
+            session = build_chain(True, wd, binary="/bin/true",
+                                  server_factory=factory,
+                                  model_lister=lambda _b: ["opencode/a-free"])
+            self.assertTrue(session.live)
+        xdg = captured.get("extra_env", {}).get("XDG_CONFIG_HOME")
+        self.assertTrue(xdg)
+        self.assertTrue(xdg.startswith(wd))
 
 class TestOpenCodeProviderCmd(unittest.TestCase):
     def _provider(self):

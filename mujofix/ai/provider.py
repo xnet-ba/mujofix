@@ -349,10 +349,13 @@ def build_chain(consent_on: bool, workdir: str | None = None, *,
     try:
         # Bez ovoga server nema svog agenta (`mujofix`) ni MCP alate, pa bi
         # `run --agent mujofix` pao — config se zato upisuje prije starta.
-        from mujofix.ai.agent_config import mcp_command, write_config
+        from mujofix.ai.agent_config import config_home, mcp_command, write_config
         write_config(workdir, mcp_command())
+        # Izolovan config-home: bez ovoga se nas config stapa sa korisnickim
+        # globalnim (globalni MCP serveri, pravila, pluginovi u nasem agentu).
         server = (server_factory or opencode_runtime.OpencodeServer)(
-            bin_path, workdir)
+            bin_path, workdir,
+            extra_env={"XDG_CONFIG_HOME": config_home(workdir)})
         server.start()
         models = free_zen_models((model_lister or list_models)(bin_path))
     except Exception as exc:
