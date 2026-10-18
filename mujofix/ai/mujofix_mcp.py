@@ -5,7 +5,7 @@ Izlozeni alati (nijedan ne mijenja sistem, samo citaju/vroliraju):
 - propose_plan (validira plan prema schemi + allowlisti; odbija sve izvan kataloga)
 
 Podaci: --findings <json> s pravim izlazom scannera (Faza 4); bez argumenta
-sluze spike-fixture (Faza 0). Transport: JSON-RPC 2.0, poruka po liniji.
+postoje od Faze 0 (spike); serviraju SAMO stvarne podatke. Transport: JSON-RPC 2.0, poruka po liniji.
 """
 
 from __future__ import annotations
@@ -13,12 +13,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import platform
 import sys
 
 SERVER_NAME = "mujofix"
 SERVER_VERSION = "0.0.1"
-SPIKE_MARKER = "MUJOFIX-SPIKE-OK"
 MAX_PLAN_STEPS = 20
 
 # Faza 0 allowlista: samo 3 akcije iz specifikacije.
@@ -67,6 +65,11 @@ def validate_plan(plan: object) -> tuple[bool, str]:
     return True, f"prihvaceno {len(steps)} koraka"
 
 
+# Canary koji koristi scripts/phase0_spike.py: dokazuje da se sumnjiv tekst
+# vrati modelu samo kao citirani podatak, nikad kao instrukcija. Nije podatak
+# koji server izmislja (server vise ne servira nikakve lazne vrijednosti).
+SPIKE_MARKER = "MUJOFIX-SPIKE-OK"
+
 STORE: dict = {"findings": [], "system_info": None}
 
 
@@ -80,17 +83,18 @@ def load_findings_file(path: str) -> None:
     STORE["system_info"] = data.get("system_info")
 
 
-def _spike_system_info() -> dict:
-    return {
-        "spike": True,
-        "marker": SPIKE_MARKER,
-        "os": platform.system(),
-        "note": "lazni podaci za Fazu 0 (stvarni scanneri dolaze u Fazi 1)",
-    }
+NO_DATA_NOTE = (
+    "No findings snapshot is loaded in this MCP process. In the live app the "
+    "findings for this request are delivered as DATA in the user message; use "
+    "them. Do not guess or invent anything, and do not report this tool's "
+    "emptiness as 'no findings found'."
+)
 
 
 def _call_tool(name: str, args: dict) -> dict:
     if name == "get_findings":
+        if not STORE["findings"]:
+            return {"findings": [], "note": NO_DATA_NOTE}
         return {"findings": STORE["findings"]}
     if name == "get_evidence":
         wanted = args.get("finding_id")
@@ -101,14 +105,11 @@ def _call_tool(name: str, args: dict) -> dict:
         if STORE["findings"]:
             return {"finding_id": wanted, "evidence": {},
                     "error": "nepoznat finding_id"}
-        return {
-            "finding_id": args.get("finding_id"),
-            "evidence": "spike-fixture: nema stvarnih dokaza u Fazi 0",
-        }
+        return {"finding_id": wanted, "evidence": {}, "note": NO_DATA_NOTE}
     if name == "get_system_info":
         if STORE["system_info"] is not None:
             return STORE["system_info"]
-        return _spike_system_info()
+        return {"system_info": None, "note": NO_DATA_NOTE}
     if name == "get_action_catalog":
         return {"actions": sorted(ACTION_ALLOWLIST)}
     if name == "propose_plan":

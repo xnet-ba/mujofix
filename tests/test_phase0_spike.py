@@ -90,6 +90,17 @@ class TestAgentConfig(unittest.TestCase):
         self.assertNotIn("permissions", cfg["agent"][AGENT_ID])
         self.assertIn("prompt", cfg["agent"][AGENT_ID])
 
+    def test_prompt_matches_real_data_path(self):
+        """Nalazi idu u poruci (build_prompt); prompt to mora reci.
+
+        Stari tekst je tvrdio "ONLY as tool data from the mujofix MCP server",
+        a get_findings u zivom putu vraca prazno -> agent bi zakljucio da nema
+        nalaza.
+        """
+        from mujofix.ai.agent_config import SYSTEM_PROMPT
+        self.assertNotIn("ONLY as tool data", SYSTEM_PROMPT)
+        self.assertIn("user message", SYSTEM_PROMPT)
+
     def test_mode_is_not_subagent(self):
         """subagent -> `run --agent mujofix` tiho koristi DEFAULT agent.
 

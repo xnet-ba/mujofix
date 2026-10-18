@@ -17,6 +17,10 @@
   razlog. `build_chain`/`LiveSession` drze vlasnistvo nad procesom i gase ga
   na zatvaranju prozora (bez zaostalih procesa). netestirano na Windows VM-u.
 ### Ispravljeno
+- Zivi put: prompt je tvrdio da nalazi dolaze samo kao MCP podaci (a u zivom
+  putu `get_findings` je prazan) i `get_system_info` je bez snimka vracao
+  lazni "spike" fixture modelu koji ne smije izmisljati. Prompt sada opisuje
+  stvarni put (nalazi = podaci u poruci), prazan snimak daje postenu biljesku.
 - Ekran pristanka prikazuje tacan tekst zahtjeva (i onaj koji stvarno ide
   modelu): ista funkcija `build_prompt` gradi i primjer i zahtjev.
 - Privatnost: anonimizacija se prije radila SAMO za ekran "sto je poslano",

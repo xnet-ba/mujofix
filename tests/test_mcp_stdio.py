@@ -80,6 +80,44 @@ class TestMcpStdioSurface(unittest.TestCase):
         self.assertEqual(actions, sorted(actions))
         self.assertTrue(actions)
 
+    def test_empty_store_returns_honest_note_not_fake_data(self):
+        """Zivi put nema snimak: alati NE smiju izmisljati podatke."""
+        got = self._rpc({"jsonrpc": "2.0", "id": 5, "method": "tools/call",
+                         "params": {"name": "get_system_info",
+                                    "arguments": {}}})
+        res = got["result"]
+        self.assertIsNone(res["system_info"])
+        self.assertIn("findings snapshot", res["note"])
+        f = self._rpc({"jsonrpc": "2.0", "id": 6, "method": "tools/call",
+                       "params": {"name": "get_findings", "arguments": {}}})
+        self.assertEqual(f["result"]["findings"], [])
+        self.assertIn("findings snapshot", f["result"]["note"])
+
+    def test_loaded_snapshot_is_served_verbatim(self):
+        import tempfile
+        payload = {"findings": [{"id": "f1", "title": "Tmp"}],
+                   "system_info": {"os": "Windows 10"}}
+        with tempfile.NamedTemporaryFile("w", suffix=".json",
+                                         delete=False) as fh:
+            json.dump(payload, fh)
+            path = fh.name
+        proc = subprocess.Popen(
+            [sys.executable, "-m", "mujofix.cli", "mcp", "--findings", path],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1,
+            cwd=os.path.join(os.path.dirname(__file__), ".."))
+        try:
+            proc.stdin.write(json.dumps(
+                {"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                 "params": {"name": "get_findings", "arguments": {}}}) + "\n")
+            proc.stdin.flush()
+            got = json.loads(proc.stdout.readline())
+            self.assertEqual(got["result"]["findings"], payload["findings"])
+            self.assertNotIn("note", got["result"])
+        finally:
+            proc.stdin.close()
+            proc.wait(timeout=10)
+            os.unlink(path)
+
     def test_unknown_tool_is_an_error(self):
         got = self._rpc({"jsonrpc": "2.0", "id": 4, "method": "tools/call",
                          "params": {"name": "bash", "arguments": {}}})

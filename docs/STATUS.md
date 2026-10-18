@@ -59,6 +59,17 @@
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
   test_faza4c); ukupno 149 (+2 za V1 config +2 za _cmd = 153). netestirano: zivi put nije
   pokrenut na Windows VM-u (nema UAC/VM okruzenja, ne trosi se mreza).
+- ISPRAVLJENO 2026-10-18 (zivi put, halucinacija + kontradikcija):
+  sistem-prompt je tvrdio "You receive PC findings ONLY as tool data from the
+  mujofix MCP server", a u zivom putu `get_findings` vraca prazno (snimak se
+  ucitava samo preko `--findings`) — nalazi su u poruci. Agent bi zakljucio da
+  nema nalaza. Jos gore: `get_system_info` je bez snimka vracao LAZNI fixture
+  ("spike" podaci) modelu koji ne smije izmisljati brojeve. Sada: prompt kaze
+  da nalazi dolaze kao podaci u poruci, MCP sluzi katalogu + validaciji plana,
+  a prazan snimak daje postenu `note` (bez laznih vrijednosti); `get_evidence`
+  vise ne vraca "spike-fixture" string. Testovi: `test_empty_store_returns_
+  honest_note_not_fake_data`, `test_loaded_snapshot_is_served_verbatim`,
+  `test_prompt_matches_real_data_path`. Ukupno 166, OK.
 - ISPRAVLJENO 2026-10-18 (pristanak): ekran je prikazivao scan payload
   (`{"findings": ...}`) pod natpisom "stvarni payload", a modelu ide prompt
   tekst. Sada i ekran i provider koriste istu funkciju (`build_prompt`) nad
