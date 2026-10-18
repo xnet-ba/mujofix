@@ -17,6 +17,10 @@
   razlog. `build_chain`/`LiveSession` drze vlasnistvo nad procesom i gase ga
   na zatvaranju prozora (bez zaostalih procesa). netestirano na Windows VM-u.
 ### Ispravljeno
+- `ai/agent_config.py`: agent je bio `mode: "subagent"`, a `opencode run
+  --agent mujofix` tada tiho koristi DEFAULT agent (sa svim alatima) —
+  zabrana alata se zaobilazila. Sada `mode: "all"`; dokazano protiv pinovanog
+  binarnog (upozorenje "Falling back to default agent" samo za subagent).
 - `ai/agent_config.py`: config je bio V2 oblik koji pinovani (V1) opencode
   odbija (`ConfigInvalidError`, 400) — zivi put bi pao pri startu. Sada V1
   (`mcp` mapa, `agent`, `prompt`, `tools`: svi ugradjeni alati `false`,

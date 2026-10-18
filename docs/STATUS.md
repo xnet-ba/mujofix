@@ -59,6 +59,13 @@
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
   test_faza4c); ukupno 149 (+2 za V1 config +2 za _cmd = 153). netestirano: zivi put nije
   pokrenut na Windows VM-u (nema UAC/VM okruzenja, ne trosi se mreza).
+- ISPRAVLJENO 2026-10-18 (sigurnosno, dokazano protiv pinovanog binarnog):
+  agent je bio `mode: "subagent"`, a `opencode run --agent mujofix` tada TIHO
+  odbaci nas agent i nastavi sa DEFAULT agentom (puni pristup): "agent
+  "mujofix" is a subagent, not a primary agent. Falling back to default agent".
+  Sada `mode: "all"` — `run --agent mujofix` ostaje na nasem agentu (dokaz:
+  probe sa sve tri vrijednosti; `primary` i `all` bez upozorenja, `subagent`
+  sa upozorenjem). Test: `test_mode_is_not_subagent`. Ukupno 160 testa, OK.
 - ISPRAVLJENO 2026-10-18 (zivi put je bio nemoguc u praksi): `write_config`
   se NIGDJE nije zvao u aplikaciji (samo u testovima) → server je dizan bez
   `opencode.json`, agent `mujofix` nije postojao, `--agent mujofix` bi pao i

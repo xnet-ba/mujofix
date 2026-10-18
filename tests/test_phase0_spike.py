@@ -90,6 +90,16 @@ class TestAgentConfig(unittest.TestCase):
         self.assertNotIn("permissions", cfg["agent"][AGENT_ID])
         self.assertIn("prompt", cfg["agent"][AGENT_ID])
 
+    def test_mode_is_not_subagent(self):
+        """subagent -> `run --agent mujofix` tiho koristi DEFAULT agent.
+
+        Dokazano protiv pinovanog binarnog: upozorenje "agent ... is a
+        subagent, not a primary agent. Falling back to default agent" i model
+        se izvrsava sa punim (nedozvoljenim) alatima.
+        """
+        cfg = build_config(["python", "mcp.py"])
+        self.assertNotEqual(cfg["agent"][AGENT_ID]["mode"], "subagent")
+
     def test_no_auto_update_no_share(self):
         cfg = build_config(["python", "mcp.py"])
         self.assertEqual(cfg["update"], "disable")

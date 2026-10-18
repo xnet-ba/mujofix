@@ -25,7 +25,9 @@
   `ai/provider.build_chain` (offline bez pristanka, ziv Zen uz pristanak).
   `build_chain` MORA upisati izolirani `opencode.json` prije starta servera
   (`agent_config.write_config` + `mcp_command`); bez toga server nema agenta
-  `mujofix` ni MCP alate. MCP server se pokrece kao `mujofix.cli mcp`
+  `mujofix` ni MCP alate. Agent MORA biti `mode: "all"` (ili `primary`): sa
+  `subagent` `run --agent mujofix` tiho pada na default agent i zaobilazi
+  zabranu alata. MCP server se pokrece kao `mujofix.cli mcp`
   (zamrznuto: `MujoFixCLI.exe mcp`) — GUI exe nema konzolu pa ne moze stdio.
   Radni dir za server nikad nije cwd: `default_ai_workdir()`
   (`%LOCALAPPDATA%\MujoFix\ai`).

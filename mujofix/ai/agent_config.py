@@ -81,7 +81,9 @@ def build_config(mcp_command: list[str]) -> dict:
         "agent": {
             AGENT_ID: {
                 "description": "MujoFix objasnjavac nalaza (bez izvrsavanja)",
-                "mode": "subagent",
+                # NE "subagent": `run --agent mujofix` tada TIHO padne na
+                # default agent (sa svim alatima) uz upozorenje u tekstu.
+                "mode": "all",
                 "prompt": SYSTEM_PROMPT,
                 # svi ugrađeni alati zabranjeni; samo MujoFix MCP alati smiju.
                 "tools": {
