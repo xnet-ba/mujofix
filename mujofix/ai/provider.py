@@ -1,6 +1,6 @@
 """Provider interfejs: OpenCode je zamjenjiv (Ollama / OpenAI-kompatibilni).
 
-Slojevi: Provider (apstraktan) -> OpenCodeProvider (opencode run --attach uz
+Slojevi: Provider (apstraktan) -> OpenCodeProvider (opencode run kao
 agenta mujofix) -> FallbackChain (A -> B -> C -> OfflineProvider).
 Bezbjednost ne zavisi od modela: plan uvijek prolazi validate_plan, kontekst
 je kompaktan (max N nalaza), a svi odlazni zahtjevi se loguju za ekran
@@ -134,21 +134,25 @@ def build_prompt(findings: list[dict]) -> str:
 
 
 class OpenCodeProvider(Provider):
-    """Model kroz `opencode run --attach` uz zabranjenog agenta mujofix.
+    """Model kroz `opencode run` kao child proces (bez servera/web UI-a).
+
+    Nema lokalnog backend-a: ne dizemo `opencode serve`, ne otvaramo port i ne
+    prosljedjujemo `--attach`/`--password`. `run` sam vodi poziv modela, a nas
+    agent + MCP alate cita iz izolovanog `opencode.json` (`env` nosi
+    XDG_CONFIG_HOME; vidi `agent_config.child_env`).
 
     Izlaz se cita kao TEKST (default format): plan je ```json blok u odgovoru.
-    `--format json` je "raw JSON events" stream (dokumentovano) cija sema nije
-    zagarantovana, pa bi se plan u njemu izgubio — zato se ne koristi.
+    `--format json` je "raw JSON events" stream cija sema nije zagarantovana,
+    pa bi se plan u njemu izgubio — zato se ne koristi.
     Svaki neuspjeh = ProviderError -> sljedeci u lancu. Nikad lazno OK.
     """
 
-    def __init__(self, binary: str, server_url: str, password: str,
-                 workdir: str, model: str, timeout_s: int = 120):
+    def __init__(self, binary: str, workdir: str, model: str,
+                 env: dict[str, str] | None = None, timeout_s: int = 120):
         self.binary = binary
-        self.server_url = server_url
-        self.password = password
         self.workdir = workdir
         self.model = model
+        self.env = dict(env) if env else None
         self.timeout_s = timeout_s
         self.name = f"opencode:{model}"
 
@@ -158,8 +162,7 @@ class OpenCodeProvider(Provider):
     def _cmd(self, prompt: str) -> list[str]:
         """Komanda za jedan poziv; zabranjeni flagovi nikad ne smiju proci."""
         from mujofix.ai.opencode_runtime import FORBIDDEN_FLAGS
-        cmd = [self.binary, "run", "--attach", self.server_url,
-               "--password", self.password, "--agent", AGENT_ID,
+        cmd = [self.binary, "run", "--agent", AGENT_ID,
                "--dir", self.workdir, "--model", self.model, prompt]
         for flag in FORBIDDEN_FLAGS:
             if flag in cmd:
@@ -168,9 +171,12 @@ class OpenCodeProvider(Provider):
 
     def explain(self, request: AIRequest) -> AIResponse:
         cmd = self._cmd(self._prompt(request.findings))
+        run_env = dict(os.environ)
+        if self.env:
+            run_env.update(self.env)
         try:
             proc = subprocess.run(cmd, capture_output=True, text=True,
-                                  timeout=self.timeout_s)
+                                  timeout=self.timeout_s, env=run_env)
         except subprocess.TimeoutExpired as exc:
             raise ProviderError(f"timeout: {exc}")
         if proc.returncode != 0:
@@ -293,46 +299,29 @@ def free_zen_models(models: list[str]) -> list[str]:
     return out
 
 
-def _close_quietly(server) -> None:
-    """Gasenje servera ne smije srusiti pozivaoca (zatvaranje app-a, kvar)."""
-    if server is None:
-        return
-    try:
-        server.close()
-    except Exception:
-        pass
-
-
 class LiveSession:
-    """Ziv provider + `opencode serve` proces koji ga drzi.
+    """Rezultat `build_chain`: lanac + iskren opis stanja.
 
-    Vlasnistvo je izricito: ko napravi sesiju zove `close()` (GUI na zatvaranju
-    ili pri novom objasnjenju). Bez toga bi `opencode serve` ostao zaostali
-    proces. `live=False` znaci offline lanac (uz razlog u `note`).
+    MujoFix ne drzi nikakav proces izmedju objasnjenja (nema servera), pa ovo
+    nije vlasnik resursa — samo nosi lanac i `note` za GUI. `live=False` znaci
+    offline lanac (uz razlog u `note`).
     """
 
-    def __init__(self, chain: "FallbackChain", note: str, server=None) -> None:
+    def __init__(self, chain: "FallbackChain", note: str,
+                 live: bool = False) -> None:
         self.chain = chain
         self.note = note
-        self._server = server
-
-    @property
-    def live(self) -> bool:
-        return self._server is not None
-
-    def close(self) -> None:
-        server, self._server = self._server, None
-        _close_quietly(server)
+        self.live = live
 
 
 def build_chain(consent_on: bool, workdir: str | None = None, *,
-                binary: str | None = None, server_factory=None,
-                model_lister=None) -> LiveSession:
+                binary: str | None = None, model_lister=None) -> LiveSession:
     """Lanac za objasnjenje: offline po defaultu, zivi Zen uz pristanak.
 
     Nikad ne baca i nikad ne pokrece proces bez pristanka. Svaki neuspjeh
-    (nema binary-ja, server se ne digne, nema besplatnog modela) daje offline
-    lanac + iskren razlog u `note` — bez tvrdnje da AI radi.
+    (nema binary-ja, nema besplatnog modela) daje offline lanac + iskren
+    razlog u `note` — bez tvrdnje da AI radi. Ne dizemo server: `opencode run`
+    se pokrece tek pri objasnjenju, kao child proces.
     """
     if not consent_on:
         return LiveSession(FallbackChain([OfflineProvider()]),
@@ -345,32 +334,23 @@ def build_chain(consent_on: bool, workdir: str | None = None, *,
     except Exception as exc:
         return LiveSession(FallbackChain([OfflineProvider()]),
                            f"offline: nema OpenCode binary-ja ({exc})")
-    server = None
     try:
-        # Bez ovoga server nema svog agenta (`mujofix`) ni MCP alate, pa bi
-        # `run --agent mujofix` pao — config se zato upisuje prije starta.
-        from mujofix.ai.agent_config import config_home, mcp_command, write_config
+        # Bez ovoga `run --agent mujofix` ne bi nasao nas agent ni MCP alate:
+        # config se upisuje u radni dir, a child ga cita preko XDG_CONFIG_HOME.
+        from mujofix.ai.agent_config import child_env, mcp_command, write_config
         write_config(workdir, mcp_command())
-        # Izolovan config-home: bez ovoga se nas config stapa sa korisnickim
-        # globalnim (globalni MCP serveri, pravila, pluginovi u nasem agentu).
-        server = (server_factory or opencode_runtime.OpencodeServer)(
-            bin_path, workdir,
-            extra_env={"XDG_CONFIG_HOME": config_home(workdir)})
-        server.start()
+        env = child_env(workdir)
         models = free_zen_models((model_lister or list_models)(bin_path))
     except Exception as exc:
-        _close_quietly(server)
         return LiveSession(FallbackChain([OfflineProvider()]),
                            f"offline: zivi model nedostupan ({exc})")
     if not models:
-        _close_quietly(server)
         return LiveSession(FallbackChain([OfflineProvider()]),
                            "offline: nema besplatnog Zen modela")
     # "-free" marker ispred stealth modela (stealth je za prikupljanje
     # povratnih informacija), pa abecedno — deterministicki izbor.
     chosen = sorted(models, key=lambda m: ("-free" not in m.lower(),
                                            m.lower()))[0]
-    provider = OpenCodeProvider(bin_path, server.url, server.password,
-                                workdir, chosen)
+    provider = OpenCodeProvider(bin_path, workdir, chosen, env=env)
     return LiveSession(FallbackChain([provider, OfflineProvider()]),
-                       f"zivi model: {chosen}", server=server)
+                       f"zivi model: {chosen}", live=True)

@@ -222,30 +222,16 @@ class TestPlanParse(unittest.TestCase):
                           "opencode/beam-free"])
 
 
-class FakeServer:
-    def __init__(self, fail_start: bool = False):
-        self.started = 0
-        self.closed = 0
-        self.fail_start = fail_start
-        self.url = "http://127.0.0.1:9"
-        self.password = "pw"
-
-    def start(self):
-        self.started += 1
-        if self.fail_start:
-            raise RuntimeError("port zauzet")
-        return self
-
-    def close(self):
-        self.closed += 1
-
-
 def boom(*_a, **_k):
-    raise AssertionError("server se ne smije dizati bez pristanka")
+    raise AssertionError("ovo se ne smije pozvati bez pristanka/na putu")
 
 
 class TestBuildChain(unittest.TestCase):
-    """build_chain: offline default, ziv Zen samo uz pristanak, nikad ne baca."""
+    """build_chain: offline default, ziv Zen samo uz pristanak, nikad ne baca.
+
+    MujoFix ne dizemo server — lanac se gradi, a `opencode run` se pokrece tek
+    pri objasnjenju (kao child proces).
+    """
 
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
@@ -254,11 +240,9 @@ class TestBuildChain(unittest.TestCase):
     def tearDown(self):
         self._tmp.cleanup()
 
-    def test_writes_agent_config_before_start(self):
-        """Bez opencode.json server nema agenta `mujofix` -> config mora biti tu."""
-        server = FakeServer()
+    def test_writes_agent_config_for_run(self):
+        """Bez opencode.json `run --agent mujofix` ne bi nasao agenta ni MCP."""
         build_chain(True, self.wd, binary="/x/opencode",
-                    server_factory=lambda _b, _d, **kw: server,
                     model_lister=lambda _b: ["opencode/beam-free"])
         with open(os.path.join(self.wd, "opencode.json"), encoding="utf-8") as fh:
             cfg = json.load(fh)
@@ -267,7 +251,7 @@ class TestBuildChain(unittest.TestCase):
 
     def test_consent_off_is_offline_and_no_spawn(self):
         session = build_chain(False, self.wd, binary="/x/opencode",
-                              server_factory=boom, model_lister=boom)
+                              model_lister=boom)
         self.assertFalse(session.live)
         self.assertIn("pristanak", session.note)
         self.assertEqual(len(session.chain.providers), 1)
@@ -277,37 +261,24 @@ class TestBuildChain(unittest.TestCase):
         from mujofix.ai import opencode_runtime
         with patch.object(opencode_runtime, "bundled_binary",
                           side_effect=opencode_runtime.OpencodeNotFound("nema")):
-            session = build_chain(True, self.wd, server_factory=boom)
+            session = build_chain(True, self.wd)
         self.assertFalse(session.live)
         self.assertIn("OpenCode", session.note)
 
-    def test_server_failure_closes_process_and_falls_back(self):
-        server = FakeServer(fail_start=True)
-
-        def factory(_bin, _dir, **kw):
-            return server
-
+    def test_model_lister_failure_is_offline(self):
         session = build_chain(True, self.wd, binary="/x/opencode",
-                              server_factory=factory,
-                              model_lister=lambda _b: ["opencode/beam-free"])
+                              model_lister=boom)
         self.assertFalse(session.live)
-        self.assertEqual(server.started, 1)
-        self.assertEqual(server.closed, 1)
         self.assertIn("zivi model nedostupan", session.note)
 
-    def test_no_free_model_closes_server(self):
-        server = FakeServer()
+    def test_no_free_model_is_offline(self):
         session = build_chain(True, self.wd, binary="/x/opencode",
-                              server_factory=lambda _b, _d, **kw: server,
                               model_lister=lambda _b: ["anthropic/claude"])
         self.assertFalse(session.live)
-        self.assertEqual(server.closed, 1)
         self.assertIn("nema besplatnog Zen modela", session.note)
 
     def test_live_chain_prefers_free_marker_over_stealth(self):
-        server = FakeServer()
         session = build_chain(True, self.wd, binary="/x/opencode",
-                              server_factory=lambda _b, _d, **kw: server,
                               model_lister=lambda _b: ["opencode/big-pickle",
                                                        "opencode/beam-free"])
         self.assertTrue(session.live)
@@ -316,10 +287,15 @@ class TestBuildChain(unittest.TestCase):
         self.assertIsInstance(first, OpenCodeProvider)
         self.assertEqual(first.model, "opencode/beam-free")
         self.assertIsInstance(last, OfflineProvider)
-        session.close()
-        self.assertEqual(server.closed, 1)
-        session.close()  # idempotentno: drugi close ne dira server ponovo
-        self.assertEqual(server.closed, 1)
+
+    def test_live_provider_env_isolates_config_home(self):
+        """Bez XDG_CONFIG_HOME nas config se stapa sa korisnickim globalnim."""
+        session = build_chain(True, self.wd, binary="/x/opencode",
+                              model_lister=lambda _b: ["opencode/a-free"])
+        provider = session.chain.providers[0]
+        xdg = (provider.env or {}).get("XDG_CONFIG_HOME")
+        self.assertTrue(xdg)
+        self.assertTrue(xdg.startswith(self.wd))
 
 
 class TestIsolatedConfigHome(unittest.TestCase):
@@ -332,35 +308,17 @@ class TestIsolatedConfigHome(unittest.TestCase):
 
     def test_build_chain_isolates_global_config(self):
         """Bez XDG_CONFIG_HOME nas agent naslijedi globalne MCP/pluginove."""
-        captured = {}
-
-        class Server:
-            url = "http://127.0.0.1:1"
-            password = "x"
-
-            def start(self):
-                return self
-
-            def close(self):
-                pass
-
-        def factory(_bin, _dir, **kw):
-            captured.update(kw)
-            return Server()
-
         with tempfile.TemporaryDirectory() as wd:
             session = build_chain(True, wd, binary="/bin/true",
-                                  server_factory=factory,
                                   model_lister=lambda _b: ["opencode/a-free"])
             self.assertTrue(session.live)
-        xdg = captured.get("extra_env", {}).get("XDG_CONFIG_HOME")
-        self.assertTrue(xdg)
-        self.assertTrue(xdg.startswith(wd))
+            env = session.chain.providers[0].env or {}
+        self.assertTrue((env.get("XDG_CONFIG_HOME") or "").startswith(wd))
+
 
 class TestOpenCodeProviderCmd(unittest.TestCase):
     def _provider(self):
-        return OpenCodeProvider("/x/opencode", "http://127.0.0.1:1", "pw",
-                                "/tmp", "opencode/beam-free")
+        return OpenCodeProvider("/x/opencode", "/tmp", "opencode/beam-free")
 
     def test_cmd_has_no_forbidden_flag_and_uses_text_output(self):
         from mujofix.ai.opencode_runtime import FORBIDDEN_FLAGS
@@ -369,7 +327,11 @@ class TestOpenCodeProviderCmd(unittest.TestCase):
             self.assertNotIn(flag, cmd)
         # --format json = raw event stream; plan se cita iz teksta → ne smije.
         self.assertNotIn("--format", cmd)
-        self.assertIn("--attach", cmd)
+        # Nema lokalnog backend-a: nista sto pokazuje na server.
+        for flag in ("--attach", "--password", "--port", "--hostname"):
+            self.assertNotIn(flag, cmd)
+        self.assertEqual(cmd[cmd.index("--agent") + 1], "mujofix")
+        self.assertEqual(cmd[cmd.index("--dir") + 1], "/tmp")
         self.assertEqual(cmd[cmd.index("--model") + 1], "opencode/beam-free")
 
     def test_forbidden_flag_would_raise(self):

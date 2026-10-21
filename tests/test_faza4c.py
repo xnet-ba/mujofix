@@ -35,7 +35,7 @@ def finding() -> dict:
 
 
 def offline_build(consent_on, workdir=None):
-    """Testni builder: nikad ne dira mrezu (bez zivog `opencode serve`)."""
+    """Testni builder: nikad ne dira mrezu ni model."""
     from mujofix.ai.provider import (
         FallbackChain,
         LiveSession,
@@ -98,12 +98,8 @@ class TestExplainFlow(unittest.TestCase):
             window.close()
             qtmp.cleanup()
 
-    def test_live_note_logged_and_server_closed_on_window_close(self):
-        closed: list[int] = []
-
-        class FakeServer:
-            def close(self):
-                closed.append(1)
+    def test_live_note_logged_and_no_process_is_left(self):
+        """MujoFix ne drzi server: ziv session samo nosi stanje, nema gasenja."""
 
         def live_build(consent_on, workdir=None):
             from mujofix.ai.provider import (
@@ -120,7 +116,7 @@ class TestExplainFlow(unittest.TestCase):
                     return AIResponse(text="zdravo", model="fake", plan=None)
 
             return LiveSession(FallbackChain([FakeProvider()]),
-                               "zivi model: fake", server=FakeServer())
+                               "zivi model: fake", live=True)
 
         window, qtmp = make_window([finding()], ai_build_fn=live_build)
         try:
@@ -130,8 +126,8 @@ class TestExplainFlow(unittest.TestCase):
             self.assertIn("zivi model: fake", log)
             self.assertIn("[AI: fake] zdravo", log)
             self.assertTrue(window._session.live)
-            window.close()
-            self.assertEqual(closed, [1])
+            window.close()  # nema procesa za ugasiti — ne smije puci
+            self.assertIsNone(window._session)
         finally:
             window.close()
             qtmp.cleanup()

@@ -100,7 +100,7 @@ def build_config(mcp_command: list[str]) -> dict:
 
 
 def config_home(workdir: str) -> str:
-    """Zaseban config-home za `opencode serve` (XDG_CONFIG_HOME).
+    """Zaseban config-home za opencode child (XDG_CONFIG_HOME).
 
     Bez ovoga se nas `opencode.json` MERGE-uje sa korisnickim globalnim
     (~/.config/opencode): nas agent naslijedi globalne MCP servere (npr.
@@ -113,6 +113,22 @@ def config_home(workdir: str) -> str:
     path = os.path.join(workdir, "config-home")
     os.makedirs(path, exist_ok=True)
     return path
+
+
+def child_env(workdir: str) -> dict[str, str]:
+    """Env za `opencode run` child: izolovan config-home (+ PYTHONPATH u dev-u).
+
+    `mcp_command()` u izvornom kodu pokrece `python -m mujofix.cli mcp` iz
+    radnog dir-a aplikacije (koji nije repo), pa bez PYTHONPATH MujoFix MCP
+    server ne bi bio nadjen. U zamrznutom izdanju ide `MujoFixCLI.exe mcp`,
+    pa PYTHONPATH nije potreban i ne dodaje se.
+    """
+    env = {"XDG_CONFIG_HOME": config_home(workdir)}
+    if not getattr(sys, "frozen", False):
+        root = os.path.dirname(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))))
+        env["PYTHONPATH"] = root
+    return env
 
 
 def write_config(workdir: str, mcp_command: list[str]) -> str:

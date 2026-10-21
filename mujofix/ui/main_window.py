@@ -63,7 +63,7 @@ def default_quarantine_dir() -> str:
 
 
 def default_ai_workdir() -> str:
-    """Radni dir za `opencode serve` — tu se upisuje izolirani opencode.json.
+    """Radni dir za opencode child — tu se upisuje izolirani opencode.json.
 
     Ne smije biti cwd (u zamrznutom EXE-u moze biti nezapisiv, npr. System32).
     Dir ne pravimo ovdje: kreira ga `agent_config.write_config`, a kvar postaje
@@ -108,10 +108,10 @@ class UpdateWorker(QThread):
 
 
 class ExplainWorker(QThread):
-    """Gradi lanac (moze dizati `opencode serve`) i objasnjava — van GUI niti.
+    """Gradi lanac i objasnjava — van GUI niti (bez servera).
 
-    Dizanje servera i poziv modela znaju potrajati, pa ne smiju blokirati
-    prozor. Sesiju vraca u `done` da je GUI moze drzati i ugasiti na kraju.
+    Poziv modela zna potrajati, pa ne smije blokirati prozor. Sesiju vraca u
+    `done` da GUI zna stanje (live/offline) i iskren razlog.
     """
 
     done = Signal(object, object)  # LiveSession, AIResponse
@@ -374,8 +374,6 @@ class MainWindow(QMainWindow):
         self._ai.start()
 
     def _on_explained(self, session, resp):
-        if self._session is not None:
-            self._session.close()  # prethodni `opencode serve` ne smije ostati
         self._session = session
         self._chain = session.chain
         self._log(f"[{session.note}]")
@@ -529,12 +527,10 @@ class MainWindow(QMainWindow):
         self.log.appendPlainText(message)
 
     def closeEvent(self, event):
-        """Ugasi zivi `opencode serve` (bez zavisnosti od GC-a)."""
+        """Sacekaj objasnjenje u toku; MujoFix ne drzi proces izmedju poziva."""
         if self._ai is not None and self._ai.isRunning():
-            self._ai.wait(3000)  # kratko: sprijeci trku sa gasenjem sesije
-        if self._session is not None:
-            self._session.close()
-            self._session = None
+            self._ai.wait(3000)
+        self._session = None
         super().closeEvent(event)
 
 
