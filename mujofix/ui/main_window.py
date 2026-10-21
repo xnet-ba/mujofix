@@ -81,11 +81,13 @@ def default_quarantine_dir() -> str:
 
 
 def default_audit_dir() -> str:
-    """Folder za JSON dnevnik izvrsavanja (%LOCALAPPDATA%\\MujoFix\\audit)."""
+    """Folder za JSON dnevnik izvrsavanja (%LOCALAPPDATA%\\MujoFix\\audit).
+
+    Ne pravi folder: `audit.write_record` ga napravi tek kad stvarno ima
+    zapisa (nema praznih foldera na prvom pokretanju).
+    """
     base = os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))
-    path = os.path.join(base, "MujoFix", "audit")
-    os.makedirs(path, exist_ok=True)
-    return path
+    return os.path.join(base, "MujoFix", "audit")
 
 
 def default_ai_workdir() -> str:

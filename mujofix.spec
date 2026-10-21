@@ -15,8 +15,10 @@ SPEC_DIR = os.path.dirname(os.path.abspath(SPEC))
 common = dict(
     pathex=[SPEC_DIR],
     binaries=[],
-    datas=[("mujofix/i18n", "mujofix/i18n"), ("CHANGELOG.md", "."),
-           ("assets", "assets")],
+    # CHANGELOG.md se cita u runtime-u (mujofix/version.py) pa mora u bundle;
+    # mujofix/i18n nije data — importuje se kao modul (PYZ), kopija bi bila
+    # duplikat (i nosila bi __pycache__ u bundle).
+    datas=[("CHANGELOG.md", "."), ("assets", "assets")],
     hiddenimports=[],
     hookspath=[],
     runtime_hooks=[],

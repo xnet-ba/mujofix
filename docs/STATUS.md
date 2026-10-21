@@ -90,6 +90,17 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- PAKOVANJE 2026-10-21 (dokaz na hostu, ne samo kompajliranje): PyInstaller
+  build po `mujofix.spec` prolazi (Linux ignorise `.ico` uz upozorenje), a
+  ZAMRZNUTI exe stvarno radi: `dist/MujoFix/MujoFixCLI scan --summary` -> "4
+  problema", `update` -> "Verzija 0.2.0 je najnovija", GUI (`MujoFix`)
+  se pokrene (offscreen smoke). U bundleu su `_internal/assets/mujofix.ico`
+  (za ikonu prozora) i `CHANGELOG.md` (version.py ga cita u runtime-u).
+  Uklonjen suvisan `mujofix/i18n` datas unos (modul ide u PYZ; kopija je
+  nosila i `__pycache__`). CI: novi smoke korak u `installer-windows` na svakom
+  push-u (prije je dist samo kompajliran; `build` job je imao smoke ali je
+  tag-only). Uz to `tests/test_workflows.py` hvata YAML trap (ne-citiran
+  `name:` sa ": ") koji tiho ugasi CI — bez PyYAML zavisnosti.
 - DNEVNIK 2026-10-21 (dokumentovana praznina zatvorena): README je za
   "audit log (JSON)" písao da nije implementiran. Sada novi `mujofix/audit.py`
   (cist modul) + GUI: poslije svake popravke (i u dry-run) upisuje se

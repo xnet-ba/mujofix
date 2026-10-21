@@ -54,6 +54,31 @@ jobs:
       - run: pip install -r requirements.txt pyinstaller
       - name: PyInstaller build (isti spec kao release)
         run: python -m PyInstaller mujofix.spec
+      - name: Smoke test — zapakovani exe stvarno radi (scan + update)
+        shell: pwsh
+        run: |
+          # Do sada se dist samo kompajlirao — ovdje DOKAZUJEMO da exe radi:
+          # scan (skeneri + i18n + model nalaza) i update (mreza + verzija).
+          $exe = "dist\MujoFix\MujoFixCLI.exe"
+          if (-not (Test-Path $exe)) {
+            Write-Output "::error::nema $exe"; throw "exe missing"
+          }
+          $scan = & $exe scan --summary 2>&1 | Out-String
+          Write-Output $scan
+          if ($LASTEXITCODE -ne 0) {
+            Write-Output "::error::frozen scan exit $LASTEXITCODE :: $scan"
+            throw "frozen scan failed"
+          }
+          if ($scan -notmatch "racunar|problems|problema") {
+            Write-Output "::error::scan nije dao sazetak :: $scan"
+            throw "no summary"
+          }
+          $upd = & $exe update 2>&1 | Out-String
+          Write-Output $upd
+          if ($LASTEXITCODE -ne 0) {
+            Write-Output "::error::frozen update exit $LASTEXITCODE :: $upd"
+            throw "frozen update failed"
+          }
       - name: Inno Setup (kompajliraj installer)
         shell: pwsh
         run: |
