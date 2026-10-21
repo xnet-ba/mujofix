@@ -25,12 +25,21 @@ ACTION_ALLOWLIST = frozenset(
 )
 
 # Traga koji se nikad ne smiju pojaviti kao meta plana (tvrda zastita).
+# Crna lista za AI predloge: substring provjera (namjerno "fail closed").
+# NAMJERNO bez "c:\\windows" (preširoko — blokiralo bi i C:\Windows\Temp i WU
+# cache, koji su legitimni ciljevi). Ne dira izvrsni sloj: executor vrti samo
+# akcije iz kataloga nad nalazima koje je korisnik odabrao.
 PROTECTED_HINTS = (
     "system32",
     "winsxs",
-    "c:\\windows",
-    "/windows/system32",
     "bitlocker",
+    "program files",
+    "\\documents",
+    "\\pictures",
+    "\\desktop",
+    "\\downloads",
+    "\\boot\\bcd",
+    "defender",
 )
 
 

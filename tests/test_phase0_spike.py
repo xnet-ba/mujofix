@@ -194,6 +194,29 @@ class TestValidator(unittest.TestCase):
         }]})
         self.assertFalse(ok)
 
+    def test_rejects_protected_zones_from_readme(self):
+        """README tvrdi crnu listu; validator je mora stvarno pokrivati."""
+        for bad in ("C:\\Program Files\\App\\x.dll",
+                    "C:\\Users\\x\\Documents\\diploma.docx",
+                    "C:\\Users\\x\\Desktop\\backup.zip",
+                    "C:\\Users\\x\\Pictures\\x.jpg",
+                    "C:\\Windows\\Boot\\BCD",
+                    "C:\\Boot\\BCD",
+                    "C:\\ProgramData\\Microsoft\\Windows Defender\\x"):
+            ok, reason = validate_plan(
+                {"steps": [{"action": "clean_temp", "target": bad}]})
+            self.assertFalse(ok, f"proslo zasticeno: {bad}")
+
+    def test_temp_paths_are_not_false_positives(self):
+        """Guard: legitiman TEMP ne smije biti blokiran (inače fix nema smisla)."""
+        for good in ("C:\\Users\\x\\AppData\\Local\\Temp",
+                     "C:\\Windows\\Temp",
+                     "C:\\Windows\\SoftwareDistribution\\Download",
+                     "C:\\Users\\x\\AppData\\Local\\Temp\\old.tmp"):
+            ok, reason = validate_plan(
+                {"steps": [{"action": "clean_temp", "target": good}]})
+            self.assertTrue(ok, f"blokiran legitiman temp {good}: {reason}")
+
     def test_allowlist_matches_spec(self):
         self.assertEqual(
             set(ACTION_ALLOWLIST),
