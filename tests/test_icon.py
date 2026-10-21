@@ -46,16 +46,43 @@ class TestIconFile(unittest.TestCase):
 
 
 class TestIconWiring(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from PySide6.QtWidgets import QApplication
+
+        cls.app = QApplication.instance() or QApplication([])
+
     def test_spec_uses_the_icon_for_both_exes(self):
         text = open(os.path.join(ROOT, "mujofix.spec"), encoding="utf-8").read()
         self.assertEqual(text.count('icon="assets/mujofix.ico"'), 2)
         self.assertNotIn('icon="NONE"', text)
         self.assertIn('("assets", "assets")', text)  # ikona ide u bundle
 
-    def test_installer_uses_the_icon(self):
-        text = open(os.path.join(ROOT, "installer", "mujofix.iss"),
+    def test_installer_paths_exist_relative_to_source_dir(self):
+        """Inno rjesava [Setup]/[Files] putanje relativno na SourceDir.
+
+        CI je pao jer je SetupIconFile bio "..\assets\..." — van repo root-a.
+        Ovaj test rjesava svaku putanju kako Inno to radi i trazi da postoji.
+        """
+        import re
+
+        iss_dir = os.path.join(ROOT, "installer")
+        text = open(os.path.join(iss_dir, "mujofix.iss"),
                     encoding="utf-8").read()
-        self.assertIn(r"SetupIconFile=..\assets\mujofix.ico", text)
+        source_dir = re.search(r"^SourceDir=(.+)$", text, re.M).group(1).strip()
+        base = os.path.normpath(os.path.join(iss_dir, source_dir))
+        self.assertEqual(os.path.normpath(base), os.path.normpath(ROOT))
+
+        icon = re.search(r"^SetupIconFile=(.+)$", text, re.M).group(1).strip()
+        icon_path = os.path.join(base, icon.replace('\\', os.sep))
+        self.assertTrue(os.path.isfile(icon_path),
+                        f"SetupIconFile ne postoji: {icon}")
+        for src in re.findall(r'^Source: "([^"]+)"', text, re.M):
+            if src.startswith("dist"):  # build artefakt, ne postoji u repou
+                continue
+            path = os.path.join(base, src.replace('\\', os.sep))
+            self.assertTrue(os.path.isfile(path),
+                            f"Source ne postoji: {src}")
 
     def test_theme_exposes_icon(self):
         from PySide6.QtGui import QIcon
