@@ -1,17 +1,19 @@
-# STATUS.md — stanje projekta (azurirano: 2026-10-18)
+# STATUS.md — stanje projekta (azurirano: 2026-10-21)
 
 ## Aplikacija zavrsena (kod + host dokazi; 2026-10-17)
 
 - Faze 0-6 su kompletne u kodu. Nema TODO/FIXME/stub-ova u `mujofix/`.
 - Potvrdjeno host-direct na pravom Windows 11 (laptop, High integrity token):
-  scan 9/9 scannera / 0 skipped, 5/5 akcija s identicnim rollback-om
-  (napomena 2026-10-21: katalog danas ima 7 akcija; scripts/host_proof.py
-  pokriva 3 — startup, temp, servis; ostale kroz testove)
-  (`scripts/host_proof.py`), GUI smoke, spike 1-2 (opencode 1.18.34 bez Node-a,
-  serve samo 127.0.0.1 + lozinka). Detalji nize u "Ryzen lab".
-  (NAPOMENA 2026-10-21: server je uklonjen — vidi unos ARHITEKTURA;
-  `opencode run` je child proces.)
-- 104/104 unit testa; CI zelen (Ubuntu + Windows).
+  scan 9/9 scannera / 0 skipped, GUI smoke, spike 1-2 (opencode 1.18.34 bez
+  Node-a, tada `opencode serve` na 127.0.0.1 + lozinka). Detalji nize u
+  "Ryzen lab".
+  NAPOMENA 2026-10-21: server je uklonjen (`opencode run` je child proces —
+  vidi unos ARHITEKTURA); katalog danas ima 7 akcija, a `scripts/host_proof.py`
+  pokriva 3 (startup, temp, servis) — ostale kroz testove.
+- 104/104 unit testa u tom runu; trenutno 193 lokalno (Linux/offscreen).
+- Integracioni testovi protiv binarnog: config dokazan na 1.18.34, novi put
+  `opencode run` bez servera na 1.18.35 (host instalacija); pin za bundle
+  ostaje 1.18.34 (`installer/OPENCODE_PIN.txt`).
 - `installer/OPENCODE_PIN.txt` POPUNJEN (v1.18.34, SHA-256 windows-x64) —
   build kapija u CI-ju nije vise blokirana.
 - Tag `v0.1.0` pushnut (2026-10-17): CI build ZELEN (2x: run #37, pa #38
