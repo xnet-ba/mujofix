@@ -91,7 +91,8 @@ class TestGuiFlow(unittest.TestCase):
         window = MainWindow(
             scan_fn=lambda: [{"scanner": "t", "findings": findings,
                               "skipped": None}],
-            quarantine_dir=qdir)
+            quarantine_dir=qdir,
+            audit_dir=os.path.join(qtmp.name, "audit"))
         window.show()
         window.start_scan()
         window._worker.wait(5000)
@@ -229,6 +230,49 @@ class TestGuiFlow(unittest.TestCase):
                 with open(victim) as handle:
                     self.assertEqual(handle.read(), "podaci")
                 self.assertFalse(window.btn_undo.isEnabled())
+            finally:
+                window.close()
+                qtmp.cleanup()
+
+    def test_fix_run_writes_json_audit(self):
+        """README je tvrdio 'audit log (JSON ...)' kao neimplementirano."""
+        import glob
+        import json
+
+        with tempfile.TemporaryDirectory() as data:
+            window, qtmp = self.make_window([disk_temp_finding(data)])
+            try:
+                victim = os.path.join(data, "old.tmp")
+                with open(victim, "w") as handle:
+                    handle.write("x")
+                old = time.time() - 30 * 86400
+                os.utime(victim, (old, old))
+                window.start_fix()
+                files = glob.glob(os.path.join(window._audit_dir, "audit-*.json"))
+                self.assertEqual(len(files), 1, files)
+                record = json.load(open(files[0], encoding="utf-8"))
+                self.assertEqual(record["mode"], "apply")
+                self.assertEqual(record["summary"]["ok"], 1)
+                self.assertTrue(any(s["phase"] == "done"
+                                    for s in record["steps"]))
+                self.assertIn("sačuvan", window.log.toPlainText())
+            finally:
+                window.close()
+                qtmp.cleanup()
+
+    def test_dry_run_audit_is_marked_dry(self):
+        import glob
+        import json
+
+        with tempfile.TemporaryDirectory() as data:
+            window, qtmp = self.make_window([disk_temp_finding(data)])
+            try:
+                window.chk_dry.setChecked(True)
+                window.start_fix()
+                files = glob.glob(os.path.join(window._audit_dir, "audit-*.json"))
+                self.assertEqual(len(files), 1, files)
+                record = json.load(open(files[0], encoding="utf-8"))
+                self.assertEqual(record["mode"], "dry-run")
             finally:
                 window.close()
                 qtmp.cleanup()

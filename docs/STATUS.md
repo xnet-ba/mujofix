@@ -90,6 +90,13 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- DNEVNIK 2026-10-21 (dokumentovana praznina zatvorena): README je za
+  "audit log (JSON)" písao da nije implementiran. Sada novi `mujofix/audit.py`
+  (cist modul) + GUI: poslije svake popravke (i u dry-run) upisuje se
+  `audit-<vrijeme>.json` u `%LOCALAPPDATA%\MujoFix\audit` sa svim fazama
+  koraka (`Runner.audit`) i sazetkom; putanja ide u log, a kvar dnevnika ne
+  rusi app. Testovi: `tests/test_audit.py` (3) + GUI testovi da se fajl upise
+  (apply i dry-run). 206 OK.
 - UX 2026-10-21 (nedovrseno -> dovrseno): (1) ikona — `mujofix.spec` je imao
   `icon="NONE"` i installer `SetupIconFile` nije imao, pa je instaliran app nosio
   genericku Python/Qt ikonu; sada `assets/mujofix.ico` (multi-size, PNG payload,

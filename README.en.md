@@ -74,7 +74,7 @@ Bundled, pinned OpenCode as a child process (`opencode run`, no local server, no
 
 ## 🛡️ Safety
 
-Hard-coded blacklist in the AI-plan validator (System32, WinSxS, Program Files, user Documents/Pictures/Desktop/Downloads, boot configuration/Boot BCD, BitLocker, Defender — the whole of `C:\Windows` is *not* blocked, since `Windows\Temp` and the WU cache are legitimate targets), a **per-action snapshot** (restores exactly the state the action changes: previous registry value, service/task state) plus file quarantine (30 days, not deletion). A dry-run mode (GUI checkbox: nothing is changed) and a readable per-step log in the window. **Not implemented:** System Restore Point (needs admin/Checkpoint-Computer) and JSON audit export — the safety net is the per-action snapshot + rollback. Never disables antivirus/firewall/updates.
+Hard-coded blacklist in the AI-plan validator (System32, WinSxS, Program Files, user Documents/Pictures/Desktop/Downloads, boot configuration/Boot BCD, BitLocker, Defender — the whole of `C:\Windows` is *not* blocked, since `Windows\Temp` and the WU cache are legitimate targets), a **per-action snapshot** (restores exactly the state the action changes: previous registry value, service/task state) plus file quarantine (30 days, not deletion). A dry-run mode (GUI checkbox: nothing is changed) and a readable per-step log in the window; after every fix run a **JSON run log** is written to `%LOCALAPPDATA%\MujoFix\audit\audit-<timestamp>.json` (all step phases + summary; the path is printed in the log). **Not implemented:** System Restore Point (needs admin/Checkpoint-Computer) — the safety net is the per-action snapshot + rollback. Never disables antivirus/firewall/updates.
 
 ## 🚦 Status
 

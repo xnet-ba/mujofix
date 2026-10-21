@@ -7,6 +7,8 @@
   kroz `opencode run` kao child proces.
 
 ### Dodano
+- JSON dnevnik izvršavanja (sve faze koraka + sažetak) u
+  `%LOCALAPPDATA%\MujoFix\audit\` poslije svake popravke.
 - Ikona aplikacije (Fluent 2): u exe-u, installeru, prozoru i prečicama.
 - Izbor jezika u UI-ju (Bosanski/English) i pamćenje veličine prozora.
 - Fluent 2 / Windows 11 izgled: Segoe UI, zaobljene kontrole, automatska

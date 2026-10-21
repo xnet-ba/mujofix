@@ -86,8 +86,10 @@ class TestWindowTheme(unittest.TestCase):
 
         from mujofix.ui.main_window import MainWindow
 
-        return MainWindow(scan_fn=lambda: [], quarantine_dir=tempfile.mkdtemp(),
-                          lang="bs", ai_build_fn=lambda *a, **k: None)
+        tmp = tempfile.mkdtemp()
+        return MainWindow(scan_fn=lambda: [], quarantine_dir=tmp,
+                          audit_dir=tmp, lang="bs",
+                          ai_build_fn=lambda *a, **k: None)
 
     def test_object_names_and_stylesheet_apply(self):
         window = self._window()

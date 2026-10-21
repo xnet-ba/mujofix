@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (  # noqa: E402
     QWidget,
 )
 
+from mujofix import audit  # noqa: E402
 from mujofix import cli  # noqa: E402
 from mujofix import update  # noqa: E402
 from mujofix.actions.base import ActionContext, Runner  # noqa: E402
@@ -75,6 +76,14 @@ def store_lang(lang: str) -> None:
 def default_quarantine_dir() -> str:
     base = os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))
     path = os.path.join(base, "MujoFix", QUARANTINE_SUBDIR)
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
+def default_audit_dir() -> str:
+    """Folder za JSON dnevnik izvrsavanja (%LOCALAPPDATA%\\MujoFix\\audit)."""
+    base = os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))
+    path = os.path.join(base, "MujoFix", "audit")
     os.makedirs(path, exist_ok=True)
     return path
 
@@ -157,13 +166,14 @@ class ExplainWorker(QThread):
 
 class MainWindow(QMainWindow):
     def __init__(self, scan_fn=None, quarantine_dir=None, lang: str = "bs",
-                 ai_build_fn=None, ai_workdir=None):
+                 ai_build_fn=None, ai_workdir=None, audit_dir=None):
         super().__init__()
         self.lang = lang
         self._t = lambda key, **kw: tr(key, lang, **kw)
         self._scan_fn = scan_fn or (lambda: cli.run_scan(None))
         self._ai_build_fn = ai_build_fn
         self._ai_workdir = ai_workdir
+        self._audit_dir = audit_dir or default_audit_dir()
         self._ctx = ActionContext(
             quarantine_dir=quarantine_dir or default_quarantine_dir())
         self._runner = Runner()
@@ -544,8 +554,20 @@ class MainWindow(QMainWindow):
         else:
             self.lbl_report.setText(
                 self._t("report_ok", ok=ok, skip=skipped, fail=failed))
+        self._write_audit(dry, ok, skipped, failed)
         self.btn_undo.setEnabled(bool(self._undone))
         self.btn_fix.setEnabled(True)
+
+    def _write_audit(self, dry: bool, ok: int, skipped: int, failed: int):
+        """Upisi JSON dnevnik koraka; kvar dnevnika ne smije srusiti app."""
+        try:
+            path = audit.audit_path(self._audit_dir)
+            audit.write_record(path, audit.build_record(
+                self._runner.audit,
+                {"ok": ok, "skipped": skipped, "failed": failed}, dry))
+            self._log(self._t("audit_saved", p=path))
+        except Exception as exc:
+            self._log(self._t("audit_failed", e=exc))
 
     def undo_all(self):
         count = 0

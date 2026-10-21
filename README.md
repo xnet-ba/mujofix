@@ -126,7 +126,7 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
   <li><b>Zaštićene zone</b> (hard-coded crna lista u validatoru AI plana): System32, WinSxS, Program Files, korisnički Dokumenti/Slike/Desktop/Download, boot konfiguracija (BCD), BitLocker, Defender. Namjerno NIJE na listi cijeli <code>C:\Windows</code> — <code>Windows\Temp</code> i WU cache su legitimni ciljevi. Izvršni sloj ipak vrti samo akcije iz kataloga nad nalazima koje je korisnik odabrao.</li>
   <li><b>Prije popravke:</b> <b>vlastiti manifest po akciji</b> — snapshot vraća tačno stanje koje akcija mijenja (npr. prijašnja vrijednost registry unosa ili stanje servisa/taska) + <b>karantin fajlova</b> (ne trajno brisanje, rok 30 dana). <b>System Restore Point nije implementiran</b> (traži admin/Checkpoint-Computer; vidi <code>docs/STATUS.md</code>) — sigurnosna mreža je snapshot + rollback po akciji.</li>
   <li><b>Svaka akcija:</b> precondition → snapshot → apply → verify → rollback ako zatreba. Akcija bez <code>rollback()</code> ne smije biti auto-fix.</li>
-  <li><b>Probni (dry-run) mod</b> (checkbox u GUI-ju: ništa se ne mijenja) i <b>čítljiv dnevnik</b> svakog koraka u prozoru (precondition / snapshot / apply / verify / dry-run). Izvoz u JSON fajl nije implementiran.</li>
+  <li><b>Probni (dry-run) mod</b> (checkbox u GUI-ju: ništa se ne mijenja) i <b>čítljiv dnevnik</b> svakog koraka u prozoru (precondition / snapshot / apply / verify / dry-run). Poslije svake popravke upisuje se i <b>JSON dnevnik izvršavanja</b> u <code>%LOCALAPPDATA%\MujoFix\audit\audit-&lt;vrijeme&gt;.json</code> (sve faze koraka + sažetak; putanja se ispiše u dnevniku).</li>
   <li><b>Nikad:</b> gašenje antivirusa/firewalla/Windows Update-a, mijenjanje zaštitnih politika.</li>
 </ul>
 
