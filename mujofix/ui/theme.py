@@ -269,6 +269,24 @@ def apply_mica(window) -> bool:
         return False
 
 
+def _repo_root() -> str:
+    return os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))))
+
+
+def app_icon():
+    """QIcon aplikacije iz `assets/mujofix.ico`; prazan QIcon ako nema fajla."""
+    from PySide6.QtGui import QIcon
+
+    for base in (getattr(sys, "_MEIPASS", None), _repo_root()):
+        if not base:
+            continue
+        path = os.path.join(base, "assets", "mujofix.ico")
+        if os.path.isfile(path):
+            return QIcon(path)
+    return QIcon()
+
+
 def _is_win11() -> bool:
     ver = windows.version()
     return bool(ver and ver[2] >= 22000)  # Mica trazi Win11 (build 22000+)
@@ -282,6 +300,10 @@ def setup(app, window) -> bool:
     ponistava — prozor nikad ne ostane providan bez pozadine.
     """
     dark = apply(app)
+    icon = app_icon()
+    if not icon.isNull():
+        app.setWindowIcon(icon)
+        window.setWindowIcon(icon)
     if not (windows.is_windows() and _is_win11()):
         return False
     from PySide6.QtCore import Qt

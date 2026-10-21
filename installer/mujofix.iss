@@ -27,6 +27,8 @@ Compression=lzma2
 SolidCompression=yes
 PrivilegesRequired=lowest
 UninstallDisplayName={#MyAppName}
+; Ikona setup exe-a (Inno putanje u [Setup] su relativne na folder .iss-a)
+SetupIconFile=..\assets\mujofix.ico
 ; BEZ potpisa: ne tvrdimo da je build potpisan (SmartScreen ce upozoriti)
 
 ; Inno Setup 6.7.1 ne isporucuje Bosnian.isl, pa je installer na engleskom

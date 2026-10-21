@@ -15,7 +15,8 @@ SPEC_DIR = os.path.dirname(os.path.abspath(SPEC))
 common = dict(
     pathex=[SPEC_DIR],
     binaries=[],
-    datas=[("mujofix/i18n", "mujofix/i18n"), ("CHANGELOG.md", ".")],
+    datas=[("mujofix/i18n", "mujofix/i18n"), ("CHANGELOG.md", "."),
+           ("assets", "assets")],
     hiddenimports=[],
     hookspath=[],
     runtime_hooks=[],
@@ -42,7 +43,7 @@ gui_exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon="NONE",
+    icon="assets/mujofix.ico",
 )
 
 cli_a = Analysis(["mujofix/cli.py"], **common)
@@ -63,7 +64,7 @@ cli_exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon="NONE",
+    icon="assets/mujofix.ico",
 )
 
 coll = COLLECT(
