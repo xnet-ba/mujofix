@@ -66,6 +66,15 @@
   stavki)" — stvarno se prikazuje samo broj popravljenih/preskocenih/neuspjelih
   + "Poništi sve". Boot vrijeme se ne mjeri nigdje (to izricito kaze i
   `scanners/startup.py`). README (bs+en) sada opisuje stvarno stanje.
+- DOKAZ 2026-10-21 (ziv put, bez servera): `opencode run --agent mujofix --dir
+  <wd> --model opencode/beam-free ping` prolazi kroz pinovani binarni bez
+  `--attach` i bez servera (nema greske o nepoznatom flagu), ali vrati:
+  "Error: OpenCode's free tier can only be used from within OpenCode." rc=1.
+  Znaci: besplatni Zen tier se odbija iz naseg child poziva na ovoj masini
+  (jedini kredencijal je OpenRouter). Provider to pretvara u ProviderError ->
+  iskren offline fallback sa razlogom. RIZIK za zivi put: besplatni tier mozda
+  nije upotrebljiv iz bundlovanog CLI-a — potvrditi na VM-u sa Zen nalogom
+  (Issue #1). Ovo NIJE greska flagova: komanda je prihvacena.
 - ARHITEKTURA 2026-10-21 (uklonjen lokalni backend): app je SAMO instalabilna
   Windows aplikacija — nema `opencode serve`, nema HTTP porta ni lozinke, nista
   se ne izlaze na mrezu. Ziv poziv je `opencode run` kao child proces (jedan po
