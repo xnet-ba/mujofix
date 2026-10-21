@@ -106,7 +106,7 @@
 <pre>
 MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
                     │
-                    └── OpenCode child proces (samo 127.0.0.1, slučajna lozinka)
+                    └── OpenCode child proces (opencode run, bez servera/porta)
                               │
                               └── MujoFix MCP server (samo 5 alata, svi read-only + validator)
 </pre>
@@ -115,7 +115,7 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
   <li><b>Izvršenje je ISKLJUČIVO u Coreu.</b> OpenCode objašnjava i predlaže, validator provjerava (JSON schema + allowlista), korisnik odobrava, deterministički executor izvršava. OpenCode nikad ne izvršava komande.</li>
   <li>Agent <code>mujofix</code>: <b>svi ugrađeni alati zabranjeni</b> (bash, edit, write, web…), dozvoljeni samo MujoFix MCP alati, deny po defaultu.</li>
   <li><b>Fallback lanac:</b> model A → B → C → <b>OFFLINE mod</b> (predefinisana objašnjenja bez AI-ja).</li>
-  <li><b>Živi model:</b> uz pristanak MujoFix digne ugrađeni OpenCode server (127.0.0.1, slučajna lozinka) i koristi <b>besplatan Zen model</b> (npr. <code>opencode/beam-free</code>). Ako server ili besplatni model nisu dostupni — tiho nazad na <b>offline</b>, uz iskrenu poruku o razlogu (bez lažne tvrdnje da je AI radio). <i>netestirano</i>: živi put još nije pokrenut na Windows VM-u (<a href="https://github.com/xnet-ba/mujofix/issues/1">Issue #1</a>).</li>
+  <li><b>Živi model:</b> uz pristanak MujoFix pokrene <code>opencode run</code> kao <b>child proces</b> i koristi <b>besplatan Zen model</b> (npr. <code>opencode/beam-free</code>). <b>Nema lokalnog backend-a</b>: ne diže se <code>opencode serve</code>, nema porta ni lozinke, ništa se ne izlaže na mrežu — MujoFix je isključivo instalabilna Windows aplikacija. Ako binary ili besplatni model nisu dostupni — tiho nazad na <b>offline</b>, uz iskrenu poruku o razlogu (bez lažne tvrdnje da je AI radio). <i>netestirano</i>: živi put još nije pokrenut na Windows VM-u (<a href="https://github.com/xnet-ba/mujofix/issues/1">Issue #1</a>).</li>
   <li><b>Privatnost:</b> prije prvog korištenja AI-ja — ekran pristanka (koji podaci idu, kome, primjer payload-a). Anonimizacija prije slanja; default je offline dok korisnik ne pristane. <b>Besplatni Zen modeli nisu privatni</b> (potvrđeno iz <a href="https://opencode.ai/legal/terms-of-service">ToS</a> i <a href="https://opencode.ai/v2/docs/console/models/">Zen docs</a>, 2026-10-18): provajderi su uglavnom zero-retention, ali za neplaćene račune sadržaj se smije koristiti za unapređenje usluge, pojedini besplatni modeli tokom promo perioda mogu koristiti poslane podatke za poboljšanje modela, dio zahtjeva (OpenAI/Anthropic) čuva se 30 dana.</li>
 </ul>
 
@@ -125,9 +125,9 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
 
 <ul>
   <li><b>Zaštićene zone</b> (hard-coded blacklist): System32, WinSxS, Program Files (osim kroz uninstaller), korisnički dokumenti/slike/desktop, boot konfiguracija, BitLocker, Defender (samo čitanje).</li>
-  <li><b>Prije popravke:</b> System Restore Point gdje je dozvoljen + vlastiti manifest: export registry ključeva, <b>karantin fajlova</b> (ne trajno brisanje, rok 30 dana), čuvanje stanja servisa/taskova.</li>
+  <li><b>Prije popravke:</b> <b>vlastiti manifest po akciji</b> — snapshot vraća tačno stanje koje akcija mijenja (npr. prijašnja vrijednost registry unosa ili stanje servisa/taska) + <b>karantin fajlova</b> (ne trajno brisanje, rok 30 dana). <b>System Restore Point nije implementiran</b> (traži admin/Checkpoint-Computer; vidi <code>docs/STATUS.md</code>) — sigurnosna mreža je snapshot + rollback po akciji.</li>
   <li><b>Svaka akcija:</b> precondition → snapshot → apply → verify → rollback ako zatreba. Akcija bez <code>rollback()</code> ne smije biti auto-fix.</li>
-  <li><b>Dry-run mod</b>, kompletan <b>audit log</b> (JSON + čitljiv prikaz).</li>
+  <li><b>Probni (dry-run) mod</b> (checkbox u GUI-ju: ništa se ne mijenja) i <b>čítljiv dnevnik</b> svakog koraka u prozoru (precondition / snapshot / apply / verify / dry-run). Izvoz u JSON fajl nije implementiran.</li>
   <li><b>Nikad:</b> gašenje antivirusa/firewalla/Windows Update-a, mijenjanje zaštitnih politika.</li>
 </ul>
 

@@ -12,7 +12,7 @@ Automatizovani dio (scan, pin, live update provjera, sha256):
 
 ## A. Faza 0 SPIKE (`scripts/phase0_spike.py --model <zen-model>`)
 - [ ] 1. Bundlovani OpenCode se pokreće bez Node-a (Win10 / Win11)
-- [ ] 2. `serve` sluša samo 127.0.0.1 i traži lozinku
+- [ ] 2. `opencode debug config` prihvata naš config (agent `mujofix`, 11 alata `deny`, samo naš MCP; 0 tuđih servera/pluginova)
 - [ ] 3. Agent `mujofix` pozove MCP alat s lažnim podacima
 - [ ] 4. Pokušaj `shell` poziva je odbijen (dokaz u logu)
 - [ ] 5. Offline fallback radi s ugašenim internetom

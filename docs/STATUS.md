@@ -7,6 +7,8 @@
   scan 9/9 scannera / 0 skipped, 5/5 akcija s identicnim rollback-om
   (`scripts/host_proof.py`), GUI smoke, spike 1-2 (opencode 1.18.34 bez Node-a,
   serve samo 127.0.0.1 + lozinka). Detalji nize u "Ryzen lab".
+  (NAPOMENA 2026-10-21: server je uklonjen — vidi unos ARHITEKTURA;
+  `opencode run` je child proces.)
 - 104/104 unit testa; CI zelen (Ubuntu + Windows).
 - `installer/OPENCODE_PIN.txt` POPUNJEN (v1.18.34, SHA-256 windows-x64) —
   build kapija u CI-ju nije vise blokirana.
@@ -64,6 +66,17 @@
   stavki)" — stvarno se prikazuje samo broj popravljenih/preskocenih/neuspjelih
   + "Poništi sve". Boot vrijeme se ne mjeri nigdje (to izricito kaze i
   `scanners/startup.py`). README (bs+en) sada opisuje stvarno stanje.
+- ARHITEKTURA 2026-10-21 (uklonjen lokalni backend): app je SAMO instalabilna
+  Windows aplikacija — nema `opencode serve`, nema HTTP porta ni lozinke, nista
+  se ne izlaze na mrezu. Ziv poziv je `opencode run` kao child proces (jedan po
+  zahtjevu). Uklonjeno: `OpencodeServer`, `pick_free_port`,
+  `OpencodeNotHealthy`, health-check, `urllib`/`base64`/`secrets`; `LiveSession`
+  vise nije vlasnik procesa (nosi samo `chain`/`note`/`live`). `FORBIDDEN_FLAGS`
+  sada zabranjuje i `--attach`/`--port`/`--hostname`. Novi
+  `agent_config.child_env(workdir)` daje child-u `XDG_CONFIG_HOME` (+ PYTHONPATH
+  u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
+  izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
+  pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
 - DIZAJN 2026-10-21 (Fluent 2 / Windows 11): novi `mujofix/ui/theme.py` —
   QSS tokeni (Fluent 2 boje, radius 4/8, akcent iz Windows DWM AccentColor,
   fallback brand plava), font stack Segoe UI Variable/Segoe UI, automatska
@@ -303,7 +316,7 @@
 ## Faza 0 SPIKE — djelimicno gotovo (kod + Linux dokazi, Win VM ceka)
 
 Uradjeno (Faza 0):
-- `mujofix/ai/opencode_runtime.py` — `opencode serve` child: 127.0.0.1,
+- `mujofix/ai/opencode_runtime.py` — (2026-10-21: bez servera) `bundled_binary`/`FORBIDDEN_FLAGS`; ranije `opencode serve`: 127.0.0.1,
   slucajan port, slucajna lozinka po pokretanju, siguran close().
 - `mujofix/ai/agent_config.py` — agent `mujofix` (deny: shell/edit/write/patch/
   webfetch/websearch/task; update disable; share manual) + offline fallback.

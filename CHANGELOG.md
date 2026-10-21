@@ -1,6 +1,11 @@
 # Changelog (semantičko verzioniranje; `mujofix.spec` čita vrh ovog fajla)
 
 ## [Unreleased]
+### Promijenjeno
+- **Uklonjen lokalni backend:** MujoFix je samo instalabilna Windows
+  aplikacija — nema `opencode serve`, porta ni lozinke; živi model ide
+  kroz `opencode run` kao child proces.
+
 ### Dodano
 - Fluent 2 / Windows 11 izgled: Segoe UI, zaobljene kontrole, automatska
   svijetla/tamna tema i Mica pozadina na Win11 (best-effort).

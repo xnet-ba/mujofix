@@ -27,25 +27,29 @@
   graditi payload iz sirovih nalaza.
 - Zivi AI: rucni lanci (`FallbackChain`) se ne prave u GUI kodu — koristi
   `ai/provider.build_chain` (offline bez pristanka, ziv Zen uz pristanak).
-  `build_chain` MORA upisati izolirani `opencode.json` prije starta servera
-  (`agent_config.write_config` + `mcp_command`); bez toga server nema agenta
-  `mujofix` ni MCP alate. Agent MORA biti `mode: "all"` (ili `primary`): sa
-  `subagent` `run --agent mujofix` tiho pada na default agent i zaobilazi
-  zabranu alata. MCP server se pokrece kao `mujofix.cli mcp`
+  MujoFix NEMA lokalni backend: nikad `opencode serve`, nikad port/lozinka,
+  nista se ne izlaze na mrezu. Ziv poziv je `opencode run` kao child proces
+  (jedan po zahtjevu, bez `--attach`/`--password`).
+  `build_chain` MORA upisati izolirani `opencode.json`
+  (`agent_config.write_config` + `mcp_command`); bez toga `run --agent mujofix`
+  ne bi nasao agenta ni MCP alate. Agent MORA biti `mode: "all"` (ili
+  `primary`): sa `subagent` `run --agent mujofix` tiho pada na default agent i
+  zaobilazi zabranu alata. MCP server se pokrece kao `mujofix.cli mcp`
   (zamrznuto: `MujoFixCLI.exe mcp`) — GUI exe nema konzolu pa ne moze stdio.
-  Radni dir za server nikad nije cwd: `default_ai_workdir()`
-  (`%LOCALAPPDATA%\MujoFix\ai`).
-  Server se dize sa `XDG_CONFIG_HOME=<workdir>/config-home`
-  (`agent_config.config_home`): bez toga se nas config stapa sa korisnickim
-  globalnim (globalni MCP serveri + pluginovi u nasem agentu, dokazano protiv
-  binarnog). Nikad ne diraj DATA dir — tu je `auth.json`.
-  Sesiju (`LiveSession`) drzi GUI i UVEK je zatvori na `closeEvent`; nikad ne
-  ostavljaj `opencode serve` kao zaostali proces.
+  Radni dir nikad nije cwd: `default_ai_workdir()` (`%LOCALAPPDATA%\MujoFix\ai`).
+  Child se pokrece sa env iz `agent_config.child_env(workdir)`
+  (`XDG_CONFIG_HOME=<workdir>/config-home`, + PYTHONPATH u dev-u): bez toga se
+  nas config stapa sa korisnickim globalnim (globalni MCP serveri + pluginovi u
+  nasem agentu, dokazano protiv binarnog). Nikad ne diraj DATA dir — `auth.json`.
+  Zabranjeni flagovi (`--attach`, `--port`, `--hostname`, `--auto`, `--share`,
+  `--mdns`, `--dangerously-skip-permissions`) se provjeravaju u
+  `OpenCodeProvider._cmd`; server se ne smije vratiti u projekat.
 - Agent config (`agent_config.build_config`): samo **V1** oblik (`mcp` mapa,
   `agent`, `prompt`, `tools`). V2 oblik (`agents` + `permissions` lista) V1
   binarni odbija sa 400 (`ConfigInvalidError`) — tada pada cijeli zivi put.
   Svaka promjena configa: pokreni integracioni test u `test_phase0_spike.py`
-  (digne stvarni `opencode serve` i trazi 200 + deny). Imena alata samo iz
+  (`opencode debug config` sa izolovanim config-home: agent + `deny` + mcp).
+  Imena alata samo iz
   `opencode agent create --help` pinovane verzije; izmisljena imena
   (`shell`, `write`, `patch`) tiho ne rade nista.
 - Tvrdnje o privatnosti / AI uslovima (consent, README) samo iz primarnih

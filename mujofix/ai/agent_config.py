@@ -1,7 +1,8 @@
 """Agent 'mujofix': izolirana OpenCode konfiguracija + offline fallback.
 
 Oblik je dokazan empirijski na pinovanom binarnom (V1), ne po pamcenju:
-- `opencode serve` u workdir-u sa ovim opencode.json -> GET /config vraca 200,
+- `opencode debug config` (cwd=workdir, izolovan XDG_CONFIG_HOME) pokaze resolved
+  config: nas agent + `tools`/`permission` deny; nevalidan config bi pukao,
   `agent.mujofix` postoji i binarni sam izvede `permission` deny za sve
   ugrađene alate.
 - V2 oblik (`agents` + `permissions` lista) binarni ODBIJA:
