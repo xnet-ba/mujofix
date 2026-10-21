@@ -33,6 +33,7 @@ class ActionResult:
     message: str
     duration_s: float = 0.0
     state: dict | None = None  # snapshot uspjesnog koraka (za "Ponisti sve")
+    dry_run: bool = False  # probni mod: nista nije mijenjano
 
 
 class Action(abc.ABC):
@@ -122,7 +123,8 @@ class Runner:
             ok, reason = action.precondition(ctx)
             self._log(name, "dry-run", ok, f"precondition: {reason}")
             return ActionResult(name, ok, False, False,
-                                f"dry-run, nista nije mijenjano: {reason}", 0.0)
+                                f"dry-run, nista nije mijenjano: {reason}", 0.0,
+                                dry_run=True)
         ok, reason = action.precondition(ctx)
         if not ok:
             self._log(name, "precondition", False, reason)

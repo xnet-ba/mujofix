@@ -24,6 +24,8 @@ MujoFix is an **open-source desktop app** that helps a non-technical user keep a
 
 …and one **[ FIX ALL ]** button, with an expandable list (*"Show technical details"*) for advanced users.
 
+Look and feel: **Fluent 2 / Windows 11** (Segoe UI, rounded controls, automatic light/dark theme) and a **Mica** backdrop where DWM provides it (Win11; a solid color otherwise).
+
 - Windows 10 (22H2) and Windows 11 (23H2+), x64. Works **without admin rights** (profile-level fixes); UAC elevation only when needed, explained beforehand.
 - **Nothing changes without approval** (all / per-item / nothing).
 - Every fix: snapshot → execute → **verify** → automatic **rollback** on failure.

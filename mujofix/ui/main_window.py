@@ -48,6 +48,7 @@ from mujofix.ai.provider import (  # noqa: E402
 from mujofix.ai.sanitize import sanitize  # noqa: E402
 from mujofix.i18n.strings import tr  # noqa: E402
 from mujofix.platform import windows  # noqa: E402
+from mujofix.ui import theme  # noqa: E402
 from mujofix.ui.consent import ConsentDialog, SentLogViewer  # noqa: E402
 
 QUARANTINE_SUBDIR = "quarantine"
@@ -165,16 +166,19 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(self._t("app_title"))
         self.resize(720, 560)
         root = QWidget()
+        root.setObjectName("root")
         layout = QVBoxLayout(root)
+        layout.setContentsMargins(16, 14, 16, 14)
+        layout.setSpacing(10)
 
         intro = QLabel(self._t("intro"))
+        intro.setObjectName("subtitle")
         intro.setWordWrap(True)
-        intro.setStyleSheet("font-size: 15px;")
         layout.addWidget(intro)
 
         row = QHBoxLayout()
         self.btn_scan = QPushButton(self._t("scan"))
-        self.btn_scan.setStyleSheet("font-size: 18px; padding: 10px;")
+        self.btn_scan.setObjectName("primary")
         self.btn_scan.clicked.connect(self.start_scan)
         self.btn_cancel = QPushButton(self._t("cancel"))
         self.btn_cancel.setEnabled(False)
@@ -184,7 +188,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(row)
 
         self.lbl_summary = QLabel("")
-        self.lbl_summary.setStyleSheet("font-size: 16px; font-weight: bold;")
+        self.lbl_summary.setObjectName("h1")
         self.lbl_summary.setWordWrap(True)
         layout.addWidget(self.lbl_summary)
 
@@ -201,13 +205,17 @@ class MainWindow(QMainWindow):
         layout.addLayout(sel_row)
 
         self.list = QListWidget()
+        self.list.setObjectName("findings")
         layout.addWidget(self.list, stretch=1)
 
         self.btn_fix = QPushButton(self._t("fix_all"))
-        self.btn_fix.setStyleSheet("font-size: 18px; padding: 10px;")
+        self.btn_fix.setObjectName("primary")
         self.btn_fix.setEnabled(False)
         self.btn_fix.clicked.connect(self.start_fix)
         layout.addWidget(self.btn_fix)
+
+        self.chk_dry = QCheckBox(self._t("dry_run_label"))
+        layout.addWidget(self.chk_dry)
 
         self.btn_elevate = QPushButton(self._t("elevate_button"))
         self.btn_elevate.setVisible(windows.is_windows() and not self._is_admin)
@@ -237,11 +245,13 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.progress)
 
         self.log = QPlainTextEdit()
+        self.log.setObjectName("log")
         self.log.setReadOnly(True)
         self.log.setMaximumBlockCount(500)
         layout.addWidget(self.log, stretch=1)
 
         self.lbl_report = QLabel("")
+        self.lbl_report.setObjectName("report")
         self.lbl_report.setWordWrap(True)
         layout.addWidget(self.lbl_report)
 
@@ -460,6 +470,8 @@ class MainWindow(QMainWindow):
         self.progress.setValue(0)
         self._stop_requested = False
         self._undone = []
+        dry = self.chk_dry.isChecked()
+        self._ctx.dry_run = dry
         ok = skipped = failed = 0
         for finding, action in steps:
             if self._stop_requested:
@@ -473,15 +485,24 @@ class MainWindow(QMainWindow):
             result = self._runner.run(action, self._ctx)
             self._log(f"{action.name}: {result.message}")
             self.progress.setValue(self.progress.value() + 1)
-            if result.ok and result.verified and result.state is not None:
+            if result.dry_run:
+                if result.ok:
+                    ok += 1
+                else:
+                    failed += 1
+            elif result.ok and result.verified and result.state is not None:
                 ok += 1
                 self._undone.append((action, result.state))
             else:
                 failed += 1
         self.btn_cancel.setEnabled(False)
         self.progress.setVisible(False)
-        self.lbl_report.setText(
-            self._t("report_ok", ok=ok, skip=skipped, fail=failed))
+        if dry:
+            self.lbl_report.setText(
+                self._t("report_dry", ok=ok, skip=skipped, fail=failed))
+        else:
+            self.lbl_report.setText(
+                self._t("report_ok", ok=ok, skip=skipped, fail=failed))
         self.btn_undo.setEnabled(bool(self._undone))
         self.btn_fix.setEnabled(True)
 
@@ -519,7 +540,10 @@ class MainWindow(QMainWindow):
 
 def main() -> int:
     app = QApplication(sys.argv)
+    if hasattr(app, "setApplicationName"):
+        app.setApplicationName("MujoFix")
     window = MainWindow()
+    theme.setup(app, window)  # Fluent 2 + Segoe UI + Mica (best-effort)
     window.show()
     return app.exec()
 

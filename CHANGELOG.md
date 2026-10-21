@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 ### Dodano
+- Fluent 2 / Windows 11 izgled: Segoe UI, zaobljene kontrole, automatska
+  svijetla/tamna tema i Mica pozadina na Win11 (best-effort).
 - Dugme "AI: uključi/isključi": pristanak se moze promijeniti bilo kad
   (prije se ekran prikazivao samo jednom, pa je obecanje "iskljuci bilo kad"
   bilo netacno).

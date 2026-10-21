@@ -54,6 +54,11 @@
 - Akcije: jedan modul po domeni (`temp.py`, `startup.py`, `service.py`, `env.py`,
   `proxy.py`); nalaz -> akcija mapira se u `actions/mapping.py` (bez Qt-a, da se
   testira bez PySide6). Novi nalaz bez rollback-a ostaje samo preporuka.
+- Izgled: `mujofix/ui/theme.py` (Fluent 2 QSS + Segoe UI + Mica). Bez
+  novih zavisnosti za UI; Mica samo preko `ctypes`/DWM i SAMO ako poziv
+  uspije (van Windowsa i na starijem buildu -> False, solidna boja).
+  Nikad ne tvrdi da je Mica aktivna ako nije. Novi widget: daj mu
+  objectName i stil u theme.qss, ne inline `setStyleSheet`.
 - UI tekst nikad hardkodovan: ide kroz `tr()`/`self._t()`, oba jezika
   (bs+en) — `tests/test_i18n.py` pada i na nepostojeci kljuc i na
   hardkodovan bosanski tekst u `mujofix/ui/`.

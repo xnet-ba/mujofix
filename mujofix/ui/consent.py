@@ -91,6 +91,7 @@ class ConsentDialog(QDialog):
         example = QPlainTextEdit(
             example_text if isinstance(example_text, str)
             else json.dumps(example_text, indent=2, ensure_ascii=False))
+        example.setObjectName("example")
         example.setReadOnly(True)
         layout.addWidget(example, stretch=1)
         self.chk_remember = QCheckBox(self._t("consent_remember"))

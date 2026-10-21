@@ -116,6 +116,44 @@ class TestGuiFlow(unittest.TestCase):
             window.close()
             qtmp.cleanup()
 
+    def test_dry_run_does_not_touch_files(self):
+        """Probni mod: report kaze da se nista nije promijenilo, fajl ostaje."""
+        with tempfile.TemporaryDirectory() as data:
+            window, qtmp = self.make_window([disk_temp_finding(data)])
+            try:
+                victim = os.path.join(data, "old.tmp")
+                with open(victim, "w") as handle:
+                    handle.write("podaci")
+                old = time.time() - 30 * 86400
+                os.utime(victim, (old, old))
+                window.chk_dry.setChecked(True)
+                window.start_fix()
+                self.assertIn("Probni mod", window.lbl_report.text())
+                self.assertTrue(os.path.exists(victim))  # nista nije dirano
+                self.assertFalse(window.btn_undo.isEnabled())
+                self.assertNotIn("Popravljeno", window.lbl_report.text())
+            finally:
+                window.close()
+                qtmp.cleanup()
+
+    def test_dry_run_flag_on_runner_result(self):
+        from mujofix.actions.base import ActionContext, Runner
+        from mujofix.actions.temp import CleanTemp
+        with tempfile.TemporaryDirectory() as data:
+            victim = os.path.join(data, "old.tmp")
+            with open(victim, "w") as handle:
+                handle.write("x")
+            old = time.time() - 30 * 86400
+            os.utime(victim, (old, old))
+            ctx = ActionContext(quarantine_dir=data, dry_run=True)
+            result = Runner().run(CleanTemp(data), ctx)
+            self.assertTrue(result.ok)  # precondition prosao
+            self.assertTrue(os.path.exists(victim))  # a ipak nista nije dirano
+            self.assertTrue(result.dry_run)
+            self.assertFalse(result.verified)
+            self.assertIsNone(result.state)
+            self.assertIn("dry-run", result.message)
+
     def test_fix_then_undo_roundtrip(self):
         with tempfile.TemporaryDirectory() as data:
             window, qtmp = self.make_window([disk_temp_finding(data)])

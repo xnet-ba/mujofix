@@ -64,6 +64,17 @@
   stavki)" — stvarno se prikazuje samo broj popravljenih/preskocenih/neuspjelih
   + "Poništi sve". Boot vrijeme se ne mjeri nigdje (to izricito kaze i
   `scanners/startup.py`). README (bs+en) sada opisuje stvarno stanje.
+- DIZAJN 2026-10-21 (Fluent 2 / Windows 11): novi `mujofix/ui/theme.py` —
+  QSS tokeni (Fluent 2 boje, radius 4/8, akcent iz Windows DWM AccentColor,
+  fallback brand plava), font stack Segoe UI Variable/Segoe UI, automatska
+  svijetla/tamna tema (`AppsUseLightTheme` iz registryja; `MUJOFIX_THEME`
+  override), Mica preko `DwmSetWindowAttribute` (backdrop 2 + round corners +
+  extend frame). `theme.setup(app, window)` prvo postavi solidnu temu, pa
+  Mica SAMO ako DWM poziv vrati 0 — ako padne, translucent se ponistava, pa
+  prozor nikad ne ostane providan. Van Windowsa sve graceful (Mica False).
+  Widgeti dobili objectName (root/subtitle/h1/report/log/findings/primary).
+  Testovi: `tests/test_theme.py` (9). NEPROVJERENO (VM): izgled Mica na
+  pravom Win11 (DWM) — na hostu (Linux) Mica je uvijek False.
 - ISPRAVLJENO 2026-10-18 (engleski UI je curio bosanski): hardkodovan tekst
   van `tr()` — naslovi i dugmad ekrana pristanka ("Prihvatam AI"/"Ostajem
   offline"), naslov pregleda poslanog, i log poruke u main_window. Sada svi
