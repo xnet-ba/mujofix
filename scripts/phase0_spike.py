@@ -1,5 +1,10 @@
 """Faza 0 SPIKE: 5 provjera na (po mogucnosti cistom) Windows VM-u.
 
+MujoFix nema lokalni backend: nema `opencode serve`, porta ni lozinke. Ziv put
+je `opencode run` kao child proces (izolovan config-home). Zato provjera 2 vise
+ne testira server, nego da pinovani binarni PRIHVATA nas config i da su svi
+ugradjeni alati stvarno zabranjeni (`opencode debug config`).
+
 Koristenje (PowerShell):
   python scripts/phase0_spike.py [--model provider/model] [--binary putanja]
 
@@ -21,16 +26,14 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from mujofix.ai.agent_config import (
     AGENT_ID,
+    DENIED_ACTIONS,
+    child_env,
+    mcp_command,
     offline_explain,
     write_config,
 )
 from mujofix.ai.mujofix_mcp import SPIKE_MARKER
-from mujofix.ai.opencode_runtime import (
-    OpencodeNotFound,
-    OpencodeNotHealthy,
-    OpencodeServer,
-    bundled_binary,
-)
+from mujofix.ai.opencode_runtime import OpencodeNotFound, bundled_binary
 
 # Heuristika: ovi tragovi u stderr znace "nema modela/kredencijala", ne bug.
 NO_MODEL_HINTS = (
@@ -64,34 +67,40 @@ def check_1_binary() -> tuple[str, str, str]:
     return "PASS", binary, proc.stdout.strip() or proc.stderr.strip()
 
 
-def check_2_serve(binary: str, workdir: str) -> tuple[str, str, OpencodeServer | None]:
-    """2. serve slusa samo 127.0.0.1 i trazi lozinku."""
-    server = OpencodeServer(binary, workdir)
+def check_2_config(binary: str, workdir: str) -> Result:
+    """2. Pinovani binarni prihvata nas config: agent + svi alati deny."""
+    write_config(workdir, mcp_command())
+    env = dict(os.environ, **child_env(workdir))
+    proc = subprocess.run([binary, "debug", "config"], cwd=workdir, env=env,
+                          capture_output=True, text=True, timeout=90)
+    raw = proc.stdout + proc.stderr
+    start, end = raw.find("{"), raw.rfind("}")
+    if start == -1:
+        return "FAIL", f"nema JSON izlaza (rc={proc.returncode}): {raw[:200]}"
     try:
-        server.start()
-    except OpencodeNotHealthy as exc:
-        return "FAIL", str(exc), None
-    if not server.requires_auth():
-        server.close()
-        return "FAIL", "endpoint dostupan BEZ lozinke", None
-    return "PASS", f"{server.url} (auth obavezan)", server
+        cfg = json.loads(raw[start:end + 1])
+    except json.JSONDecodeError as exc:
+        return "FAIL", f"izlaz nije validan JSON: {exc}"
+    agent = cfg.get("agent", {}).get(AGENT_ID)
+    if not agent:
+        return "FAIL", f"agent {AGENT_ID} nije u resolved configu"
+    allowed_builtins = [a for a in DENIED_ACTIONS if agent["tools"].get(a)]
+    if allowed_builtins:
+        return "FAIL", f"dozvoljeni ugradjeni alati: {allowed_builtins}"
+    if list(cfg.get("mcp", {})) != ["mujofix"]:
+        return "FAIL", f"nasi MCP serveri: {list(cfg.get('mcp', {}))}"
+    return "PASS", f"agent {AGENT_ID}, {len(DENIED_ACTIONS)} alata deny, mcp samo mujofix"
 
 
-def _run_agent(server: OpencodeServer, workdir: str, message: str,
+def _run_agent(binary: str, workdir: str, message: str,
                model: str | None) -> tuple[int, str, str]:
-    cmd = [
-        server.binary,
-        "run",
-        "--attach", server.url,
-        "--password", server.password,
-        "--agent", AGENT_ID,
-        "--dir", workdir,
-        "--format", "json",
-    ]
+    cmd = [binary, "run", "--agent", AGENT_ID, "--dir", workdir]
     if model:
         cmd += ["--model", model]
     cmd.append(message)
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=180,
+                          cwd=workdir,
+                          env=dict(os.environ, **child_env(workdir)))
     return proc.returncode, proc.stdout, proc.stderr
 
 
@@ -100,13 +109,12 @@ def _looks_like_no_model(stderr: str) -> bool:
     return any(hint in lowered for hint in NO_MODEL_HINTS)
 
 
-def check_3_mcp_tool(server: OpencodeServer, workdir: str,
-                     model: str | None) -> Result:
+def check_3_mcp_tool(binary: str, workdir: str, model: str | None) -> Result:
     """3. Agent pozove jedan MCP alat s laznim podacima."""
     if not model:
         return "SKIP", "model nije zadan (--model); bez kredencijala nema poziva"
     code, out, err = _run_agent(
-        server, workdir,
+        binary, workdir,
         "Pozovi alat mujofix_get_system_info i ispisi polje marker.",
         model,
     )
@@ -119,13 +127,13 @@ def check_3_mcp_tool(server: OpencodeServer, workdir: str,
     return "FAIL", "u izlazu nema ocekivanog MCP markera"
 
 
-def check_4_shell_denied(server: OpencodeServer, workdir: str,
+def check_4_shell_denied(binary: str, workdir: str,
                          model: str | None) -> Result:
     """4. Pokušaj poziva shell-a mora biti odbijen."""
     if not model:
         return "SKIP", "model nije zadan (--model); zabrana nije dokaziva"
     code, out, err = _run_agent(
-        server, workdir,
+        binary, workdir,
         "Pokreni shell komandu `whoami` i ispisi njen izlaz.",
         model,
     )
@@ -165,7 +173,7 @@ def check_5_offline() -> Result:
 def main() -> int:
     parser = argparse.ArgumentParser(description="MujoFix Faza 0 SPIKE")
     parser.add_argument("--model", default=os.environ.get("MUJOFIX_SPIKE_MODEL"),
-                        help="npr. opencode-zen/gpt-5-nano (inace SKIP za 3/4)")
+                        help="npr. opencode/beam-free (inace SKIP za 3/4)")
     parser.add_argument("--binary", default=None)
     args = parser.parse_args()
 
@@ -180,22 +188,16 @@ def main() -> int:
 
     failed = False
     with tempfile.TemporaryDirectory(prefix="mujofix-spike-") as tmp:
-        mcp_cmd = [sys.executable, os.path.abspath("mujofix/ai/mujofix_mcp.py")]
-        write_config(tmp, mcp_cmd)
-        status_2, msg_2, server = check_2_serve(binary, tmp)
-        print(f"CHECK 2 serve 127.0.0.1 + lozinka: {status_2}: {msg_2}")
-        if server is None:
-            return 1
-        try:
-            for num, (status, msg) in (
-                (3, check_3_mcp_tool(server, tmp, args.model)),
-                (4, check_4_shell_denied(server, tmp, args.model)),
-            ):
-                print(f"CHECK {num} {'mcp alat' if num == 3 else 'shell zabrana'}: "
-                      f"{status}: {msg}")
-                failed |= status == "FAIL"
-        finally:
-            server.close()
+        status_2, msg_2 = check_2_config(binary, tmp)
+        print(f"CHECK 2 config prihvacen + alati deny: {status_2}: {msg_2}")
+        failed |= status_2 == "FAIL"
+        for num, (status, msg) in (
+            (3, check_3_mcp_tool(binary, tmp, args.model)),
+            (4, check_4_shell_denied(binary, tmp, args.model)),
+        ):
+            print(f"CHECK {num} {'mcp alat' if num == 3 else 'shell zabrana'}: "
+                  f"{status}: {msg}")
+            failed |= status == "FAIL"
         status_5, msg_5 = check_5_offline()
         print(f"CHECK 5 offline fallback: {status_5}: {msg_5}")
         failed |= status_5 == "FAIL"
