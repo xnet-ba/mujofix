@@ -5,6 +5,8 @@
 - Faze 0-6 su kompletne u kodu. Nema TODO/FIXME/stub-ova u `mujofix/`.
 - Potvrdjeno host-direct na pravom Windows 11 (laptop, High integrity token):
   scan 9/9 scannera / 0 skipped, 5/5 akcija s identicnim rollback-om
+  (napomena 2026-10-21: katalog danas ima 7 akcija; scripts/host_proof.py
+  pokriva 3 — startup, temp, servis; ostale kroz testove)
   (`scripts/host_proof.py`), GUI smoke, spike 1-2 (opencode 1.18.34 bez Node-a,
   serve samo 127.0.0.1 + lozinka). Detalji nize u "Ryzen lab".
   (NAPOMENA 2026-10-21: server je uklonjen — vidi unos ARHITEKTURA;

@@ -56,9 +56,9 @@ $a -eq $b   # must print True
 
 ## 🔄 How it works
 
-1. **SCAN** — parallel scanner plugins, progress bar, cancellable.
+1. **SCAN** — scanner plugins run **in sequence**, progress bar, cancellable. A module error never crashes the app — it becomes a *skipped* entry.
 2. **ANALYZE** — each finding: severity (`CRITICAL / MEDIUM / LOW`), impact, fix risk, reversibility flag.
-3. **PLAN** — AI drafts steps, order, time/risk estimates. User approves.
+3. **PLAN** — AI drafts steps and order (action + target from the catalog); every step passes the validator before it is even shown. User approves.
 4. **EXECUTE → VERIFY → ROLLBACK** — per-step snapshots; failed verification restores the step automatically.
 5. **REPORT** — count of fixed / skipped / failed steps + **"Undo all"** via rollback points. (Before/after metrics — freed GB and boot time — are **not implemented**: boot time is not measured anywhere in the code, see `scanners/startup.py`.)
 
@@ -74,12 +74,12 @@ Bundled, pinned OpenCode as a child process (`opencode run`, no local server, no
 
 ## 🛡️ Safety
 
-Hard-coded blacklist (System32, WinSxS, boot config, BitLocker, Defender read-only…), a **per-action snapshot** (restores exactly the state the action changes: previous registry value, service/task state) plus file quarantine (30 days, not deletion). A dry-run mode (GUI checkbox: nothing is changed) and a readable per-step log in the window. **Not implemented:** System Restore Point (needs admin/Checkpoint-Computer) and JSON audit export — the safety net is the per-action snapshot + rollback. Never disables antivirus/firewall/updates.
+Hard-coded blacklist in the AI-plan validator (System32, WinSxS, Program Files, user Documents/Pictures/Desktop/Downloads, boot configuration/Boot BCD, BitLocker, Defender — the whole of `C:\Windows` is *not* blocked, since `Windows\Temp` and the WU cache are legitimate targets), a **per-action snapshot** (restores exactly the state the action changes: previous registry value, service/task state) plus file quarantine (30 days, not deletion). A dry-run mode (GUI checkbox: nothing is changed) and a readable per-step log in the window. **Not implemented:** System Restore Point (needs admin/Checkpoint-Computer) and JSON audit export — the safety net is the per-action snapshot + rollback. Never disables antivirus/firewall/updates.
 
 ## 🚦 Status
 
-All phases (0–6) are implemented in code and validated **host-direct on a real Windows 11 machine**: full scan (9/9 scanners, 0 skipped), all 5 fix actions with apply → verify → rollback, GUI smoke, and spike checks 1–2. 143 unit tests pass; CI is green on Ubuntu and Windows. The extended Win10 + Win11 clean-VM matrix remains an **optional** follow-up — see [docs/TESTING.md](docs/TESTING.md). The build is unsigned (SmartScreen warning expected).
+All phases (0–6) are implemented in code and validated **host-direct on a real Windows 11 machine**: full scan (9/9 scanners, 0 skipped), the 3 host-proven fix actions (of 7 in the catalog: startup, temp, service) with apply → verify → rollback, GUI smoke, and spike checks 1–2. 191 unit tests pass locally (Linux, Qt offscreen); CI is green on Ubuntu and Windows. The extended Win10 + Win11 clean-VM matrix remains an **optional** follow-up — see [docs/TESTING.md](docs/TESTING.md). The build is unsigned (SmartScreen warning expected).
 
 ## ⚠️ Disclaimer
 
-**This tool changes system settings and comes WITHOUT ANY WARRANTY.** Back up important data first. Changes can only be undone within the built-in rollback (30-day quarantine, restore point). Nothing here is "100% safe".
+**This tool changes system settings and comes WITHOUT ANY WARRANTY.** Back up important data first. Changes can only be undone within the built-in rollback (per-action snapshot + 30-day quarantine; System Restore Point is not implemented). Nothing here is "100% safe".

@@ -1,7 +1,7 @@
 # TESTING.md — ručna test-lista (OPCIONA produzena validacija)
 
 Status: faze 0–6 su vec potvrdjene *host-direct* na pravom Windows 11
-(scan 9/9, 5/5 akcija s rollback-om, GUI smoke, spike 1–2). Ova lista je
+(scan 9/9, 3 akcije s identičnim rollback-om preko host dokaza, GUI smoke, spike 1–2). Ova lista je
 zato OPCIONA: sluzi za punu matricu na CISTOM Win10 22H2 i Win11 23H2 VM-u
 s namjerno pokvarenim stanjem, prije sireg javnog izdanja.
 

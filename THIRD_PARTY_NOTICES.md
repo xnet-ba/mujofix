@@ -1,8 +1,9 @@
 # Third-party notices (MujoFix je MIT; ovo su licence zavisnosti)
 
-## OpenCode (sst/opencode) — MIT License
-Bundlovana pinovana kopija u installeru (`opencode/`). Dozvoljava
-redistribuciju uz ovu napomenu. Izvor: https://github.com/sst/opencode
+## OpenCode — MIT License
+Bundlovana pinovana kopija u installeru (`opencode/`, pin verzija u
+`installer/OPENCODE_PIN.txt`). Dozvoljava redistribuciju uz ovu napomenu.
+Izvor: https://github.com/anomalyco/opencode (nasljednik sst/opencode).
 
 ## PySide6 (Qt for Python) — LGPL-3.0-only
 Bundlovano kroz PyInstaller (dinamicko linkovanje). LGPL obaveze:

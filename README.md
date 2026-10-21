@@ -62,7 +62,7 @@
 ## <h2>🔄 Kako radi</h2>
 
 <ol>
-  <li><b>SCAN</b> — paralelni moduli skeniranja s progres barom i mogućnošću otkazivanja.</li>
+  <li><b>SCAN</b> — moduli skeniranja (izvršavaju se redom) uz progres bar i mogućnost otkazivanja. Greška modula ne ruši aplikaciju — postaje <i>skipped</i> u izvještaju.</li>
   <li><b>ANALIZA</b> — svaki nalaz ima ozbiljnost (<code>CRITICAL / MEDIUM / LOW</code>), procjenu uticaja, rizik popravke i oznaku da li je popravka reverzibilna.</li>
   <li><b>PRIKAZ</b> — jednostavan sažetak običnim jezikom + proširiva lista detalja. Izgled: <b>Fluent 2 / Windows 11</b> (Segoe UI, zaobljene kontrole, automatska svijetla/tamna tema) i <b>Mica</b> pozadina kad je DWM pruža (Win11; u suprotnom solidna boja).</li>
   <li><b>PLAN</b> — AI predloži plan popravki (koraci + redoslijed), koji se prikaže uz objašnjenje; svaki predlog prolazi katalog akcija i validator prije nego se uopšte prikaže. Primjenjuju se akcije <b>odabranih nalaza</b> (deterministički, sa snapshot/rollback tačkom i verifikacijom) — korisnik odobrava: <b>sve, pojedinačno ili ništa. Bez odobrenja se NIŠTA ne mijenja.</b></li>
@@ -85,7 +85,6 @@
 
 <table>
   <tr><th>Modul</th><th>Šta gleda</th><th>Faza</th></tr>
-  <tr><td>⚡ Performanse</td><td>CPU/RAM/disk po procesu, boot vrijeme (Event Log)</td><td>5</td></tr>
   <tr><td>🚀 Startup</td><td>Run/RunOnce ključevi, Startup folder, Taskovi, auto-servisi</td><td>1 ✅</td></tr>
   <tr><td>🔁 Servisi</td><td>Servisi koji se ruše (Event ID 7031/7034), neočekivana stanja</td><td>1 ✅</td></tr>
   <tr><td>💾 Disk</td><td>Slobodan prostor, temp, WU keš, recycle bin, Windows.old, SMART</td><td>1 ✅</td></tr>
@@ -124,7 +123,7 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
 ## <h2>🛡️ Sigurnost i povratak stanja</h2>
 
 <ul>
-  <li><b>Zaštićene zone</b> (hard-coded blacklist): System32, WinSxS, Program Files (osim kroz uninstaller), korisnički dokumenti/slike/desktop, boot konfiguracija, BitLocker, Defender (samo čitanje).</li>
+  <li><b>Zaštićene zone</b> (hard-coded crna lista u validatoru AI plana): System32, WinSxS, Program Files, korisnički Dokumenti/Slike/Desktop/Download, boot konfiguracija (BCD), BitLocker, Defender. Namjerno NIJE na listi cijeli <code>C:\Windows</code> — <code>Windows\Temp</code> i WU cache su legitimni ciljevi. Izvršni sloj ipak vrti samo akcije iz kataloga nad nalazima koje je korisnik odabrao.</li>
   <li><b>Prije popravke:</b> <b>vlastiti manifest po akciji</b> — snapshot vraća tačno stanje koje akcija mijenja (npr. prijašnja vrijednost registry unosa ili stanje servisa/taska) + <b>karantin fajlova</b> (ne trajno brisanje, rok 30 dana). <b>System Restore Point nije implementiran</b> (traži admin/Checkpoint-Computer; vidi <code>docs/STATUS.md</code>) — sigurnosna mreža je snapshot + rollback po akciji.</li>
   <li><b>Svaka akcija:</b> precondition → snapshot → apply → verify → rollback ako zatreba. Akcija bez <code>rollback()</code> ne smije biti auto-fix.</li>
   <li><b>Probni (dry-run) mod</b> (checkbox u GUI-ju: ništa se ne mijenja) i <b>čítljiv dnevnik</b> svakog koraka u prozoru (precondition / snapshot / apply / verify / dry-run). Izvoz u JSON fajl nije implementiran.</li>
@@ -139,14 +138,14 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
   <tr><th>Faza</th><th>Sadržaj</th><th>Stanje</th></tr>
   <tr><td><b>0 — SPIKE</b></td><td>Bundlovani OpenCode kao child, besplatni modeli, MCP alat, zabrana shell-a, offline</td><td>🟢 kod + dokaz na hostu (1–2); 3–5 čekaju živi model</td></tr>
   <tr><td><b>1</b></td><td>Skeleton + CLI scanner (startup, disk, servisi) + model nalaza</td><td>🟢 gotovo (Linux + host dokazi)</td></tr>
-  <tr><td><b>2</b></td><td>Action katalog + runner (snapshot/verify/rollback)</td><td>🟢 gotovo (5/5 akcija na hostu)</td></tr>
+  <tr><td><b>2</b></td><td>Action katalog + runner (snapshot/verify/rollback)</td><td>🟢 gotovo (katalog 7 akcija; 3 potvrđene host dokazom, ostale testovi — vidi <a href="docs/TESTING.md">TESTING</a>)</td></tr>
   <tr><td><b>3</b></td><td>GUI (sažetak, plan, odobravanje, progres, izvještaj)</td><td>🟢 gotovo (GUI smoke na hostu)</td></tr>
   <tr><td><b>4</b></td><td>Puni AI sloj (MCP, validator, fallback, pristanak, offline)</td><td>🟢 kod gotov (offline default; Zen ToS neprovjeren)</td></tr>
   <tr><td><b>5</b></td><td>Preostali moduli (mreža, drajveri, duplikati, procesi, permisije…)</td><td>🟢 gotovo (9/9 scannera na hostu, 0 skipped)</td></tr>
   <tr><td><b>6</b></td><td>Installer, potpisivanje, auto-update, javni release</td><td>🟡 kod gotov; build/release odluka otvorena (nepotpisan)</td></tr>
 </table>
 
-<p>Sve faze su implementirane u kodu i potvrđene <i>host-direct</i> na pravom Windows 11 računaru (scan 9/9, 5/5 akcija uz rollback, GUI smoke, spike 1–2). Puna VM matrica (Win10 + Win11, čist sistem) ostaje kao opciona, produžena validacija — vidi <a href="docs/TESTING.md">docs/TESTING.md</a>.</p>
+<p>Sve faze su implementirane u kodu i potvrđene <i>host-direct</i> na pravom Windows 11 računaru (scan 9/9, 3 akcije uz identičan rollback preko host dokaza, GUI smoke, spike 1–2). Puna VM matrica (Win10 + Win11, čist sistem) ostaje kao opciona, produžena validacija — vidi <a href="docs/TESTING.md">docs/TESTING.md</a>.</p>
 
 <p>Detalji po sesiji: <a href="docs/STATUS.md">docs/STATUS.md</a> • Pravila za kodere: <a href="AGENTS.md">AGENTS.md</a></p>
 
@@ -196,7 +195,7 @@ python3 scripts/host_proof.py
 
 ## <h2>⚠️ Disclaimer</h2>
 
-<p><b>Ovaj alat mijenja sistemske postavke računara i dolazi BEZ IKAKVE GARANCIJE.</b> Prije korištenja se preporučuje backup važnih podataka. Promjene se mogu poništiti samo u okviru ugrađenog rollback-a (karantin 30 dana, restore point) — oporavak izvan toga nije zagarantovan. Ništa u ovoj aplikaciji nije "100% sigurno".</p>
+<p><b>Ovaj alat mijenja sistemske postavke računara i dolazi BEZ IKAKVE GARANCIJE.</b> Prije korištenja se preporučuje backup važnih podataka. Promjene se mogu poništiti samo u okviru ugrađenog rollback-a (snapshot po akciji + karantin 30 dana) — System Restore Point nije implementiran, a oporavak izvan rollback-a nije zagarantovan. Ništa u ovoj aplikaciji nije "100% sigurno".</p>
 
 ---
 
