@@ -154,6 +154,64 @@ class TestGuiFlow(unittest.TestCase):
             self.assertIsNone(result.state)
             self.assertIn("dry-run", result.message)
 
+    def test_language_choice_is_saved_and_needs_restart(self):
+        """Jezik je bio provucen kroz kod ali se nije mogao izabrati u UI-ju."""
+        from mujofix.ui.main_window import store_lang, stored_lang
+        from PySide6.QtCore import QSettings
+
+        settings = QSettings("MujoFix", "ui")
+        previous = settings.value("lang")
+        try:
+            settings.remove("lang")
+            self.assertEqual(stored_lang(), "bs")
+            window, qtmp = self.make_window([disk_temp_finding('/x')])
+            try:
+                self.assertEqual(window.cmb_lang.currentData(), "bs")
+                window.cmb_lang.setCurrentIndex(1)  # English
+                self.assertEqual(stored_lang(), "en")
+                from mujofix.i18n.strings import tr
+                self.assertIn(tr("lang_restart", "bs"),
+                              window.log.toPlainText())
+            finally:
+                window.close()
+                qtmp.cleanup()
+        finally:
+            if previous is None:
+                settings.remove("lang")
+            else:
+                settings.setValue("lang", previous)
+
+    def test_window_geometry_is_restored(self):
+        from PySide6.QtCore import QSettings
+
+        settings = QSettings("MujoFix", "ui")
+        previous = settings.value("geometry")
+        try:
+            window, qtmp = self.make_window([disk_temp_finding('/x')])
+            try:
+                window.resize(700, 500)
+                app.processEvents()
+                # Qt layout moze nametnuti minimalnu visinu — pamtimo STVARNU
+                expected = (window.width(), window.height())
+                window._save_geometry()
+            finally:
+                window.close()
+                qtmp.cleanup()
+            second, qtmp2 = self.make_window([disk_temp_finding('/x')])
+            try:
+                second.resize(400, 300)
+                second._restore_geometry()
+                app.processEvents()
+                self.assertEqual((second.width(), second.height()), expected)
+            finally:
+                second.close()
+                qtmp2.cleanup()
+        finally:
+            if previous is None:
+                settings.remove("geometry")
+            else:
+                settings.setValue("geometry", previous)
+
     def test_fix_then_undo_roundtrip(self):
         with tempfile.TemporaryDirectory() as data:
             window, qtmp = self.make_window([disk_temp_finding(data)])

@@ -16,10 +16,11 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from PySide6.QtCore import Qt, QThread, Signal  # noqa: E402
+from PySide6.QtCore import QSettings, Qt, QThread, Signal  # noqa: E402
 from PySide6.QtWidgets import (  # noqa: E402
     QApplication,
     QCheckBox,
+    QComboBox,
     QHBoxLayout,
     QLabel,
     QListWidget,
@@ -53,6 +54,22 @@ from mujofix.ui.consent import ConsentDialog, SentLogViewer  # noqa: E402
 
 QUARANTINE_SUBDIR = "quarantine"
 AI_SUBDIR = "ai"
+
+
+SETTINGS_ORG = "MujoFix"
+SETTINGS_APP = "ui"
+SUPPORTED_LANGS = ("bs", "en")
+
+
+def stored_lang() -> str:
+    """Sacuvani jezik iz QSettings; "bs" ako nista nije izabrano."""
+    value = str(QSettings(SETTINGS_ORG, SETTINGS_APP).value("lang", "bs"))
+    return value if value in SUPPORTED_LANGS else "bs"
+
+
+def store_lang(lang: str) -> None:
+    if lang in SUPPORTED_LANGS:
+        QSettings(SETTINGS_ORG, SETTINGS_APP).setValue("lang", lang)
 
 
 def default_quarantine_dir() -> str:
@@ -240,6 +257,18 @@ class MainWindow(QMainWindow):
         ai_row.addWidget(self.btn_consent)
         layout.addLayout(ai_row)
 
+        lang_row = QHBoxLayout()
+        lang_row.addWidget(QLabel(self._t("lang_label")))
+        self.cmb_lang = QComboBox()
+        self.cmb_lang.addItem("Bosanski", "bs")
+        self.cmb_lang.addItem("English", "en")
+        self.cmb_lang.setCurrentIndex(
+            0 if self.lang == "bs" else 1)
+        self.cmb_lang.currentIndexChanged.connect(self._on_lang_changed)
+        lang_row.addWidget(self.cmb_lang)
+        lang_row.addStretch(1)
+        layout.addLayout(lang_row)
+
         self.progress = QProgressBar()
         self.progress.setVisible(False)
         layout.addWidget(self.progress)
@@ -319,6 +348,20 @@ class MainWindow(QMainWindow):
         return [f for f in self._findings if f["id"] in approved_ids]
 
     # -- AI OBJASNJENJE ------------------------------------------------------
+    def _on_lang_changed(self, index: int):
+        """Izbor jezika se pamti; primjenjuje se pri sljedecem pokretanju."""
+        store_lang(self.cmb_lang.currentData())
+        self._log(self._t("lang_restart"))
+
+    def _restore_geometry(self):
+        saved = QSettings(SETTINGS_ORG, SETTINGS_APP).value("geometry")
+        if saved is not None:
+            self.restoreGeometry(saved)
+
+    def _save_geometry(self):
+        QSettings(SETTINGS_ORG, SETTINGS_APP).setValue(
+            "geometry", self.saveGeometry())
+
     def _identity(self) -> tuple[str, str]:
         """(korisnik, racunar) — treba za anonimizaciju prije slanja."""
         try:
@@ -531,6 +574,7 @@ class MainWindow(QMainWindow):
         if self._ai is not None and self._ai.isRunning():
             self._ai.wait(3000)
         self._session = None
+        self._save_geometry()
         super().closeEvent(event)
 
 
@@ -538,7 +582,8 @@ def main() -> int:
     app = QApplication(sys.argv)
     if hasattr(app, "setApplicationName"):
         app.setApplicationName("MujoFix")
-    window = MainWindow()
+    window = MainWindow(lang=stored_lang())
+    window._restore_geometry()
     theme.setup(app, window)  # Fluent 2 + Segoe UI + Mica (best-effort)
     window.show()
     return app.exec()

@@ -90,6 +90,15 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- UX 2026-10-21 (nedovrseno -> dovrseno): (1) ikona — `mujofix.spec` je imao
+  `icon="NONE"` i installer `SetupIconFile` nije imao, pa je instaliran app nosio
+  genericku Python/Qt ikonu; sada `assets/mujofix.ico` (multi-size, PNG payload,
+  `scripts/make_icon.py`, bez novih zavisnosti) + spec/iss/theme/testovi.
+  (2) izbor jezika — `lang` je bio provucen svuda ali se NIJE mogao izabrati;
+  sada combo (bs/en) u UI-ju, pamti se u QSettings i primjenjuje pri sljedecem
+  pokretanju. (3) prozor pamti velicinu/poziciju (`saveGeometry/restoreGeometry`).
+  Testovi: `test_language_choice_is_saved_and_needs_restart`,
+  `test_window_geometry_is_restored`, `tests/test_icon.py` (6). 201 OK.
 - DIZAJN 2026-10-21 (Fluent 2 / Windows 11): novi `mujofix/ui/theme.py` —
   QSS tokeni (Fluent 2 boje, radius 4/8, akcent iz Windows DWM AccentColor,
   fallback brand plava), font stack Segoe UI Variable/Segoe UI, automatska

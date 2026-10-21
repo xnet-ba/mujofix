@@ -7,6 +7,8 @@
   kroz `opencode run` kao child proces.
 
 ### Dodano
+- Ikona aplikacije (Fluent 2): u exe-u, installeru, prozoru i prečicama.
+- Izbor jezika u UI-ju (Bosanski/English) i pamćenje veličine prozora.
 - Fluent 2 / Windows 11 izgled: Segoe UI, zaobljene kontrole, automatska
   svijetla/tamna tema i Mica pozadina na Win11 (best-effort).
 - Dugme "AI: uključi/isključi": pristanak se moze promijeniti bilo kad
