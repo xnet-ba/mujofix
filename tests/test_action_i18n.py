@@ -21,6 +21,7 @@ import mujofix.actions.proxy  # noqa: E402,F401
 import mujofix.actions.service  # noqa: E402,F401
 import mujofix.actions.share  # noqa: E402,F401
 import mujofix.actions.startup  # noqa: E402,F401
+import mujofix.actions.task  # noqa: E402,F401
 import mujofix.actions.temp  # noqa: E402,F401
 from mujofix.actions.base import CATALOG, ActionContext, Runner, action_text
 from mujofix.i18n.strings import STRINGS

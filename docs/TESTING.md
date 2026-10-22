@@ -1,7 +1,7 @@
 # TESTING.md — ručna test-lista (OPCIONA produzena validacija)
 
 Status: faze 0–6 su vec potvrdjene *host-direct* na pravom Windows 11
-(scan 9/9, 3 akcije s identičnim rollback-om preko host dokaza, GUI smoke, spike 1–2). Ova lista je
+(scan 9/9 u tom runu, 3 akcije s identičnim rollback-om preko host dokaza, GUI smoke, spike 1–2). Ova lista je
 zato OPCIONA: sluzi za punu matricu na CISTOM Win10 22H2 i Win11 23H2 VM-u
 s namjerno pokvarenim stanjem, prije sireg javnog izdanja.
 
@@ -32,6 +32,10 @@ uz tvrde kočnice (samo test-artefakti) i vraćanje u `finally`. Akcije 4-6 su
 - [ ] duplicates: kopija 50 MB fajla na 2 mjesta = 1 grupa, certain
 - [ ] suspicious: kopiraj potpisani exe u %TEMP% + Run stavka = sumnjiv
 - [ ] permissions: EnableLUA=0 na test VM-u = CRITICAL (vratiti na 1!)
+- [ ] tasks: napravi zadatak koji se pokreće pri prijavi s programom u
+      `%USERPROFILE%\mujofix-test.exe` → nalaz; disable_task ga isključi,
+      "Poništi sve" ponovo uključi; sistemski zadaci (\Microsoft\…) se NE
+      prijavljuju jer su im programi u sistemskim folderima
 
 ## C. Akcije uživo (SVAKA: apply → verify → rollback → identično stanje)
 - [ ] disable_startup_item na test stavci (HKCU, bez UAC)

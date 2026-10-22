@@ -26,6 +26,7 @@ from mujofix.scanners import permissions as _permissions  # noqa: E402,F401
 from mujofix.scanners import services as _services  # noqa: E402,F401
 from mujofix.scanners import suspicious as _suspicious  # noqa: E402,F401
 from mujofix.scanners import startup as _startup  # noqa: E402,F401
+from mujofix.scanners import tasks as _tasks  # noqa: E402,F401
 from mujofix.i18n.strings import tr  # noqa: E402
 from mujofix.scanners.base import REGISTRY, ScanContext  # noqa: E402
 from mujofix import update as update_mod  # noqa: E402

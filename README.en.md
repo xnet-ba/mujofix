@@ -78,10 +78,10 @@ Bosnian UI):
 
 ## 🧩 Scanners
 
-Startup, services, disk, network, configuration, drivers, large files & duplicates (never auto-deleted, review only), suspicious processes ("suspicious, reasons: …" — never "virus"), permissions (disabled UAC = CRITICAL, ACLs, shares). Every module degrades gracefully on unsupported Windows versions.
+Startup, services, disk, network, configuration, drivers, large files & duplicates (never auto-deleted, review only), suspicious processes ("suspicious, reasons: …" — never "virus"), permissions (disabled UAC = CRITICAL, ACLs, shares), scheduled tasks (autostart tasks whose program sits outside system folders). Every module degrades gracefully on unsupported Windows versions.
 
 <!-- coverage:start -->
-<p>Of <b>26</b> findings, <b>11</b> have an automatic fix (a catalog action with snapshot/verify/rollback); the rest are <b>deliberately recommendations only</b> — with the reason:</p>
+<p>Of <b>27</b> findings, <b>12</b> have an automatic fix (a catalog action with snapshot/verify/rollback); the rest are <b>deliberately recommendations only</b> — with the reason:</p>
 
 | Nalaz | Popravka | Napomena |
 |---|---|---|
@@ -111,6 +111,7 @@ Startup, services, disk, network, configuration, drivers, large files & duplicat
 | `startup-count` | ✅ disable_startup_item | |
 | `suspicious-process` | ❌ | report-only by design — the app kills nothing and never claims a virus |
 | `suspicious-defender-off` | ❌ | the app never touches antivirus/protection (policy) |
+| `tasks-autostart-untrusted` | ✅ disable_task | |
 <!-- coverage:end -->
 
 ## 🤖 AI layer
@@ -123,7 +124,7 @@ Hard-coded blacklist in the AI-plan validator (System32, WinSxS, Program Files, 
 
 ## 🚦 Status
 
-All phases (0–6) are implemented in code and validated **host-direct on a real Windows 11 machine**: full scan (9/9 scanners, 0 skipped), the 3 host-proven fix actions (of 7 in the catalog: startup, temp, service) with apply → verify → rollback, GUI smoke, and spike checks 1–2. the full unit-test suite (230+ tests) passes locally (Linux, Qt offscreen); CI is green on Ubuntu and Windows and smoke-tests the packaged exe on every push. The extended Win10 + Win11 clean-VM matrix remains an **optional** follow-up — see [docs/TESTING.md](docs/TESTING.md). The build is unsigned (SmartScreen warning expected).
+All phases (0–6) are implemented in code and validated **host-direct on a real Windows 11 machine**: full scan (9/9 scanners at that time, 0 skipped; the `tasks` scanner was added 2026-10-22), the 3 host-proven fix actions (of 11 in the catalog: startup, temp, service) with apply → verify → rollback, GUI smoke, and spike checks 1–2. the full unit-test suite (230+ tests) passes locally (Linux, Qt offscreen); CI is green on Ubuntu and Windows and smoke-tests the packaged exe on every push. The extended Win10 + Win11 clean-VM matrix remains an **optional** follow-up — see [docs/TESTING.md](docs/TESTING.md). The build is unsigned (SmartScreen warning expected).
 
 ## ⚠️ Disclaimer
 

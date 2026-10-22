@@ -3,6 +3,16 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Dodano
+- **Novi scanner `tasks` + akcija `disable_task`:** nijedan scanner nije čitao
+  **Task Scheduler**, a to je čest autostart/perzistencija. Nalaz
+  `tasks-autostart-untrusted` prijavljuje zadatke koji se pokreću pri
+  prijavi/boot-u (CIM okidači, nezavisno od jezika) **a program im je izvan
+  sistemskih foldera** (MEDIUM ako ih je 3+). Čitanje ide preko PowerShell
+  **objekata** (`platform/powershell.py`, izdvojeno iz `suspicious`) jer su
+  `schtasks` ispisi lokalizovani. Akcija `disable_task` koristi
+  `Disable-ScheduledTask` / rollback `Enable-ScheduledTask`, a **ime zadatka
+  se escape-uje** (dolazi iz sistema → inače bi bilo injektovanja). Traži
+  elevaciju. Katalog je sada 11 akcija, 10 scannera.
 - **`scripts/host_proof.py` pokriva i nove akcije** (`remove_hosts_entry`,
   `remove_share`, `disable_power_saver`): svaka apply → verify → rollback →
   identično stanje, uz tvrde kočnice (samo test-artefakti: jedan hosts zapis

@@ -4,11 +4,12 @@
 
 - Faze 0-6 su kompletne u kodu. Nema TODO/FIXME/stub-ova u `mujofix/`.
 - Potvrdjeno host-direct na pravom Windows 11 (laptop, High integrity token):
-  scan 9/9 scannera / 0 skipped, GUI smoke, spike 1-2 (opencode 1.18.34 bez
+  scan 9/9 scannera / 0 skipped (u tom runu; `tasks` scanner dodat
+  2026-10-22), GUI smoke, spike 1-2 (opencode 1.18.34 bez
   Node-a, tada `opencode serve` na 127.0.0.1 + lozinka). Detalji nize u
   "Ryzen lab".
   NAPOMENA 2026-10-21: server je uklonjen (`opencode run` je child proces —
-  vidi unos ARHITEKTURA); katalog danas ima 10 akcija, a `scripts/host_proof.py`
+  vidi unos ARHITEKTURA); katalog danas ima 11 akcija, a `scripts/host_proof.py`
   pokriva 3 (startup, temp, servis) — ostale kroz testove.
 - 104/104 unit testa u tom runu; trenutno 193 lokalno (Linux/offscreen).
 - Integracioni testovi protiv binarnog: config dokazan na 1.18.34, novi put
@@ -94,6 +95,17 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- SCANNER 2026-10-22 (nova pokrivenost): nijedan scanner nije citao Task
+  Scheduler, a to je cest autostart/perzistencija. Novi `mujofix/scanners/tasks.py`
+  (`tasks-autostart-untrusted`): zadaci koji se pokrecu pri prijavi/boot-u
+  (CIM okidaci: Logon/Boot/Startup) a program im je IZVAN sistemskih foldera;
+  MEDIUM ako ih je 3+, inace LOW. Cita se preko PowerShell OBJEKATA
+  (`mujofix/platform/powershell.py::ps_json`, izdvojeno iz `suspicious`) jer su
+  `schtasks` ispisi lokalizovani. Nova akcija `disable_task`
+  (`mujofix/actions/task.py`): `Disable-ScheduledTask`, rollback
+  `Enable-ScheduledTask`, ime zadatka se ESCAPE-uje (apostrof) jer dolazi iz
+  sistema; `needs_elevation`. Testovi: 7 (scanner) + 9 (akcija). Katalog 11,
+  scanner-a 10.
 - HOST-DOKAZ 2026-10-22: `scripts/host_proof.py` prosiren na akcije 4-6
   (remove_hosts_entry, remove_share, disable_power_saver) — apply -> verify ->
   rollback -> identicno stanje, uz backup hosts fajla i vracanje u `finally`,
@@ -612,11 +624,12 @@ kreiranje repoa. Push ide preko `origin` (SSH).
 
 - `actions/base.py`: Action ugovor (precondition/snapshot/apply/verify/rollback),
   Runner (pad nakon snapshot-a -> rollback), dry-run, karantin, audit log.
-- 10 akcija: disable_startup_item (HKCU/HKLM, UAC samo za HKLM),
+- 11 akcija: disable_startup_item (HKCU/HKLM, UAC samo za HKLM),
   clean_temp (starije od 7 dana u karantin, manifest), restart_service (`sc`,
   UAC), remove_hosts_entry (hosts zapis, UAC; snapshot cuva cijeli fajl),
   disable_power_saver (aktivni plan -> Balanced preko powercfg),
   remove_share (nedefault mrezni share; NIKAD administrativni, UAC),
+  disable_task (zakazani zadatak; PowerShell, UAC),
   treba UAC, rizik srednji), remove_path_entry (mrtvi PATH unos, HKCU/HKLM,
   cuva registry tip), fix_temp_var (TEMP/TMP u HKCU Environment),
   disable_proxy (HKCU Internet Settings, ProxyEnable=0),

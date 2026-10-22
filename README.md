@@ -107,13 +107,14 @@ render, bs jezik):</p>
   <tr><td>⚙️ Konfiguracija</td><td>PATH, env varijable, hosts, power plan, SFC/DISM indikatori</td><td>5</td></tr>
   <tr><td>🌐 Mreža</td><td>DNS, proxy, adapteri, latencija, hosts hijack, Winsock</td><td>5</td></tr>
   <tr><td>🕵️ Sumnjivi procesi</td><td>Nepotpisani procesi na čudnim lokacijama, autostart iz Temp-a. <b>Ne tvrdi "virus"</b> — kaže "sumnjivo, razlozi: …"</td><td>5</td></tr>
+  <tr><td>⏰ Zakazani zadaci</td><td>Zadaci koji se pokreću pri prijavi/boot-u, a program im je izvan sistemskih foldera (Task Scheduler)</td><td>5</td></tr>
   <tr><td>🔒 Permisije</td><td>Preširoke ACL dozvole, svijet-zapisivi folderi u PATH-u, UAC, share-ovi</td><td>5</td></tr>
 </table>
 
 ---
 
 <!-- coverage:start -->
-<p>Od <b>26</b> nalaza, <b>11</b> ima automatsku popravku (akcija iz kataloga, sa snapshot/verify/rollback); ostali su <b>namjerno samo preporuke</b> — sa razlogom:</p>
+<p>Od <b>27</b> nalaza, <b>12</b> ima automatsku popravku (akcija iz kataloga, sa snapshot/verify/rollback); ostali su <b>namjerno samo preporuke</b> — sa razlogom:</p>
 
 | Nalaz | Popravka | Napomena |
 |---|---|---|
@@ -143,6 +144,7 @@ render, bs jezik):</p>
 | `startup-count` | ✅ disable_startup_item | |
 | `suspicious-process` | ❌ | namjerno report-only — app ne gasi procese i ne tvrdi da je virus |
 | `suspicious-defender-off` | ❌ | app nikad ne dira antivirus/zaštitu (politika) |
+| `tasks-autostart-untrusted` | ✅ disable_task | |
 <!-- coverage:end -->
 
 ## <h2>🤖 AI sloj</h2>
@@ -188,11 +190,11 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
   <tr><td><b>2</b></td><td>Action katalog + runner (snapshot/verify/rollback)</td><td>🟢 gotovo (katalog 10 akcija; 3 potvrđene host dokazom, ostale testovi — vidi <a href="docs/TESTING.md">TESTING</a>)</td></tr>
   <tr><td><b>3</b></td><td>GUI (sažetak, plan, odobravanje, progres, izvještaj)</td><td>🟢 gotovo (GUI smoke na hostu)</td></tr>
   <tr><td><b>4</b></td><td>Puni AI sloj (MCP, validator, fallback, pristanak, offline)</td><td>🟢 kod gotov (offline default; Zen ToS neprovjeren)</td></tr>
-  <tr><td><b>5</b></td><td>Preostali moduli (mreža, drajveri, duplikati, procesi, permisije…)</td><td>🟢 gotovo (9/9 scannera na hostu, 0 skipped)</td></tr>
+  <tr><td><b>5</b></td><td>Preostali moduli (mreža, drajveri, duplikati, procesi, permisije…)</td><td>🟢 gotovo (10 scannera; 9 potvrđeno host dokazom 2026-10-14, `tasks` dodat 2026-10-22)</td></tr>
   <tr><td><b>6</b></td><td>Installer, potpisivanje, auto-update, javni release</td><td>🟡 kod gotov; build/release odluka otvorena (nepotpisan)</td></tr>
 </table>
 
-<p>Sve faze su implementirane u kodu i potvrđene <i>host-direct</i> na pravom Windows 11 računaru (scan 9/9, 3 akcije uz identičan rollback preko host dokaza, GUI smoke, spike 1–2). Puna VM matrica (Win10 + Win11, čist sistem) ostaje kao opciona, produžena validacija — vidi <a href="docs/TESTING.md">docs/TESTING.md</a>.</p>
+<p>Sve faze su implementirane u kodu i potvrđene <i>host-direct</i> na pravom Windows 11 računaru (scan 9/9 u tom runu — `tasks` scanner je dodat kasnije, 3 akcije uz identičan rollback preko host dokaza, GUI smoke, spike 1–2). Puna VM matrica (Win10 + Win11, čist sistem) ostaje kao opciona, produžena validacija — vidi <a href="docs/TESTING.md">docs/TESTING.md</a>.</p>
 
 <p>Detalji po sesiji: <a href="docs/STATUS.md">docs/STATUS.md</a> • Pravila za kodere: <a href="AGENTS.md">AGENTS.md</a></p>
 

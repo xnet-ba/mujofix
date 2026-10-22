@@ -6,9 +6,7 @@ cita (read-only), nikad se ne mijenja. Potpis: Get-AuthenticodeSignature.
 
 from __future__ import annotations
 
-import json
 import os
-import subprocess
 
 from mujofix.core.models import Finding
 from mujofix.platform import windows
@@ -19,13 +17,7 @@ _PS_PROCESS_CMD = "Get-Process | Select-Object Name,Id,Path | ConvertTo-Json"
 MAX_SIG_CHECKS = 20
 
 
-def _ps_json(command: str, timeout_s: int = 90) -> object:
-    proc = subprocess.run(
-        ["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
-        capture_output=True, text=True, timeout=timeout_s)
-    if proc.returncode != 0:
-        raise RuntimeError(proc.stderr.strip()[-200:])
-    return json.loads(proc.stdout or "null")
+from mujofix.platform.powershell import ps_json as _ps_json
 
 
 def _processes() -> list[dict]:
