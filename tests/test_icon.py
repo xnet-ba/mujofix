@@ -45,6 +45,28 @@ class TestIconFile(unittest.TestCase):
             os.path.join(ROOT, "scripts", "make_icon.py")))
 
 
+class TestReadmeScreenshots(unittest.TestCase):
+    """Linkovi iz README-a ne smiju voditi u 404."""
+
+    def test_screenshots_exist_and_are_links_in_readme(self):
+        import re
+
+        for name in ("mujofix-light.png", "mujofix-dark.png"):
+            path = os.path.join(ROOT, "docs", "screenshots", name)
+            self.assertTrue(os.path.isfile(path), f"nema {name}")
+            self.assertGreater(os.path.getsize(path), 5000)
+        for readme in ("README.md", "README.en.md"):
+            text = open(os.path.join(ROOT, readme), encoding="utf-8").read()
+            for ref in re.findall(r'src="(docs/screenshots/[^"]+)"', text):
+                self.assertTrue(
+                    os.path.isfile(os.path.join(ROOT, ref)),
+                    f"{readme} linkuje nepostojeci {ref}")
+
+    def test_generator_script_exists(self):
+        self.assertTrue(os.path.isfile(
+            os.path.join(ROOT, "scripts", "make_screenshots.py")))
+
+
 class TestIconWiring(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

@@ -79,6 +79,19 @@
 
 ---
 
+## <h2>🖼️ Izgled</h2>
+
+<p>Fluent 2 / Windows 11: Segoe UI, zaobljene kontrole, automatska svijetla/tamna
+tema i Mica pozadina na Win11. Snimke su sa stvarne aplikacije (offscreen
+render, bs jezik):</p>
+
+<p align="center">
+  <img src="docs/screenshots/mujofix-light.png" alt="MujoFix — svijetla tema" width="520">
+  <img src="docs/screenshots/mujofix-dark.png" alt="MujoFix — tamna tema" width="520">
+</p>
+
+---
+
 ## <h2>🧩 Moduli skeniranja</h2>
 
 <p>Svi moduli su pluginovi s istim interfejsom (<code>scan()</code> nikad ne ruši aplikaciju — greška postaje <i>skipped</i> izvještaj). Svaki modul provjerava verziju Windowsa i graceful se isključuje gdje nije podržan.</p>

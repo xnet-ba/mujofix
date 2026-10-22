@@ -64,6 +64,17 @@ $a -eq $b   # must print True
 
 Anti-hallucination: the AI talks **only about evidence the scanner collected**; uncertainty is explicit; every proposal passes a validator (JSON schema + action allowlist). The AI never executes anything — a deterministic executor runs only catalog actions.
 
+## 🖼️ Look and feel
+
+Fluent 2 / Windows 11: Segoe UI, rounded controls, automatic light/dark theme and
+a Mica backdrop on Win11. Screenshots are from the real app (offscreen render,
+Bosnian UI):
+
+<p align="center">
+  <img src="docs/screenshots/mujofix-light.png" alt="MujoFix — light theme" width="520">
+  <img src="docs/screenshots/mujofix-dark.png" alt="MujoFix — dark theme" width="520">
+</p>
+
 ## 🧩 Scanners
 
 Startup, services, disk, network, configuration, drivers, large files & duplicates (never auto-deleted, review only), suspicious processes ("suspicious, reasons: …" — never "virus"), permissions (disabled UAC = CRITICAL, ACLs, shares). Every module degrades gracefully on unsupported Windows versions.
