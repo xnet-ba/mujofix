@@ -50,7 +50,13 @@ def shoot(name: str, dark: bool) -> str:
 
     app = QApplication.instance() or QApplication(sys.argv)
     theme.apply(app, dark=dark)
-    window = MainWindow(scan_fn=lambda: [], quarantine_dir=tempfile.mkdtemp(),
+    quarantine = tempfile.mkdtemp()
+    # par fajlova u karantinu da se na snimci vide "Očisti karantin"/"Karantin"
+    for fname, size in (("20261021_old.tmp", 3_200_000_000),
+                        ("20261021_cache.tmp", 1_600_000_000)):
+        with open(os.path.join(quarantine, fname), "wb") as handle:
+            handle.truncate(size)
+    window = MainWindow(scan_fn=lambda: [], quarantine_dir=quarantine,
                         audit_dir=tempfile.mkdtemp(), lang="bs",
                         ai_build_fn=lambda *a, **k: None)
     window._findings = [dict(f) for f in FINDINGS]
@@ -66,6 +72,7 @@ def shoot(name: str, dark: bool) -> str:
     window.log.appendPlainText(
         "Dnevnik izvršavanja sačuvan: C:\\Users\\...\\MujoFix\\audit\\"
         "audit-20261021-145501.json")
+    window._refresh_quarantine_button()
     window.resize(760, 640)
     window.show()
     app.processEvents()
