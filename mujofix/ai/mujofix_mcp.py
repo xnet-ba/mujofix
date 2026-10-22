@@ -53,6 +53,22 @@ def _is_protected(target: str) -> bool:
     return any(hint in lowered for hint in PROTECTED_HINTS)
 
 
+def _target_problem(target: str) -> str:
+    """Zasto meta nije upotrebljiva ("" = u redu). Mehanička provjera.
+
+    Ne sudi o semantici akcije (to rade precondition akcije), ali odbija ocito
+    smece: vise linija (injekcija), predugacko, bez ijednog slova (npr. "0") i
+    tekst koji nije putanja/kljuc/ime.
+    """
+    if any(ch in target for ch in "\r\n\t"):
+        return "sadrzi kontrolne znakove"
+    if len(target) > 260:
+        return "duze od 260 znakova"
+    if not any(ch.isalpha() for ch in target):
+        return "nema ni jedno slovo"
+    return ""
+
+
 def validate_plan(plan: object, lang: str = "bs") -> tuple[bool, str]:
     """Cista funkcija: (prihvacen, razlog). Nema nuspojava.
 
@@ -79,8 +95,11 @@ def validate_plan(plan: object, lang: str = "bs") -> tuple[bool, str]:
             return False, t("vp_unknown_action", i=index, a=action,
                             allowed=", ".join(sorted(ACTION_ALLOWLIST)))
         target = str(step.get("target", ""))
-        if not target:
+        if not target.strip():
             return False, t("vp_no_target", i=index)
+        problem = _target_problem(target)
+        if problem:
+            return False, t("vp_bad_target", i=index, why=problem)
         if _is_protected(target):
             return False, t("vp_protected", i=index, p=target)
     return True, t("vp_ok", n=len(steps))

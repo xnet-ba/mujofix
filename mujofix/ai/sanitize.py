@@ -9,10 +9,24 @@ import re
 
 RE_IPV4 = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
 RE_MAC = re.compile(r"\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b")
-RE_SERIAL = re.compile(r"\b[A-Z0-9]{5,}-[A-Z0-9-]{4,}\b")
+# Serijski brojevi dolaze i malim slovima (npr. "abcde-1234"), pa je regex
+# case-insensitive, ali MORA sadrzavati cifru — inace bi pojeo obican tekst
+# poput "windows-update" (bez cifre) i oslabio objasnjenje.
+RE_SERIAL = re.compile(r"\b(?=[A-Za-z0-9-]*\d)[A-Za-z0-9]{5,}-[A-Za-z0-9-]{4,}\b")
 
 DROP_KEYS = {"password", "passwd", "token", "secret", "api_key", "apikey",
              "auth", "credential"}
+
+# Tokeni mogu biti i u VRIJEDNOSTI (npr. u slobodnom tekstu nalaza), pa se
+# skidaju i po obliku. Namjerno usko: samo poznati prefiksi, da se ne pojede
+# obican tekst.
+RE_TOKEN = re.compile(
+    r"(?:ghp_|gho_|ghu_|ghs_|github_pat_)[A-Za-z0-9_]{10,}"
+    r"|sk-[A-Za-z0-9]{16,}"
+    r"|xox[baprs]-[A-Za-z0-9-]{10,}"
+    r"|AKIA[0-9A-Z]{16}"
+    r"|Bearer\s+[A-Za-z0-9._-]{16,}"
+)
 
 
 def _scrub_str(text: str, username: str, hostname: str) -> str:
@@ -24,6 +38,7 @@ def _scrub_str(text: str, username: str, hostname: str) -> str:
     if hostname:
         text = re.sub(re.escape(hostname), "<racunar>", text,
                       flags=re.IGNORECASE)
+    text = RE_TOKEN.sub("<token>", text)
     text = RE_IPV4.sub("<ip>", text)
     text = RE_MAC.sub("<mac>", text)
     text = RE_SERIAL.sub("<serijski>", text)

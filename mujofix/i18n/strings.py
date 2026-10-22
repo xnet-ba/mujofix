@@ -361,6 +361,7 @@ STRINGS = {
         "act_share_ready": "share {n} vodi na {p}",
         "act_share_still": "share {n} je i dalje prisutan",
         "act_share_unreadable": "share se ne moze procitati: {e}",
+        "vp_bad_target": "korak {i}: meta nije upotrebljiva ({why})",
         "sc_disk_almost_full_title": "Disk je gotovo pun (ostalo {gb} GB)",
         "sc_disk_almost_full_why": ("Kad ponestane slobodnog prostora, Windows "
                                    "usporava, updatei pucaju, a programi se "
@@ -757,6 +758,7 @@ STRINGS = {
         "act_share_ready": "share {n} points to {p}",
         "act_share_still": "share {n} is still present",
         "act_share_unreadable": "the share cannot be read: {e}",
+        "vp_bad_target": "step {i}: the target is not usable ({why})",
         "sc_disk_almost_full_title": "Disk is almost full ({gb} GB left)",
         "sc_disk_almost_full_why": ("When free space runs out Windows slows "
                                     "down, updates fail and programs crash "

@@ -35,8 +35,9 @@ from mujofix.i18n.strings import tr  # noqa: E402
 CATEGORIES_BS = (
     "Šalje se (anonimizirano): vrste i broj nalaza, putanje sistemskih "
     "foldera, imena servisa, verzija Windowsa.\n"
-    "Nikad se ne šalje: sadržaj tvojih fajlova, lozinke, tokeni, "
-    "korisničko ime, hostname, IP/MAC adrese.\n"
+    "Nikad se ne šalje: sadržaj tvojih fajlova, lozinke, tokeni (i kad se "
+    "pojave u slobodnom tekstu nalaza), korisničko ime, hostname, IP/MAC "
+    "adrese.\n"
     "Kome: odabrani AI provider (cloud).\n"
     "POTVRDJENO (OpenCode Zen, 2026-10-18): besplatna razina NIJE privatna. "
     "Provajderi su uglavnom zero-retention, ALI: za neplacene racune sadrzaj "
@@ -51,8 +52,9 @@ CATEGORIES_BS = (
 CATEGORIES_EN = (
     "SENT (anonymized): types and count of findings, system folder paths, "
     "service names, Windows version.\n"
-    "NEVER sent: contents of your files, passwords, tokens, username, "
-    "hostname, IP/MAC addresses.\n"
+    "NEVER sent: contents of your files, passwords, tokens (also when they "
+    "appear in free text of a finding), username, hostname, IP/MAC "
+    "addresses.\n"
     "TO WHOM: the selected AI provider (cloud).\n"
     "CONFIRMED (OpenCode Zen, 2026-10-18): the free tier is NOT private. "
     "Providers are mostly zero-retention, BUT: for unpaid accounts content may "

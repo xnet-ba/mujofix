@@ -2,6 +2,18 @@
 
 ## [0.4.0] (u razvoju — nije objavljeno)
 
+### Ispravljeno
+- **Fuzz testovi su našli tri slabljenja na granicama** (validator AI plana i
+  anonimizacija) i sva tri su popravljena: (1) token koji se pojavi u
+  VRIJEDNOSTI (npr. u slobodnom tekstu nalaza) nije se skidao — sada se
+  skidaju poznati oblici (`ghp_`/`gho_`/`ghu_`/`ghs_`/`github_pat_`, `sk-`,
+  `xox[baprs]-`, `AKIA…`, `Bearer …`); (2) validator je prihvatao metu koja
+  je samo razmaci; (3) prihvatao je i besmislenu metu ("0") i višelinijski
+  tekst — sada meta mora imati slovo, bez kontrolnih znakova, ≤ 260 znakova.
+  Anonimizacija serijskih brojeva pokriva i mala slova, ali uz uslov da
+  sadrže cifru (da ne pojede običan tekst tipa "windows-update").
+  Ekran pristanka (bs+en) to sada i kaže.
+
 ### Dodano
 - **Sažetak kaže koliko se problema može automatski popraviti** (pored broja
   po ozbiljnosti); ako nijedan nalaz nema akciju, to izričito kaže i upućuje
