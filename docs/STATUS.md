@@ -8,7 +8,7 @@
   Node-a, tada `opencode serve` na 127.0.0.1 + lozinka). Detalji nize u
   "Ryzen lab".
   NAPOMENA 2026-10-21: server je uklonjen (`opencode run` je child proces —
-  vidi unos ARHITEKTURA); katalog danas ima 9 akcija, a `scripts/host_proof.py`
+  vidi unos ARHITEKTURA); katalog danas ima 10 akcija, a `scripts/host_proof.py`
   pokriva 3 (startup, temp, servis) — ostale kroz testove.
 - 104/104 unit testa u tom runu; trenutno 193 lokalno (Linux/offscreen).
 - Integracioni testovi protiv binarnog: config dokazan na 1.18.34, novi put
@@ -94,6 +94,17 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- AKCIJA 2026-10-22 (3. nova): `permissions-shares` („nedefault dijeljeni
+  folderi") je bio bez akcije. `mujofix/actions/share.py` (`remove_share`):
+  snapshot iz `net share <ime>` pamti putanju i remark, apply je `/delete`,
+  verify trazi da share nema, rollback ga vraca (`net share ime=putanja
+  [/remark=...]`). NIKAD ne dira administrativne share-ove — koristi istu
+  `DEFAULT_SHARES` listu kao scanner (jedan izvor istine; bez ijednog `net`
+  poziva za `C$`/`ADMIN$`/`IPC$`/`print$`). Trazi elevaciju (UAC obrazac).
+  Testovi: `tests/test_share_action.py` (8) sa laznim `net`: apply/verify/
+  rollback vraca share sa remark-om, odbijanje administrativnih, odbijanje kad
+  share ne postoji, van Windowsa, pad delete-a -> rollback bez laznog uspjeha,
+  dvojezicne poruke, mapping (jedna akcija po share-u).
 - AKCIJA 2026-10-22 (2. nova): `config-power-saver` („Aktivan je štedljivi plan
   napajanja") je takodje bio bez akcije. `mujofix/actions/power.py`
   (`disable_power_saver`): snapshot pamti GUID aktivnog plana, apply prebaci na
@@ -548,10 +559,11 @@ kreiranje repoa. Push ide preko `origin` (SSH).
 
 - `actions/base.py`: Action ugovor (precondition/snapshot/apply/verify/rollback),
   Runner (pad nakon snapshot-a -> rollback), dry-run, karantin, audit log.
-- 9 akcija: disable_startup_item (HKCU/HKLM, UAC samo za HKLM),
+- 10 akcija: disable_startup_item (HKCU/HKLM, UAC samo za HKLM),
   clean_temp (starije od 7 dana u karantin, manifest), restart_service (`sc`,
   UAC), remove_hosts_entry (hosts zapis, UAC; snapshot cuva cijeli fajl),
   disable_power_saver (aktivni plan -> Balanced preko powercfg),
+  remove_share (nedefault mrezni share; NIKAD administrativni, UAC),
   treba UAC, rizik srednji), remove_path_entry (mrtvi PATH unos, HKCU/HKLM,
   cuva registry tip), fix_temp_var (TEMP/TMP u HKCU Environment),
   disable_proxy (HKCU Internet Settings, ProxyEnable=0),

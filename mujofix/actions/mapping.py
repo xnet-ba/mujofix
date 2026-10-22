@@ -9,6 +9,7 @@ from mujofix.actions.duplicates import QuarantineDuplicates
 from mujofix.actions.env import FixTempVar, RemovePathEntry
 from mujofix.actions.hosts import RemoveHostsEntry
 from mujofix.actions.power import DisablePowerSaver
+from mujofix.actions.share import RemoveShare
 from mujofix.actions.proxy import DisableProxy
 from mujofix.actions.service import RestartService
 from mujofix.actions.startup import DisableStartupItem
@@ -35,6 +36,11 @@ def finding_to_actions(finding: dict) -> list:
         return actions
     if fid == "config-path-missing":
         return [RemovePathEntry(entry) for entry in evidence.get("entries", [])]
+    if fid == "permissions-shares":
+        return [RemoveShare(entry.get("name", ""),
+                            entry.get("resource", ""))
+                for entry in evidence.get("shares", [])
+                if entry.get("name")]
     if fid == "config-power-saver":
         return [DisablePowerSaver()]
     if fid == "network-hosts" and evidence.get("path"):

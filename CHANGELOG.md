@@ -3,6 +3,11 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Dodano
+- **Nova akcija `remove_share`:** nalaz `permissions-shares` nije imao
+  popravku. Snapshot pamti putanju i remark (`net share <ime>`), apply je
+  `/delete`, verify traži da share nema, rollback ga vraća. Administrativni
+  share-ovi (`C$`, `ADMIN$`, `IPC$`, `print$`…) se nikad ne diraju (ista
+  `DEFAULT_SHARES` lista kao u scanneru); traži elevaciju.
 - **Nova akcija `disable_power_saver`:** nalaz `config-power-saver` nije
   imao popravku. Snapshot pamti GUID aktivnog plana, apply prebacuje na
   Balanced (`powercfg /setactive`), verify traži da je Balanced aktivan, a

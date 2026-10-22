@@ -352,6 +352,15 @@ STRINGS = {
         "act_power_ready": "aktivan je drugi plan ({guid}), prebacujemo na Balanced",
         "act_power_still": "plan napajanja nije promijenjen (aktivan: {guid})",
         "act_power_unreadable": "aktivni plan napajanja se ne moze procitati: {e}",
+        "act_remove_share_description": "Uklanjamo mrezni share koji nisi namjerno napravio (vracamo po potrebi).",
+        "act_remove_share_risk": "srednji: share se zatvara s mreze; snapshot pamti putanju i rollback ga vraca",
+        "act_share_default": "share {n} je sistemski (administrativni) — ne diramo ga",
+        "act_share_done": "share {n} je uklonjen s mreze",
+        "act_share_gone": "share {n} je nestao prije snapshota",
+        "act_share_missing": "share {n} ne postoji",
+        "act_share_ready": "share {n} vodi na {p}",
+        "act_share_still": "share {n} je i dalje prisutan",
+        "act_share_unreadable": "share se ne moze procitati: {e}",
         "sc_disk_almost_full_title": "Disk je gotovo pun (ostalo {gb} GB)",
         "sc_disk_almost_full_why": ("Kad ponestane slobodnog prostora, Windows "
                                    "usporava, updatei pucaju, a programi se "
@@ -736,6 +745,15 @@ STRINGS = {
         "act_power_ready": "another plan is active ({guid}), switching to Balanced",
         "act_power_still": "the power plan was not changed (active: {guid})",
         "act_power_unreadable": "the active power plan cannot be read: {e}",
+        "act_remove_share_description": "Remove a network share you did not create on purpose (restore on request).",
+        "act_remove_share_risk": "medium: the share is closed to the network; the snapshot keeps the path and rollback restores it",
+        "act_share_default": "share {n} is a system (administrative) share — left alone",
+        "act_share_done": "share {n} was removed from the network",
+        "act_share_gone": "share {n} disappeared before the snapshot",
+        "act_share_missing": "share {n} does not exist",
+        "act_share_ready": "share {n} points to {p}",
+        "act_share_still": "share {n} is still present",
+        "act_share_unreadable": "the share cannot be read: {e}",
         "sc_disk_almost_full_title": "Disk is almost full ({gb} GB left)",
         "sc_disk_almost_full_why": ("When free space runs out Windows slows "
                                     "down, updates fail and programs crash "
