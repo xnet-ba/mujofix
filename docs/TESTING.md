@@ -67,3 +67,23 @@ Automatizovani dio (scan, pin, live update provjera, sha256):
       "uspješno"; gumb "Pokreni kao administrator" tek tada traži UAC
 - [ ] Nakon `runas` prompta i prihvatanja: akcija se izvrši; odbijanje UAC-a
       ostavlja stanje nepromijenjeno (bez pola-popravljenog sistema)
+
+## H. Karantin, jezik i izvještaj (v0.4.0)
+- [ ] Poslije popravke: dugme "Očisti karantin (n fajlova, X GB)" pokaže tačan
+      broj i veličinu; potvrda briše, otkazivanje ne dira ništa
+- [ ] Poslije čišćenja: izvještaj sadrži "Oslobođeno: X" i to odgovara veličini
+      koja je bila u karantinu (uporedi sa folderom prije brisanja)
+- [ ] `%LOCALAPPDATA%\MujoFix\audit\` sadrži `audit-<vrijeme>.json` (popravka) i
+      `audit-<vrijeme>-purge.json` (čišćenje) — oba se otvaraju kao validan JSON
+- [ ] Zatvori i ponovo pokreni app: dugme "Karantin" i dalje vidi fajlove iz
+      PRETHODNE sesije; "Vrati odabrano" ih vrati na originalnu putanju
+- [ ] Fajl bez manifesta: "Vrati odabrano" je onemogućeno, brisanje radi
+- [ ] "Poništi sve" i dalje vraća samo promjene iz tekuće sesije (i to piše)
+- [ ] Probni (dry-run) mod: ništa se ne mijenja, report to kaže, audit je
+      označen kao `dry-run`
+- [ ] Izbor jezika (Bosanski/English) se primijeni poslije restarta — i NALAZI
+      (naslov/zašto/uticaj/rizik) su na izabranom jeziku, ne samo UI
+- [ ] `MujoFixCLI.exe scan --lang en --summary` ispiše engleski sažetak na
+      Windows konzoli (bez `UnicodeEncodeError` na cp437/cp1252)
+- [ ] Offline objašnjenje (bez pristanka na AI) prikaže zašto/uticaj/rizik/
+      dokaz/tehničke detalje + koja akcija postoji — i ništa što nije u nalazu

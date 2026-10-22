@@ -10,16 +10,6 @@
   bs|en`) na jednom jeziku. Čuvar `tests/test_scanner_i18n.py` provjerava
   da sva polja idu kroz `self.t(...)` (ratchet lista — dijakritike same
   nisu dovoljan signal jer je mnogo bosanskog teksta ASCII).
-
-### Ispravljeno
-- **Windows konzola je pukla na dijakriticima** (`UnicodeEncodeError`):
-  uvođenjem dvojezičnog teksta nalaza i sažetka (`računar`, `keš`)
-  `MujoFixCLI.exe` je pao u CI smoke koraku na legacy code page. Sada se
-  stdout/stderr prebacuju na UTF-8 (`errors="replace"`), pa se ne može
-  srušiti ni na terminalu bez podrške za znak. Smoke korak sada vrti
-  `scan --lang en --summary` (stabilan izlaz + testira `--lang` na Win).
-
-### Dodano
 - **Bogatija offline objašnjenja** (put koji većina korisnika vidi, jer
   besplatni Zen tier odbija poziv iz našeg CLI-a): umjesto jednog reda,
   objašnjenje sada nosi zašto/uticaj/rizik (i da li se može poništiti)/
@@ -42,6 +32,14 @@
 - Izvještaj sada pokazuje i koliko je trenutno u karantinu.
 - Testovi: `tests/test_quarantine.py` (4) + GUI (potvrda, otkazivanje,
   brojke); README (bs+en) ažuriran.
+
+### Ispravljeno
+- **Windows konzola je pukla na dijakriticima** (`UnicodeEncodeError`):
+  uvođenjem dvojezičnog teksta nalaza i sažetka (`računar`, `keš`)
+  `MujoFixCLI.exe` je pao u CI smoke koraku na legacy code page. Sada se
+  stdout/stderr prebacuju na UTF-8 (`errors="replace"`), pa se ne može
+  srušiti ni na terminalu bez podrške za znak. Smoke korak sada vrti
+  `scan --lang en --summary` (stabilan izlaz + testira `--lang` na Win).
 
 ## [0.3.0] - 2026-10-21
 

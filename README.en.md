@@ -89,7 +89,7 @@ Hard-coded blacklist in the AI-plan validator (System32, WinSxS, Program Files, 
 
 ## 🚦 Status
 
-All phases (0–6) are implemented in code and validated **host-direct on a real Windows 11 machine**: full scan (9/9 scanners, 0 skipped), the 3 host-proven fix actions (of 7 in the catalog: startup, temp, service) with apply → verify → rollback, GUI smoke, and spike checks 1–2. 211 unit tests pass locally (Linux, Qt offscreen); CI is green on Ubuntu and Windows and smoke-tests the packaged exe on every push. The extended Win10 + Win11 clean-VM matrix remains an **optional** follow-up — see [docs/TESTING.md](docs/TESTING.md). The build is unsigned (SmartScreen warning expected).
+All phases (0–6) are implemented in code and validated **host-direct on a real Windows 11 machine**: full scan (9/9 scanners, 0 skipped), the 3 host-proven fix actions (of 7 in the catalog: startup, temp, service) with apply → verify → rollback, GUI smoke, and spike checks 1–2. the full unit-test suite (230+ tests) passes locally (Linux, Qt offscreen); CI is green on Ubuntu and Windows and smoke-tests the packaged exe on every push. The extended Win10 + Win11 clean-VM matrix remains an **optional** follow-up — see [docs/TESTING.md](docs/TESTING.md). The build is unsigned (SmartScreen warning expected).
 
 ## ⚠️ Disclaimer
 
