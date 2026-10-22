@@ -1,7 +1,9 @@
 # Contributing (MujoFix)
 
 ## Proces
-- `main` je zaštićen — rad kroz feature grane + PR (min. 1 review).
+- Grananje: preporučeno feature grana + PR (min. 1 review). `main` trenutno
+  NIJE zaštićen na GitHubu (direktni push-evi prolaze) — zaštita je otvoren
+  posao, ne pretpostavka.
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `build:`).
 - Mali koraci: max ~5 fajlova po PR-u bez dogovora.
 - Svaki PR: testovi prolaze (`python -m unittest discover -s tests`),

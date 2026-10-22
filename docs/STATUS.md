@@ -54,13 +54,17 @@
   todowrite, websearch, lsp, skill) — stari `shell`/`write`/`patch` ne postoje
   kao alati. Dokaz: novi integracioni test digne stvarni `opencode serve` sa
   upisanim configom i tvrdi 200 + `agent.mujofix` + `permission` deny
-  (bash/edit/webfetch/websearch/task), preskace se bez binarnog. Zasto je
+  (bash/edit/webfetch/websearch/task), preskace se bez binarnog.
+  [NADGLASANO 2026-10-21: `opencode serve` je uklonjen; isti dokaz sada ide
+  preko `opencode debug config` — vidi unos ARHITEKTURA.] Zasto je
   `mcp_*` izricito `true`: globalni default je `ask`, a neinteraktivni `run`
   ne moze dobiti odobrenje. Ukupno 153 testa, OK.
 - IMPLEMENTIRANO 2026-10-18 (zivi AI put, Issue #1 ostatak): `ExplainWorker`
   (QThread) gradi lanac van GUI niti; `build_chain`/`LiveSession` u
   `ai/provider.py` dizu `opencode serve` samo uz pristanak i gase ga na
   zatvaranju prozora (`closeEvent` + `close()` pri novom objasnjenju).
+  [NADGLASANO 2026-10-21: nema servera ni vlasnistva nad procesom; ziv poziv je
+  `opencode run` child, a `LiveSession` nosi samo stanje.]
   Svaki kvar (nema binary-ja, server, besplatni model) → offline lanac + iskren
   razlog u logu. Testovi: 6 novih (5 Qt-free u test_faza4a, 1 GUI lifecycle u
   test_faza4c); ukupno 149 (+2 za V1 config +2 za _cmd = 153). netestirano: zivi put nije
