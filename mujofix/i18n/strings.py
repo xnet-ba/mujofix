@@ -362,6 +362,11 @@ STRINGS = {
         "act_share_still": "share {n} je i dalje prisutan",
         "act_share_unreadable": "share se ne moze procitati: {e}",
         "vp_bad_target": "korak {i}: meta nije upotrebljiva ({why})",
+        "up_no_sums": "release nema SHA256SUMS — update odbijen (bez provjere "
+                       "hash-a se ne instalira)",
+        "up_sums_unreadable": "SHA256SUMS se ne moze procitati ({e}) — update "
+                              "odbijen",
+        "up_sums_missing_entry": "SHA256SUMS nema hash za {n} — update odbijen",
         "sc_disk_almost_full_title": "Disk je gotovo pun (ostalo {gb} GB)",
         "sc_disk_almost_full_why": ("Kad ponestane slobodnog prostora, Windows "
                                    "usporava, updatei pucaju, a programi se "
@@ -759,6 +764,10 @@ STRINGS = {
         "act_share_still": "share {n} is still present",
         "act_share_unreadable": "the share cannot be read: {e}",
         "vp_bad_target": "step {i}: the target is not usable ({why})",
+        "up_no_sums": "the release has no SHA256SUMS — update refused (nothing "
+                       "is installed without a verified hash)",
+        "up_sums_unreadable": "SHA256SUMS cannot be read ({e}) — update refused",
+        "up_sums_missing_entry": "SHA256SUMS has no hash for {n} — update refused",
         "sc_disk_almost_full_title": "Disk is almost full ({gb} GB left)",
         "sc_disk_almost_full_why": ("When free space runs out Windows slows "
                                     "down, updates fail and programs crash "

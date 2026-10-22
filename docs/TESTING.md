@@ -70,7 +70,8 @@ Automatizovani dio (scan, pin, live update provjera, sha256):
       "je najnovija." i NE mijenja instalaciju
 - [ ] `update --apply` na starijoj instalaciji: preuzme, provjeri sha256 i
       pokrene installer; verzija nakon toga = nova
-- [ ] Pokvaren/prazan `SHA256SUMS.txt` → update se ODBIJA (nema tihe greške)
+- [ ] Pokvaren/prazan `SHA256SUMS.txt` → update se ODBIJA (nema tihe greške);
+      isto i kad SHA256SUMS uopšte nema ili nema unosa za naš fajl
 - [ ] Bez interneta: `update` vrati jasnu poruku i app radi dalje
 - [ ] GUI: gumb "Provjeri ažuriranja" ne blokira prozor (radi u niti) i
       ispiše isti rezultat kao CLI

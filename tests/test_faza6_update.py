@@ -137,6 +137,42 @@ class TestApply(unittest.TestCase):
         with self.assertRaises(update.UpdateError):
             update.apply_update({"asset": None})
 
+    def test_apply_refuses_when_sums_asset_is_missing(self):
+        """FAIL CLOSED: bez SHA256SUMS-a se ne instalira nista."""
+        asset = {"name": "MujoFix-Setup-0.4.0.exe", "url": "https://x/s",
+                 "size": 1}
+        info = {"asset": asset, "assets": [asset]}
+        downloaded = []
+        with self.assertRaises(update.UpdateError) as ctx:
+            update.apply_update(info, download_fn=lambda *a: downloaded.append(a))
+        self.assertEqual(downloaded, [])  # nista nije ni preuzeto
+        self.assertIn("SHA256SUMS", str(ctx.exception))
+
+    def test_apply_refuses_when_sums_is_unreadable_or_empty(self):
+        asset = {"name": "MujoFix-Setup-0.4.0.exe", "url": "https://x/s",
+                 "size": 1}
+        sums = {"name": "SHA256SUMS.txt", "url": "https://x/sums", "size": 1}
+        info = {"asset": asset, "assets": [asset, sums]}
+        for fetch in (lambda url: (_ for _ in ()).throw(OSError("mreza")),
+                      lambda url: "",                       # prazan fajl
+                      lambda url: "ovo nije sha256sum format"):  # pokvaren
+            downloaded = []
+            with self.assertRaises(update.UpdateError):
+                update.apply_update(info, download_fn=lambda *a: downloaded.append(a),
+                                    fetch_text_fn=fetch)
+            self.assertEqual(downloaded, [], fetch)
+
+    def test_apply_refuses_when_sums_lacks_our_entry(self):
+        asset = {"name": "MujoFix-Setup-0.4.0.exe", "url": "https://x/s",
+                 "size": 1}
+        sums = {"name": "SHA256SUMS.txt", "url": "https://x/sums", "size": 1}
+        info = {"asset": asset, "assets": [asset, sums]}
+        other = "b" * 64 + "  neki-drugi-fajl.zip\n"
+        with self.assertRaises(update.UpdateError) as ctx:
+            update.apply_update(info, fetch_text_fn=lambda url: other,
+                                download_fn=lambda *a: self.fail("preuzeto"))
+        self.assertIn(asset["name"], str(ctx.exception))
+
 
 class TestLaunch(unittest.TestCase):
     def test_launch_off_windows_unsupported(self):

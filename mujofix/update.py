@@ -159,13 +159,19 @@ def apply_update(info: dict, workdir: str | None = None, lang: str = "bs",
     asset = info.get("asset")
     if not asset:
         raise UpdateError(_t("up_no_asset", lang))
-    expected = None
+    # FAIL CLOSED: bez provjerenog hash-a se NE instalira. Prije se u slucaju
+    # neprocitanog/pokvarenog SHA256SUMS-a verifikacija TIHO preskakala, pa je
+    # neprovjeren fajl mogao da se pokrene (suprotno docs/TESTING.md).
     sums = find_asset(info.get("assets", []), SUMS_NAME)
-    if sums:
-        try:
-            expected = parse_sha256sums(fetch_text_fn(sums["url"])).get(asset["name"])
-        except Exception:
-            expected = None  # bez sums-a: preuzimamo bez verifikacije
+    if not sums:
+        raise UpdateError(_t("up_no_sums", lang))
+    try:
+        sums_text = fetch_text_fn(sums["url"])
+    except Exception as exc:
+        raise UpdateError(_t("up_sums_unreadable", lang, e=exc)) from exc
+    expected = parse_sha256sums(sums_text).get(asset["name"])
+    if not expected:
+        raise UpdateError(_t("up_sums_missing_entry", lang, n=asset["name"]))
     workdir = workdir or tempfile.mkdtemp(prefix="mujofix-upd-")
     dest = os.path.join(workdir, asset["name"])
     if download_fn is download:

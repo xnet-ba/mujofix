@@ -94,6 +94,16 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- UPDATE 2026-10-22 (sigurnosna rupa, nasao je pregled koda nakon fuzz-a):
+  `apply_update` je u slucaju neprocitanog/pokvarenog `SHA256SUMS.txt` (ili kad u
+  njemu nema naseg fajla) postavljao `expected = None` i TIHO preuzimao i
+  pokretao neprovjeren fajl — suprotno `docs/TESTING.md` ("pokvaren/prazan
+  SHA256SUMS → update se ODBIJA"). Sada fail-closed: nema sums-a / ne moze se
+  procitati / nema unosa → `UpdateError`, nista se ne preuzima (`up_no_sums`,
+  `up_sums_unreadable`, `up_sums_missing_entry`). Dokaz da ne blokira legitiman
+  put: protiv stvarnog release-a v0.3.0, `check_for_update(current="0.2.0")` bira
+  `MujoFix-Setup-0.3.0.exe` i SHA256SUMS ima njegov hash
+  (`e0eb1002505779e8…`). 3 nova testa (19 u `test_faza6_update`).
 - GRANICE 2026-10-22 (fuzz): `tests/test_fuzz_boundaries.py` (9) — 500 slucajnih
   struktura kroz `validate_plan` i `sanitize` (fiksan seed) + zlonamjerni oblici.
   Nasao i popravio TRI slabljenja: token u VRIJEDNOSTI nije skidan

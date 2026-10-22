@@ -3,6 +3,14 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Ispravljeno
+- **Update je tiho preskakao verifikaciju hash-a** (sigurnosna rupa): ako je
+  `SHA256SUMS.txt` postojao ali se nije mogao pročitati ili u njemu nije bilo
+  našeg fajla, kod je postavljao `expected = None` i **preuzimao i pokretao
+  neprovjeren fajl** — suprotno onome što `docs/TESTING.md` tvrdi. Sada je
+  fail-closed: nema `SHA256SUMS`-a, ne može se pročitati, ili nema unosa za
+  naš fajl → `UpdateError`, ništa se ne preuzima. Provjereno i protiv
+  stvarnog release-a (v0.3.0 ima hash za `MujoFix-Setup-0.3.0.exe`, pa
+  legitiman put i dalje prolazi).
 - **Fuzz testovi su našli tri slabljenja na granicama** (validator AI plana i
   anonimizacija) i sva tri su popravljena: (1) token koji se pojavi u
   VRIJEDNOSTI (npr. u slobodnom tekstu nalaza) nije se skidao — sada se
