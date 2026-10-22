@@ -13,7 +13,7 @@ from mujofix.platform import windows
 
 def _read_value(hive: str, path: str, name: str) -> str | None:
     if not windows.is_windows():
-        raise windows.NotSupported("registry postoji samo na Windowsu")
+        raise windows.NotSupported("registry only exists on Windows")
     import winreg
 
     hives = {"HKCU": winreg.HKEY_CURRENT_USER, "HKLM": winreg.HKEY_LOCAL_MACHINE}
@@ -55,19 +55,19 @@ class DisableStartupItem(Action):
 
     def precondition(self, ctx: ActionContext) -> tuple[bool, str]:
         if not windows.is_windows():
-            return False, "samo Windows"
+            return False, ctx.t("act_win_only")
         try:
             current = _read_value(self.hive, self.path, self.entry)
         except windows.NotSupported as exc:
             return False, str(exc)
         if current is None:
-            return False, f"stavka {self.entry} ne postoji (vec onemogucena?)"
-        return True, f"stavka postoji: {current[:80]}"
+            return False, ctx.t("act_startup_missing", e=self.entry)
+        return True, ctx.t("act_startup_exists", v=current[:80])
 
     def snapshot(self, ctx: ActionContext) -> dict:
         value = _read_value(self.hive, self.path, self.entry)
         if value is None:
-            raise RuntimeError("stavka nestala izmedju precondition i snapshot")
+            raise RuntimeError(ctx.t("act_startup_gone"))
         return {"hive": self.hive, "path": self.path,
                 "entry": self.entry, "value": value}
 
@@ -77,8 +77,8 @@ class DisableStartupItem(Action):
     def verify(self, ctx: ActionContext, state: dict) -> tuple[bool, str]:
         current = _read_value(state["hive"], state["path"], state["entry"])
         if current is None:
-            return True, f"{state['entry']} vise nije u startup-u"
-        return False, f"{state['entry']} je i dalje prisutna"
+            return True, ctx.t("act_startup_disabled", e=state["entry"])
+        return False, ctx.t("act_startup_still", e=state["entry"])
 
     def rollback(self, ctx: ActionContext, state: dict) -> None:
         _set_value(state["hive"], state["path"], state["entry"], state["value"])

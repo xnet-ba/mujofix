@@ -452,7 +452,8 @@ class TestGuiFlow(unittest.TestCase):
                 pass
 
         class FakeWorker:
-            def __init__(self, api_url, info=None, parent=None):
+            def __init__(self, api_url, info=None, parent=None,
+                         lang="bs"):
                 self.info = info
                 self.done = _Signal()
                 self.failed = _Signal()

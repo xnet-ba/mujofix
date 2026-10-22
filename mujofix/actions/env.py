@@ -105,20 +105,20 @@ class RemovePathEntry(Action):
 
     def precondition(self, ctx: ActionContext) -> tuple[bool, str]:
         if not windows.is_windows():
-            return False, "samo Windows"
+            return False, ctx.t("act_win_only")
         if not self.entry.strip():
-            return False, "prazan unos"
+            return False, ctx.t("act_env_empty")
         found = _resolve_hive(self.entry)
         if not found:
-            return False, f"unos '{self.entry}' nije u PATH-u (vec ocisceno?)"
+            return False, ctx.t("act_env_not_in_path", e=self.entry)
         self.hive, self.key = found
         self.needs_elevation = self.hive == "HKLM"
-        return True, f"mrtvi unos u {self.hive}: {self.entry}"
+        return True, ctx.t("act_env_dead_entry", h=self.hive, e=self.entry)
 
     def snapshot(self, ctx: ActionContext) -> dict:
         value, kind = read_env(self.hive, self.key, "Path")
         if value is None:
-            raise RuntimeError("PATH nestao izmedju precondition i snapshot")
+            raise RuntimeError(ctx.t("act_env_path_gone"))
         return {"hive": self.hive, "key": self.key, "value": str(value),
                 "kind": kind, "entry": self.entry}
 
@@ -132,12 +132,12 @@ class RemovePathEntry(Action):
     def verify(self, ctx: ActionContext, state: dict) -> tuple[bool, str]:
         value, _kind = read_env(state["hive"], state["key"], "Path")
         if value is None:
-            return False, "PATH se ne moze procitati posle izmjene"
+            return False, ctx.t("act_env_path_unreadable")
         target = state["entry"].strip().lower()
         left = [p for p in str(value).split(SEP) if p.strip().lower() == target]
         if left:
-            return False, f"unos {state['entry']} je i dalje u PATH-u"
-        return True, "mrtvi unos uklonjen"
+            return False, ctx.t("act_env_still_in_path", e=state["entry"])
+        return True, ctx.t("act_env_removed")
 
     def rollback(self, ctx: ActionContext, state: dict) -> None:
         write_env(state["hive"], state["key"], "Path", state["value"],
@@ -156,14 +156,14 @@ class FixTempVar(Action):
 
     def precondition(self, ctx: ActionContext) -> tuple[bool, str]:
         if not windows.is_windows():
-            return False, "samo Windows"
+            return False, ctx.t("act_win_only")
         if self.var not in ("TEMP", "TMP"):
-            return False, f"nepoznata varijabla: {self.var or '?'}"
+            return False, ctx.t("act_env_unknown_var", v=self.var or "?")
         current, _kind = read_env("HKCU", USER_ENV, self.var)
         resolved = os.path.expandvars(str(current)) if current else ""
         if resolved and os.path.isdir(resolved):
-            return False, f"{self.var} je vec ispravan ({current})"
-        return True, f"{self.var} -> {self.target}"
+            return False, ctx.t("act_env_already_ok", v=self.var, cur=current)
+        return True, ctx.t("act_env_target", v=self.var, t=self.target)
 
     def snapshot(self, ctx: ActionContext) -> dict:
         value, kind = read_env("HKCU", USER_ENV, self.var)
@@ -176,8 +176,8 @@ class FixTempVar(Action):
         current, _kind = read_env("HKCU", USER_ENV, state["var"])
         resolved = os.path.expandvars(str(current)) if current else ""
         if resolved and os.path.isdir(resolved):
-            return True, f"{state['var']} pokazuje na ispravan folder"
-        return False, f"{state['var']} i dalje nije ispravan ({current})"
+            return True, ctx.t("act_env_fixed", v=state["var"])
+        return False, ctx.t("act_env_still_wrong", v=state["var"], cur=current)
 
     def rollback(self, ctx: ActionContext, state: dict) -> None:
         if state["value"] is None:

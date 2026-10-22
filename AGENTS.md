@@ -63,6 +63,9 @@
   uspije (van Windowsa i na starijem buildu -> False, solidna boja).
   Nikad ne tvrdi da je Mica aktivna ako nije. Novi widget: daj mu
   objectName i stil u theme.qss, ne inline `setStyleSheet`.
+- Tekst akcija: poruke idu kroz `ctx.t("act_...")` (jezik iz
+  `ActionContext.lang`), a `description`/`risk` preko `action_text(...)` —
+  `tests/test_action_i18n.py` to provjerava (ratchet + bs/en paritet).
 - Tekst nalaza u scannerima: nikad hardkodovan — `title`/`why`/`impact`/
   `risk` i `unavailable_reason` idu kroz `self.t("sc_...")` (jezik dolazi
   iz `ScanContext.lang`; `tests/test_scanner_i18n.py` to provjerava).

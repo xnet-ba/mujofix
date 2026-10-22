@@ -129,18 +129,20 @@ class UpdateWorker(QThread):
     done = Signal(dict)
     failed = Signal(str)
 
-    def __init__(self, api_url, info=None, parent=None):
+    def __init__(self, api_url, info=None, parent=None, lang="bs"):
         super().__init__(parent)
         self._api = api_url
         self._info = info
+        self._lang = lang
 
     def run(self):
         try:
             if self._info is None:
-                self.done.emit(update.check_for_update(api_url=self._api))
+                self.done.emit(update.check_for_update(api_url=self._api,
+                                                       lang=self._lang))
             else:
                 info = dict(self._info)
-                info["result"] = update.apply_update(info)
+                info["result"] = update.apply_update(info, lang=self._lang)
                 self.done.emit(info)
         except Exception as exc:
             self.failed.emit(str(exc))
@@ -195,7 +197,8 @@ class MainWindow(QMainWindow):
         self._ai_workdir = ai_workdir
         self._audit_dir = audit_dir or default_audit_dir()
         self._ctx = ActionContext(
-            quarantine_dir=quarantine_dir or default_quarantine_dir())
+            quarantine_dir=quarantine_dir or default_quarantine_dir(),
+            lang=lang)
         self._runner = Runner()
         self._is_admin = windows.is_admin()
         self._findings: list[dict] = []
@@ -462,7 +465,7 @@ class MainWindow(QMainWindow):
         self._log(f"[AI: {resp.model}] {resp.text}")
         # Plan je PREDLOG koji korisnik vidi; primjena ide preko akcija
         # odabranih nalaza (deterministicki, sa verify + rollback).
-        plan = plan_lines(resp.plan)
+        plan = plan_lines(resp.plan, self.lang)
         if plan:
             self._log(self._t("plan_ai_header"))
             for line in plan:
@@ -517,7 +520,8 @@ class MainWindow(QMainWindow):
             self.btn_update.setEnabled(True)
             return
         self._log(self._t("update_checking"))
-        self._upd = UpdateWorker(update.RELEASES_API, info, self)
+        self._upd = UpdateWorker(update.RELEASES_API, info, self,
+                                 lang=self.lang)
         self._upd.done.connect(self._on_update_applied)
         self._upd.failed.connect(self._on_update_failed)
         self._upd.start()

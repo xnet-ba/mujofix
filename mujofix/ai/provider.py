@@ -84,14 +84,29 @@ def compact_findings(findings: list[dict]) -> list[dict]:
     return compact
 
 
-ACTION_LABELS_BS = {
-    "clean_temp": "Ocisti privremene fajlove",
-    "restart_service": "Restartuj servis",
-    "disable_startup_item": "Iskljuci iz autostarta",
+ACTION_LABELS = {
+    "bs": {
+        "clean_temp": "Očisti privremene fajlove",
+        "restart_service": "Restartuj servis",
+        "disable_startup_item": "Isključi iz autostarta",
+        "quarantine_duplicates": "Premjesti duplikate u karantin",
+        "remove_path_entry": "Ukloni mrtvi PATH unos",
+        "fix_temp_var": "Popravi TEMP varijablu",
+        "disable_proxy": "Isključi proxy",
+    },
+    "en": {
+        "clean_temp": "Clean temporary files",
+        "restart_service": "Restart the service",
+        "disable_startup_item": "Disable from autostart",
+        "quarantine_duplicates": "Move duplicates to quarantine",
+        "remove_path_entry": "Remove the dead PATH entry",
+        "fix_temp_var": "Fix the TEMP variable",
+        "disable_proxy": "Disable the proxy",
+    },
 }
 
 
-def plan_lines(plan: dict | None) -> list[str]:
+def plan_lines(plan: dict | None, lang: str = "bs") -> list[str]:
     """Citljiv prikaz validiranog AI plana. Plan je PREDLOG — primjena ide
     preko deterministickih akcija odabranih nalaza (sa rollback-om)."""
     if not isinstance(plan, dict):
@@ -102,7 +117,8 @@ def plan_lines(plan: dict | None) -> list[str]:
             continue
         action = str(step.get("action", ""))
         target = str(step.get("target", ""))
-        label = ACTION_LABELS_BS.get(action, action or "?")
+        label = ACTION_LABELS.get(lang, ACTION_LABELS["bs"]).get(
+            action, action or "?")
         lines.append(f"{len(lines) + 1}. {label}"
                      + (f" — {target}" if target else ""))
     return lines
@@ -153,12 +169,14 @@ class OpenCodeProvider(Provider):
     """
 
     def __init__(self, binary: str, workdir: str, model: str,
-                 env: dict[str, str] | None = None, timeout_s: int = 120):
+                 env: dict[str, str] | None = None, timeout_s: int = 120,
+                 lang: str = "bs"):
         self.binary = binary
         self.workdir = workdir
         self.model = model
         self.env = dict(env) if env else None
         self.timeout_s = timeout_s
+        self.lang = lang
         self.name = f"opencode:{model}"
 
     def _prompt(self, findings: list[dict]) -> str:
@@ -191,7 +209,8 @@ class OpenCodeProvider(Provider):
             raise ProviderError("prazan odgovor modela")
         plan = extract_plan(text)
         if plan is not None:
-            ok, reason = validate_plan(plan.get("plan", plan))
+            ok, reason = validate_plan(plan.get("plan", plan),
+                                       self.lang)
             steps = (plan.get("plan", plan).get("steps", [])
                      if isinstance(plan.get("plan", plan), dict) else [])
             if not ok or len(steps) > MAX_PLAN_STEPS:
@@ -357,6 +376,7 @@ def build_chain(consent_on: bool, workdir: str | None = None, *,
     # povratnih informacija), pa abecedno — deterministicki izbor.
     chosen = sorted(models, key=lambda m: ("-free" not in m.lower(),
                                            m.lower()))[0]
-    provider = OpenCodeProvider(bin_path, workdir, chosen, env=env)
+    provider = OpenCodeProvider(bin_path, workdir, chosen, env=env,
+                                lang=lang)
     return LiveSession(FallbackChain([provider, OfflineProvider(lang)]),
                        tr("ai_note_live", lang, m=chosen), live=True)

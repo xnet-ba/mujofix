@@ -22,23 +22,31 @@ SUMS_NAME = "SHA256SUMS.txt"
 _USER_AGENT = "MujoFix-updater"
 
 
+def _t(key: str, lang: str = "bs", **fmt: object) -> str:
+    """Lokalizovana poruka (update greske korisnik vidi u GUI-ju i CLI-ju)."""
+    from mujofix.i18n.strings import tr
+
+    return tr(key, lang, **fmt)
+
+
 class UpdateError(Exception):
     """Provjera/preuzimanje/verifikacija update-a nije uspjela."""
 
 
-def _parse_version(text: str) -> tuple[int, int, int]:
+def _parse_version(text: str, lang: str = "bs") -> tuple[int, int, int]:
     match = re.search(r"(\d+)\.(\d+)\.(\d+)", text or "")
     if not match:
-        raise UpdateError(f"neispravna verzija: {text!r}")
+        raise UpdateError(_t("up_bad_version", lang, v=text))
     return tuple(int(part) for part in match.groups())  # type: ignore[return-value]
 
 
-def is_newer(latest: str, current: str) -> bool:
+def is_newer(latest: str, current: str, lang: str = "bs") -> bool:
     """Je li 'latest' (npr. 'v0.2.0') strogo novija od 'current'."""
     return _parse_version(latest) > _parse_version(current)
 
 
-def fetch_latest(api_url: str = RELEASES_API, timeout: int = 10) -> dict:
+def fetch_latest(api_url: str = RELEASES_API, timeout: int = 10,
+                 lang: str = "bs") -> dict:
     """GitHub 'releases/latest' -> {tag, assets:[{name,url,size}]}."""
     req = urllib.request.Request(
         api_url, headers={"Accept": "application/vnd.github+json",
@@ -47,7 +55,7 @@ def fetch_latest(api_url: str = RELEASES_API, timeout: int = 10) -> dict:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.load(resp)
     except Exception as exc:
-        raise UpdateError(f"ne mogu doci do {api_url}: {exc}") from exc
+        raise UpdateError(_t("up_unreachable", lang, u=api_url, e=exc)) from exc
     return {
         "tag": data.get("tag_name", ""),
         "assets": [
@@ -94,6 +102,7 @@ def fetch_text(url: str, timeout: int = 15) -> str:
 
 
 def download(url: str, dest: str, expected_sha256: str | None = None,
+             lang: str = "bs",
              timeout: int = 60) -> str:
     """Preuzmi url u dest; ako je zadan hash, provjeri i odbaci na neslaganje."""
     req = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})
@@ -108,10 +117,10 @@ def download(url: str, dest: str, expected_sha256: str | None = None,
                     out.write(chunk)
                     digest.update(chunk)
     except Exception as exc:
-        raise UpdateError(f"preuzimanje palo: {exc}") from exc
+        raise UpdateError(_t("up_download_failed", lang, e=exc)) from exc
     if expected_sha256 and digest.hexdigest().lower() != expected_sha256.lower():
         os.remove(dest)
-        raise UpdateError("sha256 se ne poklapa — fajl odbacen")
+        raise UpdateError(_t("up_sha_mismatch", lang))
     return dest
 
 
@@ -124,13 +133,15 @@ def launch_artifact(path: str) -> bool:
 
 
 def check_for_update(current: str | None = None, api_url: str = RELEASES_API,
-                     fetch=fetch_latest) -> dict:
+                     fetch=fetch_latest, lang: str = "bs") -> dict:
     """Vrati {available, current, latest, tag, asset, assets}."""
     current = current or current_version()
-    release = fetch(api_url)
+    # injektovani `fetch` (testovi) drzi stari ugovor; nas default prima jezik
+    release = (fetch(api_url, lang=lang) if fetch is fetch_latest
+               else fetch(api_url))
     assets = release.get("assets", [])
     tag = release.get("tag", "")
-    available = bool(tag) and is_newer(tag, current)
+    available = bool(tag) and is_newer(tag, current, lang)
     return {
         "available": available,
         "current": current,
@@ -141,13 +152,13 @@ def check_for_update(current: str | None = None, api_url: str = RELEASES_API,
     }
 
 
-def apply_update(info: dict, workdir: str | None = None,
+def apply_update(info: dict, workdir: str | None = None, lang: str = "bs",
                  download_fn=download, launch_fn=launch_artifact,
                  fetch_text_fn=fetch_text) -> dict:
     """Preuzmi izabrani artefakt (uz sha256 kad je SHA256SUMS dostupan) i pokreni."""
     asset = info.get("asset")
     if not asset:
-        raise UpdateError("nema fajla za preuzimanje")
+        raise UpdateError(_t("up_no_asset", lang))
     expected = None
     sums = find_asset(info.get("assets", []), SUMS_NAME)
     if sums:
@@ -157,5 +168,8 @@ def apply_update(info: dict, workdir: str | None = None,
             expected = None  # bez sums-a: preuzimamo bez verifikacije
     workdir = workdir or tempfile.mkdtemp(prefix="mujofix-upd-")
     dest = os.path.join(workdir, asset["name"])
-    download_fn(asset["url"], dest, expected)
+    if download_fn is download:
+        download_fn(asset["url"], dest, expected, lang=lang)
+    else:  # injektovano u testovima
+        download_fn(asset["url"], dest, expected)
     return {"path": dest, "launched": launch_fn(dest), "sha256": expected}

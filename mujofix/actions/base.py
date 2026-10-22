@@ -17,11 +17,18 @@ from dataclasses import dataclass, field
 
 @dataclass
 class ActionContext:
-    """Karantin dir (injektabilan za testove), dry-run, otkazivanje."""
+    """Karantin dir (injektabilan za testove), dry-run, otkazivanje, jezik."""
 
     quarantine_dir: str
     dry_run: bool = False
     cancelled: bool = False
+    lang: str = "bs"  # jezik poruka akcije (precondition/apply/verify/rollback)
+
+    def t(self, key: str, **fmt: object) -> str:
+        """Prevedi poruku akcije na jezik konteksta."""
+        from mujofix.i18n.strings import tr
+
+        return tr(key, self.lang, **fmt)
 
 
 @dataclass
@@ -212,6 +219,20 @@ def save_manifest(quarantine_dir: str, name: str, records: list[dict]) -> str:
     return path
 
 
+def action_text(action: "Action", field: str, lang: str) -> str:
+    """Opis/rizik akcije na jeziku `lang` (klasa drzi kanonski tekst kao fallback).
+
+    `description`/`risk` su klasni atributi, pa ne mogu zvati `self.t`; zato se
+    prikazuje preko i18n kljuca `act_<ime>_<polje>`, a ako kljuca nema vrati se
+    tekst iz klase (nikad prazno).
+    """
+    from mujofix.i18n.strings import tr
+
+    key = f"act_{action.name}_{field}"
+    text = tr(key, lang)
+    return getattr(action, field) if text == key else text
+
+
 CATALOG: dict[str, type[Action]] = {}
 
 
@@ -234,40 +255,42 @@ class Runner:
         started = time.time()
         name = action.name
         if ctx.cancelled:
-            self._log(name, "cancelled", False, "otkazano prije pocetka")
-            return ActionResult(name, False, False, False, "otkazano", 0.0)
+            self._log(name, "cancelled", False, ctx.t("act_cancelled"))
+            return ActionResult(name, False, False, False,
+                                ctx.t("act_cancelled"), 0.0)
         if ctx.dry_run:
             ok, reason = action.precondition(ctx)
             self._log(name, "dry-run", ok, f"precondition: {reason}")
             return ActionResult(name, ok, False, False,
-                                f"dry-run, nista nije mijenjano: {reason}", 0.0,
+                                ctx.t("act_dry_run", r=reason), 0.0,
                                 dry_run=True)
         ok, reason = action.precondition(ctx)
         if not ok:
             self._log(name, "precondition", False, reason)
             return ActionResult(name, False, False, False,
-                                f"precondition pao: {reason}",
+                                ctx.t("act_precondition_failed", r=reason),
                                 time.time() - started)
         try:
             state = action.snapshot(ctx)
         except Exception as exc:
             self._log(name, "snapshot", False, str(exc))
             return ActionResult(name, False, False, False,
-                                f"snapshot pao: {exc}", time.time() - started)
+                                ctx.t("act_snapshot_failed", e=exc),
+                                time.time() - started)
         try:
             action.apply(ctx, state)
         except Exception as exc:
             self._rollback_quietly(action, ctx, state)
             self._log(name, "apply", False, str(exc))
             return ActionResult(name, False, False, True,
-                                f"apply pao, vraceno: {exc}",
+                                ctx.t("act_apply_failed", e=exc),
                                 time.time() - started)
         verified, details = action.verify(ctx, state)
         if not verified:
             self._rollback_quietly(action, ctx, state)
             self._log(name, "verify", False, details)
             return ActionResult(name, False, False, True,
-                                f"verifikacija pala, vraceno: {details}",
+                                ctx.t("act_verify_failed", d=details),
                                 time.time() - started)
         self._log(name, "done", True, details)
         return ActionResult(name, True, True, False, details,

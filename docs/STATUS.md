@@ -94,6 +94,18 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- I18N-AKCIJE 2026-10-22: ista lokalizacija za akcije i CLI. `ActionContext.lang`
+  + `ctx.t(...)` za poruke (Runner i svih 7 akcija), `action_text(action, field,
+  lang)` za `description`/`risk` (klasni atributi ne mogu zvati self), `plan_lines
+  (plan, lang)` + `ACTION_LABELS` za bs/en, `validate_plan(plan, lang)` za razloge,
+  `update.py` poruke + `update --lang`, GUI `UpdateWorker(lang)`. Cuvar
+  `tests/test_action_i18n.py` (ratchet + render testovi + EN bez dijakritika).
+  NAPOMENA (iskreno): tehničke poruke izuzetaka u `platform/windows.py`
+  (`NotSupported`) ostaju bosanske — nisu korisnički tekst, ali su vidljive u
+  rijetkim putanjama; README to izričito kaze.
+  USPUT POPRAVLJEN BUG: MCP pokrenut po putanji nije mogao `import mujofix`
+  (novi i18n import u `validate_plan`) — `mujofix_mcp.py` sada dodaje korijen
+  repoa na `sys.path` (isti obrazac kao ostali moduli). 243 testa.
 - I18N-NALAZI 2026-10-22 (ZAVRSENO, 9/9): `ScanContext.lang` + `Scanner.t()`
   (jezik na instanci, postavlja ga `scan()`, pa ga vidi i `unavailable_reason`).
   Migrirani: disk, startup, services, config, drivers, duplicates, network,

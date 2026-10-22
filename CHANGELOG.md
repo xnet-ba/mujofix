@@ -3,6 +3,16 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Dodano
+- **Dovršena lokalizacija akcija i CLI-ja:** poruke akcija (precondition/
+  apply/verify/rollback + greške) idu kroz `ctx.t(...)` (jezik u
+  `ActionContext`), opis i rizik akcije preko `action_text(...)` (klasni
+  atributi ne mogu zvati `self`), nazivi koraka AI plana i razlozi
+  validacije (`validate_plan(plan, lang)`), greške update-a i CLI izlaz
+  (`update --lang`). Čuvar `tests/test_action_i18n.py` (ratchet: nema
+  hardkodovanih poruka; svaka akcija ima bs+en opis i rizik, i to različit).
+  Usput popravljeno: MCP pokrenut **po putanji** (`python mujofix/ai/
+  mujofix_mcp.py`) nije mogao `import mujofix` (novi i18n import) — sada
+  dodaje korijen repoa na `sys.path`.
 - **Dvojezični nalazi (bs/en), svi skeneri:** engleski UI je prikazivao
   bosanski sadržaj nalaza. Sada tekst nalaza nastaje na jeziku konteksta
   (`ScanContext.lang` + `Scanner.t()`), pa su naslov/zašto/uticaj/rizik,

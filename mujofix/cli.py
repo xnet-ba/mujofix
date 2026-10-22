@@ -26,6 +26,7 @@ from mujofix.scanners import permissions as _permissions  # noqa: E402,F401
 from mujofix.scanners import services as _services  # noqa: E402,F401
 from mujofix.scanners import suspicious as _suspicious  # noqa: E402,F401
 from mujofix.scanners import startup as _startup  # noqa: E402,F401
+from mujofix.i18n.strings import tr  # noqa: E402
 from mujofix.scanners.base import REGISTRY, ScanContext  # noqa: E402
 from mujofix import update as update_mod  # noqa: E402
 
@@ -53,7 +54,8 @@ def run_scan(names: list[str] | None, lang: str = "bs") -> list[dict]:
         cls = REGISTRY.get(name)
         if cls is None:
             reports.append({"scanner": name, "findings": [],
-                            "skipped": f"nepoznat scanner '{name}'"})
+                            "skipped": tr("cli_unknown_scanner", lang,
+                                          n=name)})
             continue
         report = cls().scan(ctx)
         reports.append({
@@ -78,21 +80,23 @@ def summarize(reports: list[dict], lang: str = "bs") -> str:
 
 
 def _cmd_update(args) -> int:
+    lang = getattr(args, "lang", "bs")
     try:
-        info = update_mod.check_for_update(api_url=args.api)
+        info = update_mod.check_for_update(api_url=args.api, lang=lang)
     except update_mod.UpdateError as exc:
-        print(f"Provjera update-a nije uspjela: {exc}")
+        print(tr("cli_update_check_failed", lang, e=exc))
         return 1
     if not info["available"]:
-        print(f"Verzija {info['current']} je najnovija.")
+        print(tr("cli_update_uptodate", lang, v=info["current"]))
         return 0
-    print(f"Nova verzija: {info['latest']} (imam {info['current']}).")
+    print(tr("cli_update_available", lang, new=info["latest"],
+             cur=info["current"]))
     if not args.apply:
         return 0
     try:
-        result = update_mod.apply_update(info)
+        result = update_mod.apply_update(info, lang=lang)
     except update_mod.UpdateError as exc:
-        print(f"Update nije uspio: {exc}")
+        print(tr("cli_update_failed", lang, e=exc))
         return 1
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
@@ -114,6 +118,8 @@ def main(argv: list[str] | None = None) -> int:
     upd.add_argument("--apply", action="store_true",
                      help="preuzmi, provjeri sha256 i pokreni (Windows)")
     upd.add_argument("--api", default=update_mod.RELEASES_API)
+    upd.add_argument("--lang", default="bs", choices=("bs", "en"),
+                     help="jezik izlaza (bs|en)")
     # stdio MCP server koji opencode spawn-uje kao svoj alat (vidi agent_config).
     mcp = sub.add_parser("mcp", help="MujoFix MCP server (stdio, samo za AI)")
     mcp.add_argument("--findings", default=os.environ.get("MUJOFIX_FINDINGS"),

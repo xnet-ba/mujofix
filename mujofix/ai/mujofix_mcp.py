@@ -15,6 +15,11 @@ import json
 import os
 import sys
 
+# MCP se pokrece i kao skripta po putanji (`python mujofix/ai/mujofix_mcp.py`),
+# pa korijen repoa mora biti na sys.path da `import mujofix...` radi (i18n).
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "..", ".."))
+
 SERVER_NAME = "mujofix"
 SERVER_VERSION = "0.0.1"
 MAX_PLAN_STEPS = 20
@@ -48,30 +53,37 @@ def _is_protected(target: str) -> bool:
     return any(hint in lowered for hint in PROTECTED_HINTS)
 
 
-def validate_plan(plan: object) -> tuple[bool, str]:
-    """Cista funkcija: (prihvacen, razlog). Nema nuspojava."""
+def validate_plan(plan: object, lang: str = "bs") -> tuple[bool, str]:
+    """Cista funkcija: (prihvacen, razlog). Nema nuspojava.
+
+    `lang` odredjuje jezik razloga (korisnik ga vidi u logu kad AI plan padne);
+    MCP alat ga zove bez jezika (model-facing tekst ostaje kanonski).
+    """
+    from mujofix.i18n.strings import tr
+
+    def t(key: str, **fmt: object) -> str:
+        return tr(key, lang, **fmt)
+
     if not isinstance(plan, dict):
-        return False, "plan mora biti JSON objekat"
+        return False, t("vp_not_object")
     steps = plan.get("steps")
     if not isinstance(steps, list) or not steps:
-        return False, "plan mora imati nepraznu listu 'steps'"
+        return False, t("vp_no_steps")
     if len(steps) > MAX_PLAN_STEPS:
-        return False, f"previse koraka ({len(steps)} > {MAX_PLAN_STEPS})"
+        return False, t("vp_too_many", n=len(steps), max=MAX_PLAN_STEPS)
     for index, step in enumerate(steps):
         if not isinstance(step, dict):
-            return False, f"korak {index} nije objekat"
+            return False, t("vp_step_not_object", i=index)
         action = step.get("action")
         if not action or action not in ACTION_ALLOWLIST:
-            return False, (
-                f"korak {index}: akcija '{action}' nije u katalogu "
-                f"{sorted(ACTION_ALLOWLIST)}"
-            )
+            return False, t("vp_unknown_action", i=index, a=action,
+                            allowed=", ".join(sorted(ACTION_ALLOWLIST)))
         target = str(step.get("target", ""))
         if not target:
-            return False, f"korak {index}: nedostaje 'target'"
+            return False, t("vp_no_target", i=index)
         if _is_protected(target):
-            return False, f"korak {index}: zasticena zona '{target}'"
-    return True, f"prihvaceno {len(steps)} koraka"
+            return False, t("vp_protected", i=index, p=target)
+    return True, t("vp_ok", n=len(steps))
 
 
 # Canary koji koristi scripts/phase0_spike.py: dokazuje da se sumnjiv tekst

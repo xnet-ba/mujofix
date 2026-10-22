@@ -46,23 +46,24 @@ class RestartService(Action):
 
     def precondition(self, ctx: ActionContext) -> tuple[bool, str]:
         if not windows.is_windows():
-            return False, "samo Windows"
+            return False, ctx.t("act_win_only")
         state = _state(self.service)
         if state is None:
-            return False, f"servis {self.service} ne postoji"
-        return True, f"servis postoji (stanje: {state})"
+            return False, ctx.t("act_svc_missing", s=self.service)
+        return True, ctx.t("act_svc_exists", s=self.service, state=state)
 
     def snapshot(self, ctx: ActionContext) -> dict:
         state = _state(self.service)
         if state is None:
-            raise RuntimeError(f"servis {self.service} nestao")
+            raise RuntimeError(ctx.t("act_svc_gone", s=self.service))
         return {"service": self.service, "was": state}
 
     def apply(self, ctx: ActionContext, state: dict) -> None:
         _sc("stop", state["service"])
         proc = _sc("start", state["service"])
         if proc.returncode != 0:
-            raise RuntimeError(f"start pao: {proc.stderr.strip()[-200:]}")
+            raise RuntimeError(ctx.t("act_svc_start_failed",
+                                     e=proc.stderr.strip()[-200:]))
 
     def verify(self, ctx: ActionContext, state: dict) -> tuple[bool, str]:
         # Servis nakon starta prolazi kroz START_PENDING; cekamo RUNNING.
@@ -73,8 +74,8 @@ class RestartService(Action):
             time.sleep(1)
             now = _state(state["service"])
         if now == "RUNNING":
-            return True, f"{state['service']} radi"
-        return False, f"{state['service']} stanje: {now}"
+            return True, ctx.t("act_svc_running", s=state["service"])
+        return False, ctx.t("act_svc_state", s=state["service"], now=now)
 
     def rollback(self, ctx: ActionContext, state: dict) -> None:
         if state["was"] == "RUNNING":

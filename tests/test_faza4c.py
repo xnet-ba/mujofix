@@ -148,7 +148,7 @@ class TestExplainFlow(unittest.TestCase):
                                                  "target": "C:/Temp"}]}))
             log = window.log.toPlainText()
             self.assertIn("AI predlog plana", log)
-            self.assertIn("Ocisti privremene fajlove", log)
+            self.assertIn("Očisti privremene fajlove", log)
             self.assertIn("C:/Temp", log)
         finally:
             window.close()

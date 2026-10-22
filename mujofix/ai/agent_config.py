@@ -164,6 +164,7 @@ def offline_explain(finding: dict, lang: str = "bs") -> str:
     red se izostavlja (nikad se ne popunjava pretpostavkom). Kaze i sta
     aplikacija moze (postoji li akcija za taj nalaz), ali ne obecava uspjeh.
     """
+    from mujofix.actions.base import action_text
     from mujofix.actions.mapping import finding_to_actions
     from mujofix.i18n.strings import tr
 
@@ -191,7 +192,8 @@ def offline_explain(finding: dict, lang: str = "bs") -> str:
     except Exception:
         actions = []
     if actions:
-        listed = "; ".join(f"{a.name} ({a.risk})" for a in actions)
+        listed = "; ".join(
+            f"{a.name} ({action_text(a, 'risk', lang)})" for a in actions)
         lines.append(t("ai_offline_action", v=listed))
     else:
         lines.append(t("ai_offline_no_action"))

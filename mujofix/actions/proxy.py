@@ -21,16 +21,16 @@ class DisableProxy(Action):
 
     def precondition(self, ctx: ActionContext) -> tuple[bool, str]:
         if not windows.is_windows():
-            return False, "samo Windows"
+            return False, ctx.t("act_win_only")
         enabled, _kind = env.read_env("HKCU", INTERNET_SETTINGS, "ProxyEnable")
         if str(enabled) != "1":
-            return False, "proxy nije ukljucen (ProxyEnable != 1)"
-        return True, "proxy je ukljucen, iskljucujemo ga"
+            return False, ctx.t("act_proxy_not_on")
+        return True, ctx.t("act_proxy_on")
 
     def snapshot(self, ctx: ActionContext) -> dict:
         enabled, kind = env.read_env("HKCU", INTERNET_SETTINGS, "ProxyEnable")
         if str(enabled) != "1":
-            raise RuntimeError("proxy stanje se promijenilo prije snapshota")
+            raise RuntimeError(ctx.t("act_proxy_changed"))
         return {"value": enabled, "kind": kind}
 
     def apply(self, ctx: ActionContext, state: dict) -> None:
@@ -39,8 +39,8 @@ class DisableProxy(Action):
     def verify(self, ctx: ActionContext, state: dict) -> tuple[bool, str]:
         enabled, _kind = env.read_env("HKCU", INTERNET_SETTINGS, "ProxyEnable")
         if str(enabled) == "0":
-            return True, "proxy iskljucen"
-        return False, f"proxy je i dalje ukljucen (ProxyEnable={enabled})"
+            return True, ctx.t("act_proxy_done")
+        return False, ctx.t("act_proxy_still_on", e=enabled)
 
     def rollback(self, ctx: ActionContext, state: dict) -> None:
         env.write_env("HKCU", INTERNET_SETTINGS, "ProxyEnable",

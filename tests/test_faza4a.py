@@ -148,7 +148,7 @@ class TestPlanLines(unittest.TestCase):
             {"action": "restart_service", "target": "Spooler"},
         ]})
         self.assertEqual(len(lines), 2)
-        self.assertIn("Ocisti privremene fajlove", lines[0])
+        self.assertIn("Očisti privremene fajlove", lines[0])
         self.assertIn(r"C:\Users\x\Temp", lines[0])
         self.assertIn("Restartuj servis", lines[1])
 
@@ -160,7 +160,7 @@ class TestPlanLines(unittest.TestCase):
         self.assertEqual(plan_lines(None), [])
         self.assertEqual(plan_lines({}), [])
         self.assertEqual(plan_lines({"steps": ["nope", {"action": "clean_temp"}]}),
-                         ["1. Ocisti privremene fajlove"])
+                         ["1. Očisti privremene fajlove"])
 
 class TestBackoffValues(unittest.TestCase):
     def test_backoff_sequence(self):

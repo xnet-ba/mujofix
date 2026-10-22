@@ -48,8 +48,8 @@ class QuarantineDuplicates(Action):
     def precondition(self, ctx: ActionContext) -> tuple[bool, str]:
         victims = self._victims()
         if not victims:
-            return False, "nema potvrdjenih duplikata za karantin"
-        return True, f"{len(victims)} suvisnih kopija u karantin"
+            return False, ctx.t("act_dup_none")
+        return True, ctx.t("act_dup_ready", n=len(victims))
 
     def snapshot(self, ctx: ActionContext) -> dict:
         return {"victims": self._victims(), "records": []}
@@ -66,12 +66,12 @@ class QuarantineDuplicates(Action):
     def verify(self, ctx: ActionContext, state: dict) -> tuple[bool, str]:
         left = [r for r in state["records"] if os.path.exists(r["original"])]
         if left:
-            return False, f"{len(left)} kopija je ostalo na mjestu"
+            return False, ctx.t("act_dup_left", n=len(left))
         keepers = {r["keep"] for r in state["records"]}
         gone = [k for k in keepers if not os.path.exists(k)]
         if gone:
-            return False, f"izgubljena i zadrzana kopija: {gone[0]}"
-        return True, f"u karantin premjesteno {len(state['records'])} kopija"
+            return False, ctx.t("act_dup_lost", p=gone[0])
+        return True, ctx.t("act_dup_done", n=len(state["records"]))
 
     def rollback(self, ctx: ActionContext, state: dict) -> None:
         for record in state.get("records", []):

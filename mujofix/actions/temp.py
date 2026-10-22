@@ -46,12 +46,11 @@ class CleanTemp(Action):
 
     def precondition(self, ctx: ActionContext) -> tuple[bool, str]:
         if not os.path.isdir(self.directory):
-            return False, f"folder ne postoji: {self.directory}"
+            return False, ctx.t("act_temp_no_dir", d=self.directory)
         count = len(self._candidates())
         if count == 0:
-            return False, "nema fajlova starijih od "\
-                          f"{self.older_than_days} dana"
-        return True, f"{count} fajlova za karantin"
+            return False, ctx.t("act_temp_none", days=self.older_than_days)
+        return True, ctx.t("act_temp_ready", n=count)
 
     def snapshot(self, ctx: ActionContext) -> dict:
         return {"directory": self.directory, "files": self._candidates(),
@@ -66,8 +65,8 @@ class CleanTemp(Action):
     def verify(self, ctx: ActionContext, state: dict) -> tuple[bool, str]:
         left = [p for p in state["files"] if os.path.exists(p)]
         if not left:
-            return True, f"ocisceno {len(state['records'])} fajlova"
-        return False, f"ostalo {len(left)} fajlova na mjestu"
+            return True, ctx.t("act_temp_done", n=len(state["records"]))
+        return False, ctx.t("act_temp_left", n=len(left))
 
     def rollback(self, ctx: ActionContext, state: dict) -> None:
         for record in state.get("records", []):
