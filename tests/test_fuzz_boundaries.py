@@ -22,6 +22,7 @@ from mujofix.ai.mujofix_mcp import (
     validate_plan,
 )
 from mujofix.ai.sanitize import DROP_KEYS, sanitize
+from mujofix import update
 
 SEED = 20261022
 SECRETS = {
@@ -200,6 +201,91 @@ class TestSanitizeFuzz(unittest.TestCase):
         for keep in ("windows-update", "nvme-1234", "node-js-20",
                      "C:\\Temp\\file.tmp"):
             self.assertEqual(sanitize(keep, "", ""), keep)
+
+
+class TestUpdateBoundaryFuzz(unittest.TestCase):
+    """Podaci iz update puta dolaze s mreze — ne smiju srusiti pozivaoca.
+
+    Dozvoljen je samo `UpdateError` (ili uredna vrijednost); nijedan drugi
+    izuzetak (KeyError/AttributeError/TypeError) jer CLI hvata samo UpdateError.
+    """
+
+    def setUp(self):
+        self.rng = random.Random(SEED + 2)
+
+    def _assets(self, count=6):
+        pool = [{"name": "MujoFix-Setup-0.4.0.exe", "url": "u", "size": 1},
+                {"name": "MujoFix-v0.4.0.zip", "url": "u", "size": 1},
+                {"name": "SHA256SUMS.txt", "url": "u", "size": 1},
+                {"url": "bez-imena"}, {"name": ""}, {"name": "x.bin", "url": "u"},
+                None, "nije-dict", 42, {"name": None, "url": None}]
+        return [self.rng.choice(pool) for _ in range(count)]
+
+    def test_find_and_pick_asset_never_raise_and_stay_sane(self):
+        for _ in range(300):
+            assets = self._assets(self.rng.randint(0, 8))
+            found = update.find_asset(assets, "SHA256SUMS.txt")
+            if found is not None:
+                self.assertEqual(found.get("name"), "SHA256SUMS.txt")
+            picked = update.pick_asset(assets)
+            if picked is not None:
+                name = picked["name"].lower()
+                self.assertTrue(name.endswith((".exe", ".msi", ".zip")), name)
+                self.assertNotIn("sha256sums", name)
+                self.assertTrue(picked.get("url"))
+
+    def test_pick_asset_prefers_installer_over_archive(self):
+        assets = [{"name": "MujoFix-v0.4.0.zip", "url": "u"},
+                  {"name": "MujoFix-Setup-0.4.0.exe", "url": "u"},
+                  {"name": "SHA256SUMS.txt", "url": "u"}]
+        self.assertEqual(update.pick_asset(assets)["name"],
+                         "MujoFix-Setup-0.4.0.exe")
+
+    def test_parse_sha256sums_ignores_garbage(self):
+        rng = self.rng
+        lines = []
+        for _ in range(200):
+            lines.append(rng.choice([
+                "a" * 64 + "  ok.bin", "a" * 63 + "  kratak-hash.bin",
+                "Z" * 64 + "  nije-hex.bin", "", "# komentar", "samo-jedna-rijec",
+                "b" * 64, "*" + "c" * 64 + "  zvijezda.bin", "x" * 5000,
+            ]))
+        parsed = update.parse_sha256sums("\n".join(lines))
+        for name, digest in parsed.items():
+            self.assertRegex(digest, r"^[0-9a-f]{64}$")
+            self.assertNotIn("*", name)
+        self.assertIn("ok.bin", parsed)
+        self.assertNotIn("kratak-hash.bin", parsed)
+        self.assertNotIn("nije-hex.bin", parsed)
+
+    def test_is_newer_raises_only_update_error(self):
+        for latest, current in (("", "0.1.0"), ("abc", "0.1.0"),
+                                ("v0.4.0", ""), ("v0.4.0", "nema"),
+                                ("1.2", "1.2.3"), ("v1.2.3.4", "1.2.3"),
+                                ("v0.4.0-beta", "0.3.0"), (None, None)):
+            try:
+                result = update.is_newer(latest, current)
+            except update.UpdateError:
+                continue  # prihvatljivo (fail closed)
+            except Exception as exc:  # pragma: no cover
+                self.fail(f"is_newer({latest!r},{current!r}) -> {exc!r}")
+            self.assertIsInstance(result, bool)
+
+    def test_check_for_update_survives_garbage_from_network(self):
+        for payload in (["lista"], "string", 42, None,
+                        {"tag_name": None, "assets": None},
+                        {"tag_name": "v9.9.9", "assets": [None, "x", {"a": 1}]},
+                        {}):
+            try:
+                info = update.check_for_update(current="0.1.0",
+                                               fetch=lambda url, **kw: payload)
+            except update.UpdateError:
+                continue
+            self.assertIsInstance(info, dict)
+            self.assertIn("available", info)
+            self.assertIsInstance(info["available"], bool)
+            if info["available"] and info["asset"]:
+                self.assertTrue(info["asset"].get("url"))
 
 
 if __name__ == "__main__":

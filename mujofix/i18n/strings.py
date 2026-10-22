@@ -367,6 +367,7 @@ STRINGS = {
         "up_sums_unreadable": "SHA256SUMS se ne moze procitati ({e}) — update "
                               "odbijen",
         "up_sums_missing_entry": "SHA256SUMS nema hash za {n} — update odbijen",
+        "up_bad_response": "neočekivan odgovor servera ({t}) — update odbijen",
         "sc_disk_almost_full_title": "Disk je gotovo pun (ostalo {gb} GB)",
         "sc_disk_almost_full_why": ("Kad ponestane slobodnog prostora, Windows "
                                    "usporava, updatei pucaju, a programi se "
@@ -768,6 +769,7 @@ STRINGS = {
                        "is installed without a verified hash)",
         "up_sums_unreadable": "SHA256SUMS cannot be read ({e}) — update refused",
         "up_sums_missing_entry": "SHA256SUMS has no hash for {n} — update refused",
+        "up_bad_response": "unexpected server response ({t}) — update refused",
         "sc_disk_almost_full_title": "Disk is almost full ({gb} GB left)",
         "sc_disk_almost_full_why": ("When free space runs out Windows slows "
                                     "down, updates fail and programs crash "

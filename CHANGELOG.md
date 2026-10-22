@@ -3,6 +3,15 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Ispravljeno
+- **Update granica očvrsnuta protiv neispravnih podataka s mreže:**
+  `find_asset`/`pick_asset` su radili `asset["name"]` → **`KeyError`** (ne
+  `UpdateError`) na unosu bez imena, a CLI hvata samo `UpdateError` — pa bi
+  pukao; `release.get("assets", [])` je vraćao `None` kad ključ postoji sa
+  `None` → `TypeError`; `fetch_latest` nije provjeravao da je odgovor JSON
+  **objekat**. Sada: neispravni unosi se preskaču, odgovor mora biti
+  objekat (`up_bad_response`), a `pick_asset` nikad ne bira `SHA256SUMS` i
+  uvijek traži `.exe`/`.msi`/`.zip` sa URL-om. Provjereno i protiv stvarnog
+  release-a (legitiman put i dalje bira `MujoFix-Setup-0.3.0.exe`).
 - **Update je tiho preskakao verifikaciju hash-a** (sigurnosna rupa): ako je
   `SHA256SUMS.txt` postojao ali se nije mogao pročitati ili u njemu nije bilo
   našeg fajla, kod je postavljao `expected = None` i **preuzimao i pokretao

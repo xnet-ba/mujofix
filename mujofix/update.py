@@ -56,20 +56,25 @@ def fetch_latest(api_url: str = RELEASES_API, timeout: int = 10,
             data = json.load(resp)
     except Exception as exc:
         raise UpdateError(_t("up_unreachable", lang, u=api_url, e=exc)) from exc
+    if not isinstance(data, dict):
+        raise UpdateError(_t("up_bad_response", lang, t=type(data).__name__))
     return {
         "tag": data.get("tag_name", ""),
         "assets": [
             {"name": a.get("name", ""), "url": a.get("browser_download_url", ""),
              "size": a.get("size", 0)}
-            for a in data.get("assets", [])
+            for a in (data.get("assets") or [])
+            if isinstance(a, dict)
         ],
     }
 
 
 def find_asset(assets: list[dict], name: str) -> dict | None:
+    """Nadi asset po imenu. Tolerantno: neispravni unosi se preskacu (podaci
+    dolaze s mreze, pa `asset["name"]` moze puci kao KeyError, ne UpdateError)."""
     lowered = name.lower()
-    for asset in assets:
-        if asset["name"].lower() == lowered:
+    for asset in assets or []:
+        if isinstance(asset, dict) and str(asset.get("name", "")).lower() == lowered:
             return asset
     return None
 
@@ -78,9 +83,13 @@ def pick_asset(assets: list[dict],
                suffixes: tuple[str, ...] = (".exe", ".msi", ".zip")) -> dict | None:
     """Preferiraj installer (.exe/.msi), inace arhivu (.zip). Nikad SHA256SUMS."""
     for suffix in suffixes:
-        for asset in assets:
-            name = asset["name"].lower()
-            if name.endswith(suffix) and SUMS_NAME.lower() not in name:
+        for asset in assets or []:
+            if not isinstance(asset, dict) or not asset.get("url"):
+                continue
+            name = str(asset.get("name", "")).lower()
+            if not name or SUMS_NAME.lower() in name:
+                continue
+            if name.endswith(suffix):
                 return asset
     return None
 
@@ -139,7 +148,11 @@ def check_for_update(current: str | None = None, api_url: str = RELEASES_API,
     # injektovani `fetch` (testovi) drzi stari ugovor; nas default prima jezik
     release = (fetch(api_url, lang=lang) if fetch is fetch_latest
                else fetch(api_url))
-    assets = release.get("assets", [])
+    if not isinstance(release, dict):
+        raise UpdateError(_t("up_bad_response", lang,
+                             t=type(release).__name__))
+    assets = [a for a in (release.get("assets") or [])
+              if isinstance(a, dict)]
     tag = release.get("tag", "")
     available = bool(tag) and is_newer(tag, current, lang)
     return {
@@ -162,7 +175,7 @@ def apply_update(info: dict, workdir: str | None = None, lang: str = "bs",
     # FAIL CLOSED: bez provjerenog hash-a se NE instalira. Prije se u slucaju
     # neprocitanog/pokvarenog SHA256SUMS-a verifikacija TIHO preskakala, pa je
     # neprovjeren fajl mogao da se pokrene (suprotno docs/TESTING.md).
-    sums = find_asset(info.get("assets", []), SUMS_NAME)
+    sums = find_asset(info.get("assets") or [], SUMS_NAME)
     if not sums:
         raise UpdateError(_t("up_no_sums", lang))
     try:

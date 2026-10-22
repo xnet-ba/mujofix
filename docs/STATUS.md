@@ -94,6 +94,14 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- UPDATE-GRANICA 2026-10-22 (fuzz, drugi krug): `tests/test_fuzz_boundaries.py`
+  sada gadja i update put (podaci s mreze). Nasao i popravio: `find_asset`/
+  `pick_asset` su radili `asset["name"]` -> KeyError (CLI hvata samo UpdateError);
+  `release.get("assets", [])` je vracao None kad kljuc postoji sa None ->
+  TypeError; `fetch_latest` nije provjeravao tip odgovora. Sada tolerantno +
+  `up_bad_response`. Invarijante u testu: `pick_asset` nikad SHA256SUMS i uvijek
+  .exe/.msi/.zip sa URL-om; `is_newer` smije baciti SAMO UpdateError;
+  `parse_sha256sums` prihvata samo 64-hex. 289 testova.
 - UPDATE 2026-10-22 (sigurnosna rupa, nasao je pregled koda nakon fuzz-a):
   `apply_update` je u slucaju neprocitanog/pokvarenog `SHA256SUMS.txt` (ili kad u
   njemu nema naseg fajla) postavljao `expected = None` i TIHO preuzimao i
