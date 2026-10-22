@@ -29,7 +29,7 @@ class StartupScanner(Scanner):
         return windows.is_windows()
 
     def unavailable_reason(self) -> str:
-        return "startup skeniranje radi samo na Windowsu"
+        return self.t("sc_startup_unavailable")
 
     def _scan(self, ctx: ScanContext) -> list[Finding]:
         items: list[dict[str, str]] = []
@@ -52,20 +52,18 @@ class StartupScanner(Scanner):
         if count == 0:
             return []
         severity = "MEDIUM" if count >= MEDIUM_THRESHOLD else "LOW"
+        impact_key = ("sc_startup_impact_many" if count >= MEDIUM_THRESHOLD
+                      else "sc_startup_impact_few")
         return [Finding(
             id="startup-count",
             scanner=self.name,
-            title=f"{count} programa se pali s Windowsom",
-            why=("Programi koji se pale s sistemom produzuju prijavu i trose "
-                 "memoriju u pozadini. Broj stavki je orijentir — nije izmjereno "
-                 "stvarno vrijeme boot-a."),
+            title=self.t("sc_startup_title", n=count),
+            why=self.t("sc_startup_why"),
             severity=severity,
-            impact=(f"sporija prijava i {count} pozadinskih programa" if count >= 10
-                    else "blago usporenje prijave"),
-            risk="nizak: onemogucavanje stavke se ponistava jednim klikom",
+            impact=self.t(impact_key, n=count),
+            risk=self.t("sc_startup_risk"),
             reversible=True,
             evidence={"count": count, "items": items,
                       "threshold_medium": MEDIUM_THRESHOLD},
-            tech_details="Run/RunOnce kljucevi + Startup folderi; "\
-                         "Scheduled Tasks i servisi dolaze u Fazi 5.",
+            tech_details=self.t("sc_startup_tech"),
         )]

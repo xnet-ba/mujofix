@@ -33,7 +33,7 @@ class ServicesScanner(Scanner):
         return windows.is_windows()
 
     def unavailable_reason(self) -> str:
-        return "servisi postoje samo na Windowsu"
+        return self.t("sc_services_unavailable")
 
     def _scan(self, ctx: ScanContext) -> list[Finding]:
         services = _query_services()
@@ -47,15 +47,11 @@ class ServicesScanner(Scanner):
         shown = dead[:20]
         return [Finding(
             id="services-auto-stopped", scanner=self.name,
-            title=f"{len(dead)} automatskih servisa ne radi",
-            why="Servis podesen na automatski start bi morao raditi nakon "
-                "boot-a. Zaustavljen automatski servis znaci rusenje ili "
-                "pogresnu konfiguraciju. Istorija rusenja (Event ID 7031/7034) "
-                "se ne cita u ovoj fazi.",
+            title=self.t("sc_services_title", n=len(dead)),
+            why=self.t("sc_services_why"),
             severity="MEDIUM",
-            impact="funkcije tih servisa ne rade (mreza, stampanje, update...)",
-            risk="srednji: restart servisa je reverzibilan, ali uzrok rusenja "
-                 "moze ostati",
+            impact=self.t("sc_services_impact"),
+            risk=self.t("sc_services_risk"),
             reversible=True,
             evidence={"count": len(dead), "sample": shown,
                       "truncated": len(dead) > len(shown)},

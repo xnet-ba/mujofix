@@ -22,17 +22,17 @@ class ScanContext:
         return self.cancel.is_set()
 
 
-def t(ctx: ScanContext, key: str, **fmt: object) -> str:
-    """Prevedi tekst nalaza za jezik konteksta (jedno mjesto za sve scannere)."""
-    from mujofix.i18n.strings import tr
-
-    return tr(key, ctx.lang, **fmt)
-
-
 class Scanner(abc.ABC):
     """Baza za sve scannere. scan() nikad ne baca — vrati ScanReport."""
 
     name: str = "nepoznat"
+    lang: str = "bs"  # postavlja scan() iz ctx.lang (i unavailable_reason ga vidi)
+
+    def t(self, key: str, **fmt: object) -> str:
+        """Prevedi tekst nalaza na jezik skeniranja (jedan put za sve scannere)."""
+        from mujofix.i18n.strings import tr
+
+        return tr(key, self.lang, **fmt)
 
     def is_available(self) -> bool:
         """False -> graceful skip uz razlog (npr. samo-Windows modul)."""
@@ -47,6 +47,7 @@ class Scanner(abc.ABC):
 
     def scan(self, ctx: ScanContext) -> ScanReport:
         started = time.time()
+        self.lang = ctx.lang  # jezik nalaza (i "skipped" razloga)
         if not self.is_available():
             return ScanReport(scanner=self.name, skipped=self.unavailable_reason())
         try:

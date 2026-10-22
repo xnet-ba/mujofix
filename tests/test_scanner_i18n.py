@@ -20,18 +20,22 @@ SCANNERS = os.path.join(ROOT, "mujofix", "scanners")
 BS_CHARS = "čćžšđ"
 
 # Scanner-i koji su kompletno prevedeni (tekst ide kroz `t(ctx, ...)`).
-MIGRATED = {"disk"}
+MIGRATED = {"disk", "services", "startup"}
 # Polja nalaza koja su korisniku vidljiva.
-FIELDS = ("title", "why", "impact", "risk")
+FIELDS = ("title", "why", "impact", "risk", "tech_details")
 
 
 def _text_literals(source: str) -> list[str]:
-    """String literali koji se predaju kao title/why/impact/risk."""
+    """Korisniku vidljivi literali: polja nalaza + `unavailable_reason`."""
     out = []
     for field in FIELDS:
         for match in re.finditer(rf"{field}\s*=\s*(f?)(\"[^\"]*\"|'[^']*')",
                                  source):
             out.append(match.group(2))
+    for match in re.finditer(
+            r"def unavailable_reason[^\n]*\n(?:.*\n)*?\s*return\s+"
+            r"(f?)(\"[^\"]*\"|'[^']*')", source):
+        out.append(match.group(2))
     return out
 
 

@@ -10,7 +10,7 @@ import tempfile
 
 from mujofix.core.models import Finding
 from mujofix.platform import windows
-from mujofix.scanners.base import ScanContext, Scanner, register, t
+from mujofix.scanners.base import ScanContext, Scanner, register
 
 TEMP_BYTES_MEDIUM = 2 * 1024**3
 WU_CACHE_DIR = r"C:\Windows\SoftwareDistribution\Download"
@@ -55,20 +55,20 @@ class DiskScanner(Scanner):
         if free_pct < 10:
             findings.append(Finding(
                 id="disk-almost-full", scanner=self.name,
-                title=t(ctx, "sc_disk_almost_full_title", gb=_gb(usage.free)),
-                why=t(ctx, "sc_disk_almost_full_why"),
+                title=self.t("sc_disk_almost_full_title", gb=_gb(usage.free)),
+                why=self.t("sc_disk_almost_full_why"),
                 severity="CRITICAL",
-                impact=t(ctx, "sc_disk_almost_full_impact"),
-                risk=t(ctx, "sc_disk_temp_cache_risk"),
+                impact=self.t("sc_disk_almost_full_impact"),
+                risk=self.t("sc_disk_temp_cache_risk"),
                 reversible=False, evidence=evidence,
                 tech_details=f"disk_usage({root})"))
         elif free_pct < 20:
             findings.append(Finding(
                 id="disk-low", scanner=self.name,
-                title=t(ctx, "sc_disk_low_title", gb=_gb(usage.free)),
-                why=t(ctx, "sc_disk_low_why"),
-                severity="MEDIUM", impact=t(ctx, "sc_disk_low_impact"),
-                risk=t(ctx, "sc_disk_temp_cache_risk"),
+                title=self.t("sc_disk_low_title", gb=_gb(usage.free)),
+                why=self.t("sc_disk_low_why"),
+                severity="MEDIUM", impact=self.t("sc_disk_low_impact"),
+                risk=self.t("sc_disk_temp_cache_risk"),
                 reversible=False, evidence=evidence,
                 tech_details=f"disk_usage({root})"))
 
@@ -77,11 +77,11 @@ class DiskScanner(Scanner):
         if temp_bytes >= TEMP_BYTES_MEDIUM and not ctx.cancelled:
             findings.append(Finding(
                 id="disk-temp", scanner=self.name,
-                title=t(ctx, "sc_disk_temp_title", gb=_gb(temp_bytes)),
-                why=t(ctx, "sc_disk_temp_why"),
+                title=self.t("sc_disk_temp_title", gb=_gb(temp_bytes)),
+                why=self.t("sc_disk_temp_why"),
                 severity="MEDIUM",
-                impact=t(ctx, "sc_disk_temp_impact", gb=_gb(temp_bytes)),
-                risk=t(ctx, "sc_disk_temp_risk"),
+                impact=self.t("sc_disk_temp_impact", gb=_gb(temp_bytes)),
+                risk=self.t("sc_disk_temp_risk"),
                 reversible=True,
                 evidence={"temp_dir": temp_dir, "bytes": temp_bytes,
                           "gb": _gb(temp_bytes), "files": temp_files},
@@ -92,11 +92,11 @@ class DiskScanner(Scanner):
             if wu_bytes >= TEMP_BYTES_MEDIUM:
                 findings.append(Finding(
                     id="disk-wu-cache", scanner=self.name,
-                    title=t(ctx, "sc_disk_wu_title", gb=_gb(wu_bytes)),
-                    why=t(ctx, "sc_disk_wu_why"),
+                    title=self.t("sc_disk_wu_title", gb=_gb(wu_bytes)),
+                    why=self.t("sc_disk_wu_why"),
                     severity="LOW",
-                    impact=t(ctx, "sc_disk_wu_impact", gb=_gb(wu_bytes)),
-                    risk=t(ctx, "sc_disk_wu_risk"),
+                    impact=self.t("sc_disk_wu_impact", gb=_gb(wu_bytes)),
+                    risk=self.t("sc_disk_wu_risk"),
                     reversible=True,
                     evidence={"path": WU_CACHE_DIR, "bytes": wu_bytes,
                               "files": wu_files},
@@ -105,11 +105,11 @@ class DiskScanner(Scanner):
                 old_bytes, _n = _dir_size(WINDOWS_OLD, ctx)
                 findings.append(Finding(
                     id="disk-windows-old", scanner=self.name,
-                    title=t(ctx, "sc_disk_old_title", gb=_gb(old_bytes)),
-                    why=t(ctx, "sc_disk_old_why"),
+                    title=self.t("sc_disk_old_title", gb=_gb(old_bytes)),
+                    why=self.t("sc_disk_old_why"),
                     severity="LOW",
-                    impact=t(ctx, "sc_disk_old_impact", gb=_gb(old_bytes)),
-                    risk=t(ctx, "sc_disk_old_risk"),
+                    impact=self.t("sc_disk_old_impact", gb=_gb(old_bytes)),
+                    risk=self.t("sc_disk_old_risk"),
                     reversible=False,
                     evidence={"path": WINDOWS_OLD, "bytes": old_bytes},
                     tech_details=f"walk({WINDOWS_OLD})"))

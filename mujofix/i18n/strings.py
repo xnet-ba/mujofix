@@ -103,6 +103,27 @@ STRINGS = {
         "ai_note_unavailable": "offline: živi model nedostupan ({e})",
         "ai_note_no_free_model": "offline: nema besplatnog Zen modela",
         "ai_note_live": "živi model: {m}",
+        "sc_startup_title": "{n} programa se pali s Windowsom",
+        "sc_startup_why": ("Programi koji se pale s sistemom produžuju "
+                           "prijavu i troše memoriju u pozadini. Broj "
+                           "stavki je orijentir — nije izmjereno stvarno "
+                           "vrijeme boot-a."),
+        "sc_startup_impact_many": "sporija prijava i {n} pozadinskih programa",
+        "sc_startup_impact_few": "blago usporenje prijave",
+        "sc_startup_risk": ("nizak: onemogućavanje stavke se poništava jednim "
+                            "klikom"),
+        "sc_startup_tech": "Run/RunOnce ključevi + Startup folderi",
+        "sc_startup_unavailable": "startup skeniranje radi samo na Windowsu",
+        "sc_services_title": "{n} automatskih servisa ne radi",
+        "sc_services_why": ("Servis podešen na automatski start bi morao "
+                            "raditi nakon boot-a. Zaustavljen automatski "
+                            "servis znači rušenje ili pogrešnu "
+                            "konfiguraciju."),
+        "sc_services_impact": ("funkcije tih servisa ne rade (mreža, štampanje, "
+                               "update...)"),
+        "sc_services_risk": ("srednji: restart servisa je reverzibilan, ali "
+                             "uzrok rušenja može ostati"),
+        "sc_services_unavailable": "servisi postoje samo na Windowsu",
         "sc_disk_almost_full_title": "Disk je gotovo pun (ostalo {gb} GB)",
         "sc_disk_almost_full_why": ("Kad ponestane slobodnog prostora, Windows "
                                    "usporava, updatei pucaju, a programi se "
@@ -244,6 +265,26 @@ STRINGS = {
         "ai_note_unavailable": "offline: live model unavailable ({e})",
         "ai_note_no_free_model": "offline: no free Zen model",
         "ai_note_live": "live model: {m}",
+        "sc_startup_title": "{n} programs start with Windows",
+        "sc_startup_why": ("Programs that start with the system delay sign-in "
+                           "and use memory in the background. The item count "
+                           "is an indicator — actual boot time is not "
+                           "measured."),
+        "sc_startup_impact_many": "slower sign-in and {n} background programs",
+        "sc_startup_impact_few": "slightly slower sign-in",
+        "sc_startup_risk": ("low: disabling an entry is reverted with one "
+                            "click"),
+        "sc_startup_tech": "Run/RunOnce keys + Startup folders",
+        "sc_startup_unavailable": "startup scanning only works on Windows",
+        "sc_services_title": "{n} automatic services are not running",
+        "sc_services_why": ("A service set to start automatically should be "
+                            "running after boot. A stopped automatic service "
+                            "means a crash or a wrong configuration."),
+        "sc_services_impact": ("those services do not work (network, printing, "
+                               "updates...)"),
+        "sc_services_risk": ("medium: restarting a service is reversible, but "
+                             "the crash cause may remain"),
+        "sc_services_unavailable": "services only exist on Windows",
         "sc_disk_almost_full_title": "Disk is almost full ({gb} GB left)",
         "sc_disk_almost_full_why": ("When free space runs out Windows slows "
                                     "down, updates fail and programs crash "
