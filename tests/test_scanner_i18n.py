@@ -159,7 +159,12 @@ class TestAllScannersRenderEnglish(unittest.TestCase):
                          f"bosanski tekst u EN izlazu: {untranslated}")
 
     def test_every_scanner_has_english_skip_reason_on_this_platform(self):
-        """Na Linuxu vecina scannera je 'skipped' — to mora biti na jeziku."""
+        """"Skipped" razlog mora biti na jeziku gdje god postoji.
+
+        Na Linuxu je vecina scannera preskocena (samo-Windows moduli), na
+        Windowsu ih je malo ili nijedan — zato se ne zahtijeva da ih BUDE,
+        nego da svaki koji postoji bude na engleskom.
+        """
         from mujofix import cli  # noqa: F401  (registruje scannere)
         from mujofix.scanners.base import REGISTRY, ScanContext
 
@@ -168,7 +173,6 @@ class TestAllScannersRenderEnglish(unittest.TestCase):
             report = cls().scan(ScanContext(lang="en"))
             if report.skipped:
                 reasons.append((name, report.skipped))
-        self.assertTrue(reasons, "ocekivani skipped scanneri na Linuxu")
         for name, reason in reasons:
             self.assertFalse(set(BS_CHARS) & set(reason.lower()),
                              f"{name}: {reason}")
