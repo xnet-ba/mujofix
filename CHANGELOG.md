@@ -1,6 +1,6 @@
 # Changelog (semantičko verzioniranje; `mujofix.spec` čita vrh ovog fajla)
 
-## [0.4.0] (u razvoju — nije objavljeno)
+## [0.4.0] - 2026-10-22
 
 ### Dodano
 - **Novi scanner `tasks` + akcija `disable_task`:** nijedan scanner nije čitao
