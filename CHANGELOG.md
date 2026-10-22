@@ -3,6 +3,12 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Dodano
+- **Nova akcija `disable_power_saver`:** nalaz `config-power-saver` nije
+  imao popravku. Snapshot pamti GUID aktivnog plana, apply prebacuje na
+  Balanced (`powercfg /setactive`), verify traži da je Balanced aktivan, a
+  rollback vraća stari GUID. Ne traži elevaciju; ako apply padne, stanje se
+  vraća bez lažne tvrdnje o uspjehu. GUID za Balanced je iz primarnog
+  izvora (Microsoft powercfg docs, provjereno 2026-10-22) i test to čuva.
 - **Nova akcija `remove_hosts_entry`:** nalaz `network-hosts` (sumnjiv
   zapis u hosts fajlu = DNS hijack) do sada nije imao popravku. Snapshot
   čuva cijeli hosts fajl, uklanja se tačno prijavljeni zapis, ostatak

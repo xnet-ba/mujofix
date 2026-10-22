@@ -33,6 +33,11 @@ Automatizovani dio (scan, pin, live update provjera, sha256):
 - [ ] clean_temp na test folderu (fajl stariji od 7 dana, sadržaj identičan nakon rollback-a)
 - [ ] restart_service na Spooleru (treba UAC prompt + objašnjenje prije)
 - [ ] "Poništi sve" iz GUI-a vraća sve tri promjene
+- [ ] disable_power_saver: uključi "Power Saver" plan, pokreni popravku —
+      aktivni plan postane Balanced; "Poništi sve" vrati stari plan
+- [ ] PROVJERITI (nepotvrdjeno): da li `_power_saver_active` uopšte prepoznaje
+      Power Saver na lokalizovanom Windowsu (GUID u kodu nije potvrdjen iz
+      primarnih izvora; fallback je englesko ime plana)
 - [ ] remove_hosts_entry: dodaj test-zapis u hosts (`10.0.0.1
       zlonamjerni.test`), pokreni uz admin — zapis nestane, ostali
       zapisi/komentari ostaju; "Poništi sve" vraća fajl identično

@@ -344,6 +344,14 @@ STRINGS = {
         "act_hosts_unreadable": "hosts fajl se ne moze procitati: {e}",
         "act_remove_hosts_entry_description": "Uklanjamo sumnjiv zapis iz hosts fajla (vracamo po potrebi).",
         "act_remove_hosts_entry_risk": "srednji: hosts je zastita DNS-a; snapshot cuva cijeli fajl, rollback ga vraca",
+        "act_disable_power_saver_description": "Vracamo plan napajanja na uravnotezeni (Balanced).",
+        "act_disable_power_saver_risk": "nizak: mijenja se samo aktivni plan; snapshot pamti stari GUID i rollback ga vraca",
+        "act_power_already": "plan napajanja je vec uravnotezen (Balanced)",
+        "act_power_done": "plan napajanja je sada uravnotezen (Balanced)",
+        "act_power_gone": "aktivni plan se promijenio prije snapshota",
+        "act_power_ready": "aktivan je drugi plan ({guid}), prebacujemo na Balanced",
+        "act_power_still": "plan napajanja nije promijenjen (aktivan: {guid})",
+        "act_power_unreadable": "aktivni plan napajanja se ne moze procitati: {e}",
         "sc_disk_almost_full_title": "Disk je gotovo pun (ostalo {gb} GB)",
         "sc_disk_almost_full_why": ("Kad ponestane slobodnog prostora, Windows "
                                    "usporava, updatei pucaju, a programi se "
@@ -720,6 +728,14 @@ STRINGS = {
         "act_hosts_unreadable": "hosts file cannot be read: {e}",
         "act_remove_hosts_entry_description": "Remove a suspicious entry from the hosts file (restore on request).",
         "act_remove_hosts_entry_risk": "medium: hosts is a DNS protection; the snapshot keeps the whole file and rollback restores it",
+        "act_disable_power_saver_description": "Switch the power plan back to Balanced.",
+        "act_disable_power_saver_risk": "low: only the active plan changes; the snapshot keeps the old GUID and rollback restores it",
+        "act_power_already": "the power plan is already Balanced",
+        "act_power_done": "the power plan is now Balanced",
+        "act_power_gone": "the active plan changed before the snapshot",
+        "act_power_ready": "another plan is active ({guid}), switching to Balanced",
+        "act_power_still": "the power plan was not changed (active: {guid})",
+        "act_power_unreadable": "the active power plan cannot be read: {e}",
         "sc_disk_almost_full_title": "Disk is almost full ({gb} GB left)",
         "sc_disk_almost_full_why": ("When free space runs out Windows slows "
                                     "down, updates fail and programs crash "

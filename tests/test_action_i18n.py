@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import mujofix.actions.duplicates  # noqa: E402,F401
 import mujofix.actions.env  # noqa: E402,F401
 import mujofix.actions.hosts  # noqa: E402,F401
+import mujofix.actions.power  # noqa: E402,F401
 import mujofix.actions.proxy  # noqa: E402,F401
 import mujofix.actions.service  # noqa: E402,F401
 import mujofix.actions.startup  # noqa: E402,F401
