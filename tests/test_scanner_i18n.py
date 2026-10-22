@@ -82,5 +82,34 @@ class TestScannerText(unittest.TestCase):
                              f"{field}: {value}")
 
 
+class TestConsoleEncoding(unittest.TestCase):
+    """Windows konzola je pukla na dijakritikama u sazetku (CI smoke)."""
+
+    def test_cli_forces_utf8_and_survives_ascii_only_console(self):
+        import io
+
+        from mujofix import cli
+
+        stream = io.TextIOWrapper(io.BytesIO(), encoding="ascii",
+                                  errors="strict")
+        old_stdout, old_stderr = sys.stdout, sys.stderr
+        try:
+            sys.stdout = sys.stderr = stream
+            cli.force_utf8_console()      # mora prebaciti na utf-8
+            print("računar č ć ž š đ")     # prije: UnicodeEncodeError
+            sys.stdout.flush()
+            written = stream.buffer.getvalue().decode("utf-8")
+        finally:
+            sys.stdout, sys.stderr = old_stdout, old_stderr
+        self.assertIn("računar", written)
+
+    def test_summarize_is_localized(self):
+        from mujofix.cli import summarize
+
+        reports = [{"scanner": "disk", "findings": [{"severity": "LOW"}]}]
+        self.assertIn("računar", summarize(reports, "bs"))
+        self.assertIn("problems", summarize(reports, "en"))
+
+
 if __name__ == "__main__":
     unittest.main()

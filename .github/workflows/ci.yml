@@ -63,13 +63,15 @@ jobs:
           if (-not (Test-Path $exe)) {
             Write-Output "::error::nema $exe"; throw "exe missing"
           }
-          $scan = & $exe scan --summary 2>&1 | Out-String
+          # --lang en: stabilan izlaz za provjeru (i testira --lang na Win exe-u)
+          $scan = & $exe scan --lang en --summary 2>&1 | Out-String
           Write-Output $scan
           if ($LASTEXITCODE -ne 0) {
-            Write-Output "::error::frozen scan exit $LASTEXITCODE :: $scan"
+            $tail = (($scan -split "\r?\n") | Select-Object -Last 8) -join " | "
+            Write-Output "::error::frozen scan exit $LASTEXITCODE :: $tail"
             throw "frozen scan failed"
           }
-          if ($scan -notmatch "racunar|problems|problema") {
+          if ($scan -notmatch "problems") {
             Write-Output "::error::scan nije dao sazetak :: $scan"
             throw "no summary"
           }

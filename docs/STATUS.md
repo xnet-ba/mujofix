@@ -94,6 +94,16 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- I18N-NALAZI 2026-10-22 (pocelo, 1/9): engleski UI je prikazivao bosanski
+  tekst nalaza. Uveden `ScanContext.lang` + `t(ctx, key)` u scannerima;
+  `disk` scanner migriran (22 kljuca), `scan --lang bs|en` i lokalizovan
+  `summarize`. Cuvar `tests/test_scanner_i18n.py` sa ratchet listom
+  (`MIGRATED = {"disk"}`). Ostali scanneri: 8/9 preostalo.
+  USPUT NADJEN I POPRAVLJEN PRAVI DEFEKT: `MujoFixCLI.exe` je na Windowsu PAO
+  (`UnicodeEncodeError`) na dijakriticima koje sam uveo — legacy code page.
+  Dokaz: CI `installer-windows` failure ("frozen scan exit 1 :: Traceback ..."),
+  lokalna reprodukcija sa `PYTHONIOENCODING=ascii`. Sada `force_utf8_console()`
+  prebacuje stdout/stderr na UTF-8 (`errors="replace"`).
 - OFFLINE 2026-10-22: offline objašnjenje (koje većina korisnika vidi, jer
   besplatni Zen tier odbija poziv iz naseg CLI-a) bilo je jedan red sablona.
   Sada `offline_explain(finding, lang)` gradi iz PODATAKA nalaza: why/impact/

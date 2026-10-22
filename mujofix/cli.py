@@ -30,6 +30,21 @@ from mujofix.scanners.base import REGISTRY, ScanContext  # noqa: E402
 from mujofix import update as update_mod  # noqa: E402
 
 
+def force_utf8_console() -> None:
+    """Prebaci stdout/stderr na UTF-8 — Windows konzola inace puca na "č/š/ž".
+
+    Nas tekst je dvojezican i sadrzi dijakritike; legacy code page (cp437/
+    cp1252) baca UnicodeEncodeError pri `print` (dokazano u CI smoke koraku).
+    `errors="replace"` znaci da se ne moze srusiti cak i ako terminal ne
+    podrzava znak.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+
 def run_scan(names: list[str] | None, lang: str = "bs") -> list[dict]:
     ctx = ScanContext(lang=lang)
     selected = names or sorted(REGISTRY)
@@ -84,6 +99,7 @@ def _cmd_update(args) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    force_utf8_console()
     parser = argparse.ArgumentParser(prog="mujofix", description="MujoFix engine CLI")
     sub = parser.add_subparsers(dest="cmd", required=True)
     scan = sub.add_parser("scan", help="pokreni scannere")

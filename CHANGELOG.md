@@ -2,6 +2,14 @@
 
 ## [0.4.0] (u razvoju — nije objavljeno)
 
+### Ispravljeno
+- **Windows konzola je pukla na dijakriticima** (`UnicodeEncodeError`):
+  uvođenjem dvojezičnog teksta nalaza i sažetka (`računar`, `keš`)
+  `MujoFixCLI.exe` je pao u CI smoke koraku na legacy code page. Sada se
+  stdout/stderr prebacuju na UTF-8 (`errors="replace"`), pa se ne može
+  srušiti ni na terminalu bez podrške za znak. Smoke korak sada vrti
+  `scan --lang en --summary` (stabilan izlaz + testira `--lang` na Win).
+
 ### Dodano
 - **Bogatija offline objašnjenja** (put koji većina korisnika vidi, jer
   besplatni Zen tier odbija poziv iz našeg CLI-a): umjesto jednog reda,
