@@ -94,6 +94,12 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- HOST-DOKAZ 2026-10-22: `scripts/host_proof.py` prosiren na akcije 4-6
+  (remove_hosts_entry, remove_share, disable_power_saver) — apply -> verify ->
+  rollback -> identicno stanje, uz backup hosts fajla i vracanje u `finally`,
+  share koji se brise na kraju i power plan koji se vraca na prijasnji GUID.
+  Bez admina: SKIP (ne FAIL). NETESTIRANO odavde (nema Windowsa) — prvo
+  pokretanje na VM-u; kompajlira se i van Windowsa uredno prijavljuje skip.
 - GRANICE — ZATVOREN KRUG 2026-10-22: sve cetiri ulazne granice su pregledane
   fuzz testovima i ocvrsnute: (1) `sanitize` (privatnost), (2) `validate_plan`
   (AI predlog), (3) `update` (podaci s mreze), (4) MCP `handle_message` +

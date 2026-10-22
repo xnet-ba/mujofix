@@ -10,6 +10,11 @@ Rezultat se upisuje: PASS / FAIL + datum + build.
 Automatizovani dio (scan, pin, live update provjera, sha256):
 `scripts/vm_validate.ps1` (uz `-SetupExe` + `-SumsFile` za provjeru setup exe-a).
 
+Akcije: `scripts/host_proof.py` vrti 1-3 (startup/temp/servis) i, od 2026-10-22,
+i 4-6 (hosts/share/power) — svaka apply → verify → rollback → identično stanje,
+uz tvrde kočnice (samo test-artefakti) i vraćanje u `finally`. Akcije 4-6 su
+**netestirane** dok se ne pokrenu na VM-u; hosts/share bez admina = SKIP.
+
 ## A. Faza 0 SPIKE (`scripts/phase0_spike.py --model <zen-model>`)
 - [ ] 1. Bundlovani OpenCode se pokreće bez Node-a (Win10 / Win11)
 - [ ] 2. `opencode debug config` prihvata naš config (agent `mujofix`, 11 alata `deny`, samo naš MCP; 0 tuđih servera/pluginova)

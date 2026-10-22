@@ -2,6 +2,15 @@
 
 ## [0.4.0] (u razvoju — nije objavljeno)
 
+### Dodano
+- **`scripts/host_proof.py` pokriva i nove akcije** (`remove_hosts_entry`,
+  `remove_share`, `disable_power_saver`): svaka apply → verify → rollback →
+  identično stanje, uz tvrde kočnice (samo test-artefakti: jedan hosts zapis
+  uz backup cijelog fajla i vraćanje u `finally`, share `MUJOFIX_TEST_SHARE`
+  koji se briše na kraju, power plan koji se vraća na tačan prijašnji GUID).
+  Bez admina hosts/share se preskaču (SKIP), ne padaju. **Netestirano** dok
+  se ne pokrene na VM-u.
+
 ### Ispravljeno
 - **`load_findings_file` sada odbija neispravan snapshot odmah** (mora biti
   objekat sa `findings` **listom objekata**), umjesto da greška ispliva
