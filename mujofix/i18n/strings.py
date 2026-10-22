@@ -392,6 +392,9 @@ STRINGS = {
                              "verziju"),
         "cli_summary": ("Tvoj računar ima {n} problema.\n"
                          "  {c} ozbiljna  {m} srednja  {l} mala"),
+        "summary_fixable": "Automatski se može popraviti: {n}.",
+        "summary_no_autofix": "Nijedan nalaz nema automatsku popravku — "
+                              "vidi preporuke u nalazima.",
         "ai_settings": "AI: uključi/isključi",
         "audit_saved": "Dnevnik izvršavanja sačuvan: {p}",
         "audit_failed": "Dnevnik nije sačuvan: {e}",
@@ -786,6 +789,9 @@ STRINGS = {
                              "the old version"),
         "cli_summary": ("Your computer has {n} problems.\n"
                          "  {c} critical  {m} medium  {l} low"),
+        "summary_fixable": "Can be fixed automatically: {n}.",
+        "summary_no_autofix": "No finding has an automatic fix — see the "
+                              "recommendations in the findings.",
         "ai_settings": "AI: on/off",
         "audit_saved": "Run log saved: {p}",
         "audit_failed": "Run log not saved: {e}",

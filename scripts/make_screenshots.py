@@ -61,7 +61,10 @@ def shoot(name: str, dark: bool) -> str:
                         ai_build_fn=lambda *a, **k: None)
     window._findings = [dict(f) for f in FINDINGS]
     window._render_list()
-    window.lbl_summary.setText("3 problema: 1 visok, 1 srednji, 1 nizak.")
+    window.lbl_summary.setText(
+        "Tvoj računar ima 3 problema.\n"
+        "  1 ozbiljan  1 srednji  1 mali\n"
+        "Automatski se može popraviti: 2.")
     window.lbl_report.setText("Popravljeno: 1, preskočeno: 0, neuspjelo: 0.")
     for button in (window.btn_fix, window.btn_explain, window.btn_undo):
         button.setEnabled(True)

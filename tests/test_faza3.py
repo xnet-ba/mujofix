@@ -155,6 +155,28 @@ class TestGuiFlow(unittest.TestCase):
             self.assertIsNone(result.state)
             self.assertIn("dry-run", result.message)
 
+    def test_summary_says_how_many_are_fixable(self):
+        """Sažetak mora reći koliko nalaza ima automatsku popravku."""
+        with tempfile.TemporaryDirectory() as data:
+            window, qtmp = self.make_window(
+                [disk_temp_finding(data), unknown_finding()])
+            try:
+                text = window.lbl_summary.text()
+                self.assertIn("2 problema", text)
+                self.assertIn("Automatski se može popraviti: 1.", text)
+            finally:
+                window.close()
+                qtmp.cleanup()
+
+    def test_summary_says_when_nothing_is_fixable(self):
+        window, qtmp = self.make_window([unknown_finding()])
+        try:
+            self.assertIn("Nijedan nalaz nema automatsku popravku",
+                          window.lbl_summary.text())
+        finally:
+            window.close()
+            qtmp.cleanup()
+
     def test_language_choice_is_saved_and_needs_restart(self):
         """Jezik je bio provucen kroz kod ali se nije mogao izabrati u UI-ju."""
         from mujofix.ui.main_window import store_lang, stored_lang

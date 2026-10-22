@@ -353,10 +353,14 @@ class MainWindow(QMainWindow):
         if total == 0:
             self.lbl_summary.setText(self._t("summary_none"))
         else:
+            fixable = sum(1 for finding in self._findings
+                          if finding_to_actions(finding))
             self.lbl_summary.setText(
                 self._t("summary_many", n=total) + "\n"
                 + self._t("sev_line", c=counts["CRITICAL"],
-                          m=counts["MEDIUM"], l=counts["LOW"]))
+                          m=counts["MEDIUM"], l=counts["LOW"])
+                + "\n" + (self._t("summary_fixable", n=fixable)
+                           if fixable else self._t("summary_no_autofix")))
         self._render_list()
         self.btn_fix.setEnabled(total > 0)
         self.btn_explain.setEnabled(total > 0)

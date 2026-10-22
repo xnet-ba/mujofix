@@ -69,6 +69,7 @@
   <li><b>IZVRŠENJE</b> — prije svakog koraka snapshot/rollback tačka, pa izvršenje.</li>
   <li><b>VERIFIKACIJA</b> — nakon svakog koraka ponovo se izmjeri isto što je nalaz detektovao i potvrdi da je problem stvarno riješen.</li>
   <li><b>ROLLBACK</b> — ako verifikacija padne ili se stanje pogorša, korak se <b>automatski vraća</b> i korisnik se izvijesti.</li>
+  <li><b>SAŽETAK</b> — koliko je problema, po ozbiljnosti, i <b>koliko ih se može automatski popraviti</b> (nalazi bez akcije su preporuke).</li>
   <li><b>IZVJEŠTAJ</b> — broj popravljenih / preskočenih / neuspjelih koraka, <b>koliko je u karantinu</b> i, poslije čišćenja, <b>oslobođeni GB</b> + opcija <b>"Poništi sve"</b> preko rollback tačaka. (Vrijeme boot-a se ne mjeri nigdje u kodu — vidi <code>scanners/startup.py</code>.)</li>
 </ol>
 

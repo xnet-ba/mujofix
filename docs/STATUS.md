@@ -94,6 +94,11 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- SAZETAK 2026-10-22: GUI sazetak sada, pored broja problema po ozbiljnosti,
+  kaze i KOLIKO IH SE MOZE AUTOMATSKI POPRAVITI (`finding_to_actions`); ako
+  nijedan nema akciju, izricito kaze da su to preporuke. Dvojezicno
+  (`summary_fixable`/`summary_no_autofix`). Testovi u `test_faza3` (2).
+  Snimke regenerisane (novi red u sazetku).
 - AKCIJA 2026-10-22 (3. nova): `permissions-shares` („nedefault dijeljeni
   folderi") je bio bez akcije. `mujofix/actions/share.py` (`remove_share`):
   snapshot iz `net share <ime>` pamti putanju i remark, apply je `/delete`,

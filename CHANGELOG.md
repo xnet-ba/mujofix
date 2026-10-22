@@ -3,6 +3,9 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Dodano
+- **Sažetak kaže koliko se problema može automatski popraviti** (pored broja
+  po ozbiljnosti); ako nijedan nalaz nema akciju, to izričito kaže i upućuje
+  na preporuke. Snimke u README-u regenerisane.
 - **Nova akcija `remove_share`:** nalaz `permissions-shares` nije imao
   popravku. Snapshot pamti putanju i remark (`net share <ime>`), apply je
   `/delete`, verify traži da share nema, rollback ga vraća. Administrativni

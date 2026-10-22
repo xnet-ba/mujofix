@@ -58,6 +58,7 @@ $a -eq $b   # must print True
 
 1. **SCAN** — scanner plugins run **in sequence**, progress bar, cancellable. A module error never crashes the app — it becomes a *skipped* entry.
 2. **ANALYZE** — each finding: severity (`CRITICAL / MEDIUM / LOW`), impact, fix risk, reversibility flag.
+2b. **SUMMARY** — how many issues, by severity, and **how many can be fixed automatically** (findings without an action are recommendations).
 3. **PLAN** — AI drafts steps and order (action + target from the catalog); every step passes the validator before it is even shown. User approves.
 4. **EXECUTE → VERIFY → ROLLBACK** — per-step snapshots; failed verification restores the step automatically.
 5. **REPORT** — count of fixed / skipped / failed steps, **how much is in quarantine**, and after cleanup the **freed GB**, plus **"Undo all"** via rollback points. (Boot time is not measured anywhere in the code — see `scanners/startup.py`.)
