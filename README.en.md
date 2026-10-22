@@ -60,7 +60,7 @@ $a -eq $b   # must print True
 2. **ANALYZE** — each finding: severity (`CRITICAL / MEDIUM / LOW`), impact, fix risk, reversibility flag.
 3. **PLAN** — AI drafts steps and order (action + target from the catalog); every step passes the validator before it is even shown. User approves.
 4. **EXECUTE → VERIFY → ROLLBACK** — per-step snapshots; failed verification restores the step automatically.
-5. **REPORT** — count of fixed / skipped / failed steps + **"Undo all"** via rollback points. (Before/after metrics — freed GB and boot time — are **not implemented**: boot time is not measured anywhere in the code, see `scanners/startup.py`.)
+5. **REPORT** — count of fixed / skipped / failed steps, **how much is in quarantine**, and after cleanup the **freed GB**, plus **"Undo all"** via rollback points. (Boot time is not measured anywhere in the code — see `scanners/startup.py`.)
 
 Anti-hallucination: the AI talks **only about evidence the scanner collected**; uncertainty is explicit; every proposal passes a validator (JSON schema + action allowlist). The AI never executes anything — a deterministic executor runs only catalog actions.
 
@@ -85,7 +85,7 @@ Bundled, pinned OpenCode as a child process (`opencode run`, no local server, no
 
 ## 🛡️ Safety
 
-Hard-coded blacklist in the AI-plan validator (System32, WinSxS, Program Files, user Documents/Pictures/Desktop/Downloads, boot configuration/Boot BCD, BitLocker, Defender — the whole of `C:\Windows` is *not* blocked, since `Windows\Temp` and the WU cache are legitimate targets), a **per-action snapshot** (restores exactly the state the action changes: previous registry value, service/task state) plus file quarantine (30 days, not deletion). A dry-run mode (GUI checkbox: nothing is changed) and a readable per-step log in the window; after every fix run a **JSON run log** is written to `%LOCALAPPDATA%\MujoFix\audit\audit-<timestamp>.json` (all step phases + summary; the path is printed in the log). **Not implemented:** System Restore Point (needs admin/Checkpoint-Computer) — the safety net is the per-action snapshot + rollback. Never disables antivirus/firewall/updates.
+Hard-coded blacklist in the AI-plan validator (System32, WinSxS, Program Files, user Documents/Pictures/Desktop/Downloads, boot configuration/Boot BCD, BitLocker, Defender — the whole of `C:\Windows` is *not* blocked, since `Windows\Temp` and the WU cache are legitimate targets), a **per-action snapshot** (restores exactly the state the action changes: previous registry value, service/task state) plus file quarantine (no permanent deletion: files older than 30 days are moved there). The **"Clean quarantine"** button is the only permanent delete — it shows the file count and size, asks for confirmation, and writes **freed** space into the report. A dry-run mode (GUI checkbox: nothing is changed) and a readable per-step log in the window; after every fix run a **JSON run log** is written to `%LOCALAPPDATA%\MujoFix\audit\audit-<timestamp>.json` (all step phases + summary; the path is printed in the log). **Not implemented:** System Restore Point (needs admin/Checkpoint-Computer) — the safety net is the per-action snapshot + rollback. Never disables antivirus/firewall/updates.
 
 ## 🚦 Status
 

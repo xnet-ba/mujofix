@@ -12,6 +12,14 @@ STRINGS = {
         "select_none": "Ništa",
         "show_tech": "Prikaži tehničke detalje",
         "undo_all": "Poništi sve",
+        "purge_quarantine": "Očisti karantin",
+        "purge_quarantine_now": "Očisti karantin ({n} fajlova, {gb})",
+        "purge_confirm": ("Trajno obrisati {n} fajlova iz karantina ({gb})?\n"
+                          "Ovo se NE može poništiti (fajlovi su već izvan "
+                          "sistema)."),
+        "purge_cancelled": "Čišćenje karantina otkazano — ništa nije obrisano.",
+        "quarantine_purged": "Karantin očišćen: {n} fajlova, oslobođeno {gb}.",
+        "report_freed": "Oslobođeno: {gb}.",
         "summary_none": "Nema problema. Računar je zdrav.",
         "summary_many": "Tvoj računar ima {n} problema.",
         "sev_line": "🔴 {c} ozbiljna   🟠 {m} srednja   🟢 {l} mala",
@@ -78,6 +86,14 @@ STRINGS = {
         "select_none": "None",
         "show_tech": "Show technical details",
         "undo_all": "Undo all",
+        "purge_quarantine": "Clean quarantine",
+        "purge_quarantine_now": "Clean quarantine ({n} files, {gb})",
+        "purge_confirm": ("Permanently delete {n} files from quarantine ({gb})?\n"
+                          "This CANNOT be undone (the files are already "
+                          "outside the system)."),
+        "purge_cancelled": "Quarantine cleanup cancelled — nothing was deleted.",
+        "quarantine_purged": "Quarantine cleaned: {n} files, freed {gb}.",
+        "report_freed": "Freed: {gb}.",
         "summary_none": "No issues. Your PC is healthy.",
         "summary_many": "Your PC has {n} issues.",
         "sev_line": "🔴 {c} critical   🟠 {m} medium   🟢 {l} low",

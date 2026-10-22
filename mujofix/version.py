@@ -10,7 +10,7 @@ from __future__ import annotations
 import os
 import re
 
-_FALLBACK = "0.3.0"
+_FALLBACK = "0.4.0"
 _CHANGELOG = os.path.join(os.path.dirname(__file__), "..", "CHANGELOG.md")
 
 

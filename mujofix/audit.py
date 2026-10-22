@@ -12,10 +12,16 @@ import os
 import time
 
 
-def audit_path(directory: str, when: float | None = None) -> str:
-    """`<directory>/audit-YYYYmmdd-HHMMSS.json`."""
+def audit_path(directory: str, when: float | None = None,
+               suffix: str = "") -> str:
+    """`<directory>/audit-YYYYmmdd-HHMMSS[-suffix].json`.
+
+    `suffix` razdvaja zapise koji mogu pasti u istoj sekundi (npr. popravka i
+    ciscenje karantina) da jedan ne pregazi drugi.
+    """
     stamp = time.strftime("%Y%m%d-%H%M%S", time.localtime(when or time.time()))
-    return os.path.join(directory, f"audit-{stamp}.json")
+    tail = f"-{suffix}" if suffix else ""
+    return os.path.join(directory, f"audit-{stamp}{tail}.json")
 
 
 def build_record(entries: list[dict], summary: dict, dry_run: bool,

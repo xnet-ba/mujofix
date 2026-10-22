@@ -277,6 +277,90 @@ class TestGuiFlow(unittest.TestCase):
                 window.close()
                 qtmp.cleanup()
 
+    def test_quarantine_button_shows_and_purges_with_confirm(self):
+        """Karantin se prije NIKAD nije cistio — 'oslobodjeno' nije bilo istina."""
+        from unittest.mock import patch
+
+        from PySide6.QtWidgets import QMessageBox
+
+        with tempfile.TemporaryDirectory() as data:
+            window, qtmp = self.make_window([disk_temp_finding(data)])
+            try:
+                self.assertFalse(window.btn_purge.isEnabled())  # prazan karantin
+                for name in ("a.tmp", "b.tmp"):
+                    victim = os.path.join(data, name)
+                    with open(victim, "w") as handle:
+                        handle.write("x" * 1024)
+                    old = time.time() - 30 * 86400
+                    os.utime(victim, (old, old))
+                window.start_fix()
+                self.assertTrue(window.btn_purge.isEnabled())
+                self.assertIn("Očisti karantin (", window.btn_purge.text())
+                with patch.object(QMessageBox, "question",
+                                  return_value=QMessageBox.Yes):
+                    window.purge_quarantine_clicked()
+                self.assertIn("Oslobođeno", window.lbl_report.text())
+                self.assertIn("Karantin očišćen", window.log.toPlainText())
+                import glob as _glob
+                import json as _json
+                purges = _glob.glob(os.path.join(window._audit_dir,
+                                                 "audit-*-purge.json"))
+                self.assertEqual(len(purges), 1, purges)
+                record = _json.load(open(purges[0], encoding="utf-8"))
+                self.assertEqual(record["steps"][0]["action"], "purge_quarantine")
+                self.assertFalse(window.btn_purge.isEnabled())
+                self.assertEqual(os.listdir(window._ctx.quarantine_dir), [])
+            finally:
+                window.close()
+                qtmp.cleanup()
+
+    def test_quarantine_purge_cancel_deletes_nothing(self):
+        from unittest.mock import patch
+
+        from PySide6.QtWidgets import QMessageBox
+
+        with tempfile.TemporaryDirectory() as data:
+            window, qtmp = self.make_window([disk_temp_finding(data)])
+            try:
+                victim = os.path.join(data, "a.tmp")
+                with open(victim, "w") as handle:
+                    handle.write("x")
+                old = time.time() - 30 * 86400
+                os.utime(victim, (old, old))
+                window.start_fix()
+                before = len(os.listdir(window._ctx.quarantine_dir))
+                with patch.object(QMessageBox, "question",
+                                  return_value=QMessageBox.No):
+                    window.purge_quarantine_clicked()
+                self.assertEqual(len(os.listdir(window._ctx.quarantine_dir)),
+                                 before)  # nista nije obrisano
+                self.assertIn("otkazano", window.log.toPlainText())
+            finally:
+                window.close()
+                qtmp.cleanup()
+
+    def test_purge_reports_exact_bytes(self):
+        from unittest.mock import patch
+
+        from PySide6.QtWidgets import QMessageBox
+
+        with tempfile.TemporaryDirectory() as data:
+            window, qtmp = self.make_window([disk_temp_finding(data)])
+            try:
+                victim = os.path.join(data, "big.tmp")
+                with open(victim, "wb") as handle:
+                    handle.write(b"z" * 1024)
+                old = time.time() - 30 * 86400
+                os.utime(victim, (old, old))
+                window.start_fix()
+                with patch.object(QMessageBox, "question",
+                                  return_value=QMessageBox.Yes):
+                    window.purge_quarantine_clicked()
+                self.assertEqual(window._quarantine_usage, (0, 0))
+            finally:
+                window.close()
+                qtmp.cleanup()
+
     def test_no_autofix_and_elevated_skipped(self):
         from unittest.mock import patch
 

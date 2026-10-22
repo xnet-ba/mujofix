@@ -94,6 +94,15 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- KARANTIN 2026-10-22 (nadjen stvarni defekt, ne samo dokumentacija): karantin
+  se NIKAD nije cistio — `%LOCALAPPDATA%\MujoFix\quarantine` je rastao
+  zauvek, a izvjestaj je mogao tvrditi "oslobodjeno" za fajlove koji su samo
+  premjesteni (isti disk). Sada: `quarantine_file` pamti `size` prije
+  premjestanja; `quarantine_usage()`/`purge_quarantine()` u `actions/base.py`;
+  GUI dugme "Očisti karantin" (broj fajlova + GB, potvrda, upis "Oslobođeno: X"
+  u izvjestaj; otkazivanje ne brise nista). Testovi: `tests/test_quarantine.py`
+  (4) + 3 GUI. CHANGELOG otvoren kao 0.4.0 (u razvoju) da dev build ne tvrdi
+  0.3.0.
 - OBJAVLJENO 2026-10-22: **v0.3.0** (tag + GitHub Release). CI `build` job
   zelen: pin provjera, OpenCode download + SHA-256, PyInstaller, smoke
   zapakovanog CLI-ja, Inno installer, SHA256SUMS, Release. Asseti:

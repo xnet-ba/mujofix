@@ -1,5 +1,19 @@
 # Changelog (semantičko verzioniranje; `mujofix.spec` čita vrh ovog fajla)
 
+## [0.4.0] (u razvoju — nije objavljeno)
+
+### Dodano
+- **Čišćenje karantina + stvarno „oslobođeno":** karantin se prije NIKAD nije
+  čistio (fajlovi su ostajali u `%LOCALAPPDATA%\MujoFix\quarantine`), pa
+  tvrdnja o oslobođenom prostoru nije bila istinita. Novi
+  `quarantine_usage()`/`purge_quarantine()` u `actions/base.py`, zapis u
+  karantinu pamti veličinu fajla PRIJE premještanja, a GUI ima dugme
+  „Očisti karantin" koje pokaže broj fajlova i GB, traži potvrdu i u izvještaj
+  upiše oslobođeno. Dugme „Poništi sve" i dalje vraća fajlove iz karantina.
+- Izvještaj sada pokazuje i koliko je trenutno u karantinu.
+- Testovi: `tests/test_quarantine.py` (4) + GUI (potvrda, otkazivanje,
+  brojke); README (bs+en) ažuriran.
+
 ## [0.3.0] - 2026-10-21
 
 ### Promijenjeno

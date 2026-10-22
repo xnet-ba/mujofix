@@ -71,12 +71,20 @@ class Action(abc.ABC):
 
 
 def quarantine_file(path: str, quarantine_dir: str) -> dict:
-    """Premjesti fajl u karantin (ne trajno brisanje). Vrati zapis za manifest."""
+    """Premjesti fajl u karantin (ne trajno brisanje). Vrati zapis za manifest.
+
+    `size` se pamti PRIJE premjestanja — bez toga se ne moze posteno reci
+    koliko je premjesteno/oslobodjeno.
+    """
     os.makedirs(quarantine_dir, exist_ok=True)
     base = os.path.basename(path)
+    try:
+        size = os.path.getsize(path)
+    except OSError:
+        size = 0
     dest = os.path.join(quarantine_dir, f"{int(time.time())}_{base}")
     shutil.move(path, dest)
-    return {"original": path, "quarantined": dest}
+    return {"original": path, "quarantined": dest, "size": size}
 
 
 def restore_quarantined(record: dict) -> None:
@@ -86,6 +94,49 @@ def restore_quarantined(record: dict) -> None:
         return
     os.makedirs(os.path.dirname(original), exist_ok=True)
     shutil.move(dest, original)
+
+
+def quarantine_usage(quarantine_dir: str) -> tuple[int, int]:
+    """(broj fajlova, bajtova) trenutno u karantinu. (0, 0) ako ne postoji."""
+    files = 0
+    total = 0
+    if not os.path.isdir(quarantine_dir):
+        return 0, 0
+    for name in os.listdir(quarantine_dir):
+        path = os.path.join(quarantine_dir, name)
+        if not os.path.isfile(path):
+            continue
+        files += 1
+        try:
+            total += os.path.getsize(path)
+        except OSError:
+            pass
+    return files, total
+
+
+def purge_quarantine(quarantine_dir: str) -> tuple[int, int]:
+    """Trajno obrisi sadrzaj karantina (fajlove i manifeste).
+
+    Vraca (broj obrisanih fajlova, oslobodjeni bajtovi). Ovo je JEDINO mjesto
+    gdje se karantin trajno brise — poziva se iz GUI-ja uz potvrdu korisnika.
+    """
+    files = 0
+    freed = 0
+    if not os.path.isdir(quarantine_dir):
+        return 0, 0
+    for name in os.listdir(quarantine_dir):
+        path = os.path.join(quarantine_dir, name)
+        if not os.path.isfile(path):
+            continue
+        try:
+            size = os.path.getsize(path)
+            os.remove(path)
+        except OSError:
+            continue
+        files += 1
+        freed += size
+    return files, freed
+
 
 
 def save_manifest(quarantine_dir: str, name: str, records: list[dict]) -> str:

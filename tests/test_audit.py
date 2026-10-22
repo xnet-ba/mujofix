@@ -37,6 +37,14 @@ class TestAudit(unittest.TestCase):
             text = open(path, encoding="utf-8").read()
             self.assertIn("\n", text)  # indentovan, citljiv
 
+    def test_suffix_separates_records_in_same_second(self):
+        """Popravka i ciscenje karantina mogu pasti u istu sekundu."""
+        a = audit.audit_path("/tmp/x", when=1_700_000_000)
+        b = audit.audit_path("/tmp/x", when=1_700_000_000, suffix="purge")
+        self.assertNotEqual(a, b)
+        self.assertTrue(b.endswith("-purge.json"))
+        self.assertTrue(a.endswith(".json"))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -37,7 +37,12 @@ from PySide6.QtWidgets import (  # noqa: E402
 from mujofix import audit  # noqa: E402
 from mujofix import cli  # noqa: E402
 from mujofix import update  # noqa: E402
-from mujofix.actions.base import ActionContext, Runner  # noqa: E402
+from mujofix.actions.base import (  # noqa: E402
+    ActionContext,
+    Runner,
+    purge_quarantine,
+    quarantine_usage,
+)
 from mujofix.actions.mapping import finding_to_actions  # noqa: E402
 from mujofix.ai.provider import (  # noqa: E402
     AIRequest,
@@ -78,6 +83,11 @@ def default_quarantine_dir() -> str:
     path = os.path.join(base, "MujoFix", QUARANTINE_SUBDIR)
     os.makedirs(path, exist_ok=True)
     return path
+
+
+def _gb(num_bytes: int) -> str:
+    """Bajtovi u citljive GB (jedna decimala), kao u scannerima."""
+    return f"{num_bytes / 1024 ** 3:.1f} GB"
 
 
 def default_audit_dir() -> str:
@@ -296,10 +306,16 @@ class MainWindow(QMainWindow):
         self.lbl_report.setWordWrap(True)
         layout.addWidget(self.lbl_report)
 
+        report_row = QHBoxLayout()
         self.btn_undo = QPushButton(self._t("undo_all"))
         self.btn_undo.setEnabled(False)
         self.btn_undo.clicked.connect(self.undo_all)
-        layout.addWidget(self.btn_undo)
+        self.btn_purge = QPushButton(self._t("purge_quarantine"))
+        self.btn_purge.clicked.connect(self.purge_quarantine_clicked)
+        report_row.addWidget(self.btn_undo)
+        report_row.addWidget(self.btn_purge)
+        layout.addLayout(report_row)
+        self._refresh_quarantine_button()
 
         self.setCentralWidget(root)
 
@@ -557,19 +573,52 @@ class MainWindow(QMainWindow):
             self.lbl_report.setText(
                 self._t("report_ok", ok=ok, skip=skipped, fail=failed))
         self._write_audit(dry, ok, skipped, failed)
+        self._refresh_quarantine_button()
         self.btn_undo.setEnabled(bool(self._undone))
         self.btn_fix.setEnabled(True)
 
-    def _write_audit(self, dry: bool, ok: int, skipped: int, failed: int):
+    def _write_audit(self, dry: bool, ok: int, skipped: int, failed: int,
+                     suffix: str = "", steps: list[dict] | None = None):
         """Upisi JSON dnevnik koraka; kvar dnevnika ne smije srusiti app."""
         try:
-            path = audit.audit_path(self._audit_dir)
+            path = audit.audit_path(self._audit_dir, suffix=suffix)
             audit.write_record(path, audit.build_record(
-                self._runner.audit,
+                self._runner.audit if steps is None else steps,
                 {"ok": ok, "skipped": skipped, "failed": failed}, dry))
             self._log(self._t("audit_saved", p=path))
         except Exception as exc:
             self._log(self._t("audit_failed", e=exc))
+
+    def _refresh_quarantine_button(self):
+        """Dugme za ciscenje karantina pokazuje koliko je tamo i zauzeto."""
+        files, total = quarantine_usage(self._ctx.quarantine_dir)
+        self._quarantine_usage = (files, total)
+        self.btn_purge.setEnabled(files > 0)
+        if files:
+            self.btn_purge.setText(
+                self._t("purge_quarantine_now", n=files, gb=_gb(total)))
+        else:
+            self.btn_purge.setText(self._t("purge_quarantine"))
+
+    def purge_quarantine_clicked(self):
+        """Trajno brisanje karantina — samo uz izricitu potvrdu korisnika."""
+        files, total = self._quarantine_usage
+        if not files:
+            return
+        answer = QMessageBox.question(
+            self, self._t("app_title"),
+            self._t("purge_confirm", n=files, gb=_gb(total)))
+        if answer != QMessageBox.Yes:
+            self._log(self._t("purge_cancelled"))
+            return
+        deleted, freed = purge_quarantine(self._ctx.quarantine_dir)
+        self._log(self._t("quarantine_purged", n=deleted, gb=_gb(freed)))
+        self._write_audit(False, 0, 0, 0, suffix="purge", steps=[
+            {"action": "purge_quarantine", "phase": "done", "ok": True,
+             "message": f"{deleted} fajlova, {_gb(freed)}"}])
+        self.lbl_report.setText(
+            self.lbl_report.text() + " " + self._t("report_freed", gb=_gb(freed)))
+        self._refresh_quarantine_button()
 
     def undo_all(self):
         count = 0
