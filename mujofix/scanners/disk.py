@@ -10,7 +10,7 @@ import tempfile
 
 from mujofix.core.models import Finding
 from mujofix.platform import windows
-from mujofix.scanners.base import ScanContext, Scanner, register
+from mujofix.scanners.base import ScanContext, Scanner, register, t
 
 TEMP_BYTES_MEDIUM = 2 * 1024**3
 WU_CACHE_DIR = r"C:\Windows\SoftwareDistribution\Download"
@@ -55,22 +55,20 @@ class DiskScanner(Scanner):
         if free_pct < 10:
             findings.append(Finding(
                 id="disk-almost-full", scanner=self.name,
-                title=f"Disk je gotovo pun (ostalo {_gb(usage.free)} GB)",
-                why="Kad ponestane slobodnog prostora, Windows usporava, "
-                    "updatei pucaju, a programi se ruse pri snimanju.",
+                title=t(ctx, "sc_disk_almost_full_title", gb=_gb(usage.free)),
+                why=t(ctx, "sc_disk_almost_full_why"),
                 severity="CRITICAL",
-                impact="rizik rusenja programa i neuspjelih updatea",
-                risk="nizak: brisemo samo temp i kes koji se sam obnavlja",
+                impact=t(ctx, "sc_disk_almost_full_impact"),
+                risk=t(ctx, "sc_disk_temp_cache_risk"),
                 reversible=False, evidence=evidence,
                 tech_details=f"disk_usage({root})"))
         elif free_pct < 20:
             findings.append(Finding(
                 id="disk-low", scanner=self.name,
-                title=f"Malo slobodnog prostora ({_gb(usage.free)} GB)",
-                why="Ispod 20% slobodno, vrijeme je za ciscenje prije nego "
-                    "postane kriticno.",
-                severity="MEDIUM", impact="usporenje i rizik punog diska",
-                risk="nizak: brisemo samo temp i kes koji se sam obnavlja",
+                title=t(ctx, "sc_disk_low_title", gb=_gb(usage.free)),
+                why=t(ctx, "sc_disk_low_why"),
+                severity="MEDIUM", impact=t(ctx, "sc_disk_low_impact"),
+                risk=t(ctx, "sc_disk_temp_cache_risk"),
                 reversible=False, evidence=evidence,
                 tech_details=f"disk_usage({root})"))
 
@@ -79,12 +77,11 @@ class DiskScanner(Scanner):
         if temp_bytes >= TEMP_BYTES_MEDIUM and not ctx.cancelled:
             findings.append(Finding(
                 id="disk-temp", scanner=self.name,
-                title=f"Privremeni fajlovi zauzimaju {_gb(temp_bytes)} GB",
-                why="Temp se sam ne cisti; stari instalacioni ostaci i kes "
-                    "mogu narasti do vise gigabajta.",
+                title=t(ctx, "sc_disk_temp_title", gb=_gb(temp_bytes)),
+                why=t(ctx, "sc_disk_temp_why"),
                 severity="MEDIUM",
-                impact=f"oslobadja se ~{_gb(temp_bytes)} GB",
-                risk="nizak: brisu se fajlovi stariji od 7 dana, karantin 30 dana",
+                impact=t(ctx, "sc_disk_temp_impact", gb=_gb(temp_bytes)),
+                risk=t(ctx, "sc_disk_temp_risk"),
                 reversible=True,
                 evidence={"temp_dir": temp_dir, "bytes": temp_bytes,
                           "gb": _gb(temp_bytes), "files": temp_files},
@@ -95,10 +92,11 @@ class DiskScanner(Scanner):
             if wu_bytes >= TEMP_BYTES_MEDIUM:
                 findings.append(Finding(
                     id="disk-wu-cache", scanner=self.name,
-                    title=f"Windows Update kes zauzima {_gb(wu_bytes)} GB",
-                    why="Preuzeti update paketi ostaju na disku i nakon instalacije.",
-                    severity="LOW", impact=f"oslobadja se ~{_gb(wu_bytes)} GB",
-                    risk="nizak: kes se ponovo preuzme ako zatreba",
+                    title=t(ctx, "sc_disk_wu_title", gb=_gb(wu_bytes)),
+                    why=t(ctx, "sc_disk_wu_why"),
+                    severity="LOW",
+                    impact=t(ctx, "sc_disk_wu_impact", gb=_gb(wu_bytes)),
+                    risk=t(ctx, "sc_disk_wu_risk"),
                     reversible=True,
                     evidence={"path": WU_CACHE_DIR, "bytes": wu_bytes,
                               "files": wu_files},
@@ -107,11 +105,11 @@ class DiskScanner(Scanner):
                 old_bytes, _n = _dir_size(WINDOWS_OLD, ctx)
                 findings.append(Finding(
                     id="disk-windows-old", scanner=self.name,
-                    title=f"Stara instalacija Windowsa ({_gb(old_bytes)} GB)",
-                    why="Folder Windows.old ostaje nakon nadogradnje; brise se "
-                        "sam nakon ~10 dana, ali do tada jede disk.",
-                    severity="LOW", impact=f"oslobadja se ~{_gb(old_bytes)} GB",
-                    risk="srednji: nakon brisanja nema povratka na staru verziju",
+                    title=t(ctx, "sc_disk_old_title", gb=_gb(old_bytes)),
+                    why=t(ctx, "sc_disk_old_why"),
+                    severity="LOW",
+                    impact=t(ctx, "sc_disk_old_impact", gb=_gb(old_bytes)),
+                    risk=t(ctx, "sc_disk_old_risk"),
                     reversible=False,
                     evidence={"path": WINDOWS_OLD, "bytes": old_bytes},
                     tech_details=f"walk({WINDOWS_OLD})"))

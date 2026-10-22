@@ -190,7 +190,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.lang = lang
         self._t = lambda key, **kw: tr(key, lang, **kw)
-        self._scan_fn = scan_fn or (lambda: cli.run_scan(None))
+        self._scan_fn = scan_fn or (lambda: cli.run_scan(None, lang=self.lang))
         self._ai_build_fn = ai_build_fn
         self._ai_workdir = ai_workdir
         self._audit_dir = audit_dir or default_audit_dir()

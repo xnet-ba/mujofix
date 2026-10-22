@@ -12,13 +12,21 @@ from mujofix.core.models import Finding, ScanReport
 
 @dataclass
 class ScanContext:
-    """Dijeljeni kontekst skeniranja (otkazivanje, buduce: putanje, jezik)."""
+    """Dijeljeni kontekst skeniranja (otkazivanje, jezik nalaza)."""
 
     cancel: threading.Event = field(default_factory=threading.Event)
+    lang: str = "bs"  # jezik teksta nalaza (scanner ga pise preko `t(ctx, ...)`)
 
     @property
     def cancelled(self) -> bool:
         return self.cancel.is_set()
+
+
+def t(ctx: ScanContext, key: str, **fmt: object) -> str:
+    """Prevedi tekst nalaza za jezik konteksta (jedno mjesto za sve scannere)."""
+    from mujofix.i18n.strings import tr
+
+    return tr(key, ctx.lang, **fmt)
 
 
 class Scanner(abc.ABC):

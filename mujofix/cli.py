@@ -30,8 +30,8 @@ from mujofix.scanners.base import REGISTRY, ScanContext  # noqa: E402
 from mujofix import update as update_mod  # noqa: E402
 
 
-def run_scan(names: list[str] | None) -> list[dict]:
-    ctx = ScanContext()
+def run_scan(names: list[str] | None, lang: str = "bs") -> list[dict]:
+    ctx = ScanContext(lang=lang)
     selected = names or sorted(REGISTRY)
     reports = []
     for name in selected:
@@ -50,16 +50,16 @@ def run_scan(names: list[str] | None) -> list[dict]:
     return reports
 
 
-def summarize(reports: list[dict]) -> str:
+def summarize(reports: list[dict], lang: str = "bs") -> str:
+    """Sazetak skeniranja na jeziku `lang` (isti izvor stringova kao GUI)."""
+    from mujofix.i18n.strings import tr
+
     counts = {"CRITICAL": 0, "MEDIUM": 0, "LOW": 0}
     for report in reports:
         for finding in report["findings"]:
             counts[finding["severity"]] += 1
-    total = sum(counts.values())
-    return (f"Tvoj racunar ima {total} problema.\n"
-            f"  {counts['CRITICAL']} ozbiljna  "
-            f"{counts['MEDIUM']} srednja  "
-            f"{counts['LOW']} mala")
+    return tr("cli_summary", lang, n=sum(counts.values()),
+              c=counts["CRITICAL"], m=counts["MEDIUM"], l=counts["LOW"])
 
 
 def _cmd_update(args) -> int:
@@ -89,6 +89,8 @@ def main(argv: list[str] | None = None) -> int:
     scan = sub.add_parser("scan", help="pokreni scannere")
     scan.add_argument("--scanner", action="append", default=None)
     scan.add_argument("--summary", action="store_true")
+    scan.add_argument("--lang", default="bs", choices=("bs", "en"),
+                      help="jezik teksta nalaza (bs|en)")
     scan.add_argument("--out", default=None,
                       help="upisi nalaze za MCP server "
                            "(mujofix_mcp.py --findings <fajl>)")
@@ -112,7 +114,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "update":
         return _cmd_update(args)
 
-    reports = run_scan(args.scanner)
+    reports = run_scan(args.scanner, lang=getattr(args, 'lang', 'bs'))
     if args.out:
         findings = [f for r in reports for f in r["findings"]
                     if not r["skipped"]]
@@ -122,7 +124,7 @@ def main(argv: list[str] | None = None) -> int:
         with open(args.out, "w", encoding="utf-8") as handle:
             json.dump(payload, handle, ensure_ascii=False, indent=2)
     if args.summary:
-        print(summarize(reports))
+        print(summarize(reports, lang=getattr(args, 'lang', 'bs')))
     else:
         print(json.dumps(reports, indent=2, ensure_ascii=False))
     return 0

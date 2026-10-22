@@ -103,6 +103,37 @@ STRINGS = {
         "ai_note_unavailable": "offline: živi model nedostupan ({e})",
         "ai_note_no_free_model": "offline: nema besplatnog Zen modela",
         "ai_note_live": "živi model: {m}",
+        "sc_disk_almost_full_title": "Disk je gotovo pun (ostalo {gb} GB)",
+        "sc_disk_almost_full_why": ("Kad ponestane slobodnog prostora, Windows "
+                                   "usporava, updatei pucaju, a programi se "
+                                   "ruše pri snimanju."),
+        "sc_disk_almost_full_impact": ("rizik rušenja programa i neuspjelih "
+                                       "updatea"),
+        "sc_disk_temp_cache_risk": ("nizak: brišemo samo temp i keš koji se sam "
+                                    "obnavlja"),
+        "sc_disk_low_title": "Malo slobodnog prostora ({gb} GB)",
+        "sc_disk_low_why": ("Ispod 20% slobodno, vrijeme je za čišćenje prije "
+                            "nego postane kritično."),
+        "sc_disk_low_impact": "usporenje i rizik punog diska",
+        "sc_disk_temp_title": "Privremeni fajlovi zauzimaju {gb} GB",
+        "sc_disk_temp_why": ("Temp se sam ne čisti; stari instalacioni ostaci i "
+                             "keš mogu narasti do više gigabajta."),
+        "sc_disk_temp_impact": "oslobađa se ~{gb} GB",
+        "sc_disk_temp_risk": ("nizak: brišu se fajlovi stariji od 7 dana, "
+                              "karantin 30 dana"),
+        "sc_disk_wu_title": "Windows Update keš zauzima {gb} GB",
+        "sc_disk_wu_why": ("Preuzeti update paketi ostaju na disku i nakon "
+                           "instalacije."),
+        "sc_disk_wu_impact": "oslobađa se ~{gb} GB",
+        "sc_disk_wu_risk": "nizak: keš se ponovo preuzme ako zatreba",
+        "sc_disk_old_title": "Stara instalacija Windowsa ({gb} GB)",
+        "sc_disk_old_why": ("Folder Windows.old ostaje nakon nadogradnje; briše "
+                            "se sam nakon ~10 dana, ali do tada jede disk."),
+        "sc_disk_old_impact": "oslobađa se ~{gb} GB",
+        "sc_disk_old_risk": ("srednji: nakon brisanja nema povratka na staru "
+                             "verziju"),
+        "cli_summary": ("Tvoj računar ima {n} problema.\n"
+                         "  {c} ozbiljna  {m} srednja  {l} mala"),
         "ai_settings": "AI: uključi/isključi",
         "audit_saved": "Dnevnik izvršavanja sačuvan: {p}",
         "audit_failed": "Dnevnik nije sačuvan: {e}",
@@ -213,6 +244,38 @@ STRINGS = {
         "ai_note_unavailable": "offline: live model unavailable ({e})",
         "ai_note_no_free_model": "offline: no free Zen model",
         "ai_note_live": "live model: {m}",
+        "sc_disk_almost_full_title": "Disk is almost full ({gb} GB left)",
+        "sc_disk_almost_full_why": ("When free space runs out Windows slows "
+                                    "down, updates fail and programs crash "
+                                    "while saving."),
+        "sc_disk_almost_full_impact": "risk of program crashes and failed updates",
+        "sc_disk_temp_cache_risk": ("low: we only remove temp and cache that "
+                                    "rebuilds itself"),
+        "sc_disk_low_title": "Little free space ({gb} GB)",
+        "sc_disk_low_why": ("Under 20% free — time to clean up before it "
+                            "becomes critical."),
+        "sc_disk_low_impact": "slowdown and risk of a full disk",
+        "sc_disk_temp_title": "Temporary files take up {gb} GB",
+        "sc_disk_temp_why": ("Temp is never cleaned on its own; leftovers from "
+                             "old installs and cache can grow to several "
+                             "gigabytes."),
+        "sc_disk_temp_impact": "about {gb} GB would be freed",
+        "sc_disk_temp_risk": ("low: only files older than 7 days go to "
+                              "quarantine (30 days)"),
+        "sc_disk_wu_title": "Windows Update cache takes up {gb} GB",
+        "sc_disk_wu_why": ("Downloaded update packages stay on disk after "
+                           "installation."),
+        "sc_disk_wu_impact": "about {gb} GB would be freed",
+        "sc_disk_wu_risk": "low: the cache is re-downloaded if needed",
+        "sc_disk_old_title": "Old Windows installation ({gb} GB)",
+        "sc_disk_old_why": ("The Windows.old folder remains after an upgrade; "
+                            "Windows deletes it after ~10 days, but until "
+                            "then it eats disk space."),
+        "sc_disk_old_impact": "about {gb} GB would be freed",
+        "sc_disk_old_risk": ("medium: once deleted there is no going back to "
+                             "the old version"),
+        "cli_summary": ("Your computer has {n} problems.\n"
+                         "  {c} critical  {m} medium  {l} low"),
         "ai_settings": "AI: on/off",
         "audit_saved": "Run log saved: {p}",
         "audit_failed": "Run log not saved: {e}",
