@@ -112,6 +112,39 @@ render, bs jezik):</p>
 
 ---
 
+<!-- coverage:start -->
+<p>Od <b>26</b> nalaza, <b>11</b> ima automatsku popravku (akcija iz kataloga, sa snapshot/verify/rollback); ostali su <b>namjerno samo preporuke</b> — sa razlogom:</p>
+
+| Nalaz | Popravka | Napomena |
+|---|---|---|
+| `config-path-writable` | ❌ | samo POSIX (na Windowsu ACL nije mode); skidanje prava pisanja je rizično |
+| `config-path-missing` | ✅ remove_path_entry | |
+| `config-temp-var` | ✅ fix_temp_var | |
+| `config-power-saver` | ✅ disable_power_saver | |
+| `config-sfc` | ❌ | traži `sfc /scannow` (duga popravka sistema, van kataloga) |
+| `disk-almost-full` | ❌ | uzrok je širok — temp i WU keš imaju svoje nalaze |
+| `disk-low` | ❌ | uzrok je širok — temp i WU keš imaju svoje nalaze |
+| `disk-temp` | ✅ clean_temp | |
+| `disk-wu-cache` | ✅ clean_temp | |
+| `disk-windows-old` | ❌ | brisanje je NEPOVRATNO (nema povratka na staru verziju) |
+| `drivers-old` | ❌ | update drajvera traži proizvođački alat i restart (rizik plavog ekrana) |
+| `duplicates-found` | ✅ quarantine_duplicates | |
+| `network-dns` | ❌ | dijagnostika — uzrok je ruter/provajder, ne računar |
+| `network-unreachable` | ❌ | dijagnostika — uzrok je firewall/provajder |
+| `network-slow` | ❌ | dijagnostika — uzrok je mreža/provajder |
+| `network-hosts` | ✅ remove_hosts_entry | |
+| `network-proxy` | ✅ disable_proxy | |
+| `network-winsock` | ❌ | `netsh winsock reset` traži restart i mijenja mrežni stek |
+| `permissions-uac-off` | ❌ | uključivanje UAC-a traži restart (može zaključati zavisne programe) |
+| `permissions-acl` | ❌ | zatezanje ACL-a može slomiti pristup — rizično bez pregleda |
+| `permissions-shares` | ✅ remove_share | |
+| `permissions-path-writable` | ❌ | samo POSIX fallback; isto kao config-path-writable |
+| `services-auto-stopped` | ✅ restart_service | |
+| `startup-count` | ✅ disable_startup_item | |
+| `suspicious-process` | ❌ | namjerno report-only — app ne gasi procese i ne tvrdi da je virus |
+| `suspicious-defender-off` | ❌ | app nikad ne dira antivirus/zaštitu (politika) |
+<!-- coverage:end -->
+
 ## <h2>🤖 AI sloj</h2>
 
 <p>MujoFix koristi <b>OpenCode</b> (pinovana, testirana verzija, MIT licenca) kao AI motor — instalira se zajedno s aplikacijom, korisnik ne instalira ništa ručno (ni Node ni npm).</p>

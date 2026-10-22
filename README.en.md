@@ -80,6 +80,39 @@ Bosnian UI):
 
 Startup, services, disk, network, configuration, drivers, large files & duplicates (never auto-deleted, review only), suspicious processes ("suspicious, reasons: …" — never "virus"), permissions (disabled UAC = CRITICAL, ACLs, shares). Every module degrades gracefully on unsupported Windows versions.
 
+<!-- coverage:start -->
+<p>Of <b>26</b> findings, <b>11</b> have an automatic fix (a catalog action with snapshot/verify/rollback); the rest are <b>deliberately recommendations only</b> — with the reason:</p>
+
+| Nalaz | Popravka | Napomena |
+|---|---|---|
+| `config-path-writable` | ❌ | POSIX only (on Windows ACL is not mode); removing write rights is risky |
+| `config-path-missing` | ✅ remove_path_entry | |
+| `config-temp-var` | ✅ fix_temp_var | |
+| `config-power-saver` | ✅ disable_power_saver | |
+| `config-sfc` | ❌ | needs `sfc /scannow` (long system repair, outside the catalog) |
+| `disk-almost-full` | ❌ | the cause is broad — temp and WU cache have their own findings |
+| `disk-low` | ❌ | the cause is broad — temp and WU cache have their own findings |
+| `disk-temp` | ✅ clean_temp | |
+| `disk-wu-cache` | ✅ clean_temp | |
+| `disk-windows-old` | ❌ | deletion is IRREVERSIBLE (no going back to the old version) |
+| `drivers-old` | ❌ | a driver update needs vendor tools and a restart (blue-screen risk) |
+| `duplicates-found` | ✅ quarantine_duplicates | |
+| `network-dns` | ❌ | diagnosis — the cause is the router/provider, not the PC |
+| `network-unreachable` | ❌ | diagnosis — the cause is a firewall/provider |
+| `network-slow` | ❌ | diagnosis — the cause is the network/provider |
+| `network-hosts` | ✅ remove_hosts_entry | |
+| `network-proxy` | ✅ disable_proxy | |
+| `network-winsock` | ❌ | `netsh winsock reset` needs a restart and changes the network stack |
+| `permissions-uac-off` | ❌ | enabling UAC needs a restart (may lock out dependent programs) |
+| `permissions-acl` | ❌ | tightening ACLs can break access — risky without review |
+| `permissions-shares` | ✅ remove_share | |
+| `permissions-path-writable` | ❌ | POSIX fallback only; same as config-path-writable |
+| `services-auto-stopped` | ✅ restart_service | |
+| `startup-count` | ✅ disable_startup_item | |
+| `suspicious-process` | ❌ | report-only by design — the app kills nothing and never claims a virus |
+| `suspicious-defender-off` | ❌ | the app never touches antivirus/protection (policy) |
+<!-- coverage:end -->
+
 ## 🤖 AI layer
 
 Bundled, pinned OpenCode as a child process (`opencode run`, no local server, no port, no password — nothing is exposed on the network; MujoFix is an installable Windows app only). The `mujofix` agent has **all built-in tools denied** — only MujoFix MCP tools (read-only + plan validator). Fallback chain: model A → B → C → offline. The offline explanation is bilingual and built **only from the data the scanner collected** (why, impact, risk, evidence, technical details, which action exists) — no assumptions, no AI. With consent, the app runs the CLI as a child process and uses a **free Zen model** (e.g. `opencode/beam-free`); if the binary or a free model is unavailable it silently falls back to **offline** with an honest reason in the log. *Untested:* the live path has not yet run on a Windows VM ([Issue #1](https://github.com/xnet-ba/mujofix/issues/1)). Consent screen first (what is sent, to whom, real payload example); anonymized before sending; Zen free-tier data terms are **confirmed** (checked 2026-10-18 against the [ToS](https://opencode.ai/legal/terms-of-service) and [Zen docs](https://opencode.ai/v2/docs/console/models/)) — a free Zen tier is **not private**: unpaid accounts' content may be used to improve the service, some free models may use collected data to improve the model during their promo period, and OpenAI/Anthropic requests are retained 30 days.
