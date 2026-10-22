@@ -86,6 +86,9 @@ jobs:
               throw "frozen update crashed"
             }
             Write-Output "::warning::frozen update nije mogao provjeriti (mreza/rate limit) — prihvaceno, nema tracebacka"
+            # PowerShell bi inace zadrzao LASTEXITCODE=1 od `update` i oborio
+            # korak iako smo gresku namjerno prihvatili kao upozorenje.
+            $global:LASTEXITCODE = 0
           }
       - name: Inno Setup (kompajliraj installer)
         shell: pwsh
