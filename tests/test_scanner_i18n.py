@@ -20,8 +20,8 @@ SCANNERS = os.path.join(ROOT, "mujofix", "scanners")
 BS_CHARS = "čćžšđ"
 
 # Scanner-i koji su kompletno prevedeni (tekst ide kroz `t(ctx, ...)`).
-MIGRATED = {"config", "disk", "drivers", "duplicates",
-            "services", "startup"}
+MIGRATED = {"config", "disk", "drivers", "duplicates", "network",
+            "permissions", "services", "startup", "suspicious"}
 # Polja nalaza koja su korisniku vidljiva.
 # Prozna polja: moraju ici kroz `self.t(...)`.
 FIELDS = ("title", "why", "impact", "risk")
@@ -131,6 +131,49 @@ class TestConsoleEncoding(unittest.TestCase):
         reports = [{"scanner": "disk", "findings": [{"severity": "LOW"}]}]
         self.assertIn("računar", summarize(reports, "bs"))
         self.assertIn("problems", summarize(reports, "en"))
+
+
+class TestAllScannersRenderEnglish(unittest.TestCase):
+    """Svaki registrovani scanner mora dati engleski tekst kad je lang="en"."""
+
+    def test_every_scanner_is_translated(self):
+        from mujofix import cli  # noqa: F401  (registruje scannere)
+        from mujofix.scanners.base import REGISTRY, ScanContext
+
+        self.assertTrue(REGISTRY, "nema registrovanih scannera")
+        untranslated = []
+        for name, cls in sorted(REGISTRY.items()):
+            scanner = cls()
+            for lang in ("bs", "en"):
+                report = scanner.scan(ScanContext(lang=lang))
+                texts = [report.skipped or ""]
+                for finding in report.findings:
+                    texts += [finding.title, finding.why, finding.impact,
+                              finding.risk]
+                texts = [text for text in texts if text]
+                if lang == "en":
+                    leaked = [t for t in texts if set(BS_CHARS) & set(t.lower())]
+                    if leaked:
+                        untranslated.append((name, leaked[:2]))
+        self.assertEqual(untranslated, [],
+                         f"bosanski tekst u EN izlazu: {untranslated}")
+
+    def test_every_scanner_has_english_skip_reason_on_this_platform(self):
+        """Na Linuxu vecina scannera je 'skipped' — to mora biti na jeziku."""
+        from mujofix import cli  # noqa: F401  (registruje scannere)
+        from mujofix.scanners.base import REGISTRY, ScanContext
+
+        reasons = []
+        for name, cls in sorted(REGISTRY.items()):
+            report = cls().scan(ScanContext(lang="en"))
+            if report.skipped:
+                reasons.append((name, report.skipped))
+        self.assertTrue(reasons, "ocekivani skipped scanneri na Linuxu")
+        for name, reason in reasons:
+            self.assertFalse(set(BS_CHARS) & set(reason.lower()),
+                             f"{name}: {reason}")
+            for word in ("samo na Windowsu", "modul nije podrzan", "nije podržan"):
+                self.assertNotIn(word, reason, f"{name}: {reason}")
 
 
 if __name__ == "__main__":

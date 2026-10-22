@@ -63,6 +63,10 @@
   uspije (van Windowsa i na starijem buildu -> False, solidna boja).
   Nikad ne tvrdi da je Mica aktivna ako nije. Novi widget: daj mu
   objectName i stil u theme.qss, ne inline `setStyleSheet`.
+- Tekst nalaza u scannerima: nikad hardkodovan — `title`/`why`/`impact`/
+  `risk` i `unavailable_reason` idu kroz `self.t("sc_...")` (jezik dolazi
+  iz `ScanContext.lang`; `tests/test_scanner_i18n.py` to provjerava).
+  Novi kljuc mora imati i bs i en vrijednost.
 - UI tekst nikad hardkodovan: ide kroz `tr()`/`self._t()`, oba jezika
   (bs+en) — `tests/test_i18n.py` pada i na nepostojeci kljuc i na
   hardkodovan bosanski tekst u `mujofix/ui/`.

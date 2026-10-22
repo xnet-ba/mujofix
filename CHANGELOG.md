@@ -2,6 +2,15 @@
 
 ## [0.4.0] (u razvoju — nije objavljeno)
 
+### Dodano
+- **Dvojezični nalazi (bs/en), svi skeneri:** engleski UI je prikazivao
+  bosanski sadržaj nalaza. Sada tekst nalaza nastaje na jeziku konteksta
+  (`ScanContext.lang` + `Scanner.t()`), pa su naslov/zašto/uticaj/rizik,
+  „skipped" razlozi, offline objašnjenja i CLI izlaz (`scan --lang
+  bs|en`) na jednom jeziku. Čuvar `tests/test_scanner_i18n.py` provjerava
+  da sva polja idu kroz `self.t(...)` (ratchet lista — dijakritike same
+  nisu dovoljan signal jer je mnogo bosanskog teksta ASCII).
+
 ### Ispravljeno
 - **Windows konzola je pukla na dijakriticima** (`UnicodeEncodeError`):
   uvođenjem dvojezičnog teksta nalaza i sažetka (`računar`, `keš`)

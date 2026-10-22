@@ -94,6 +94,20 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- I18N-NALAZI 2026-10-22 (ZAVRSENO, 9/9): `ScanContext.lang` + `Scanner.t()`
+  (jezik na instanci, postavlja ga `scan()`, pa ga vidi i `unavailable_reason`).
+  Migrirani: disk, startup, services, config, drivers, duplicates, network,
+  permissions, suspicious + base "skipped"/greska stringovi. `scan --lang bs|en`
+  i lokalizovan `summarize`. 116 `sc_*` kljuceva (bs+en). Cuvar
+  `tests/test_scanner_i18n.py`: (a) ratchet — title/why/impact/risk MORAJU kroz
+  `self.t(...)`, `unavailable_reason` isto (dijakritike nisu dovoljan signal:
+  mnogo bosanskog teksta je ASCII); (b) svaki scanner u "en" bez bosanskih
+  znakova; (c) na Linuxu svi "skipped" razlozi na engleskom; (d) deterministicki
+  disk test (lazni disk_usage) na oba jezika. Dokaz izvrsenjem:
+  `scan --lang en --summary` -> "Your computer has 4 problems.";
+  `NetworkScanner` -> "A proxy is enabled for internet traffic";
+  `SuspiciousScanner` skipped -> "process list and signatures are read only on
+  Windows". 237 testova.
 - I18N-NALAZI 2026-10-22 (pocelo, 1/9): engleski UI je prikazivao bosanski
   tekst nalaza. Uveden `ScanContext.lang` + `t(ctx, key)` u scannerima;
   `disk` scanner migriran (22 kljuca), `scan --lang bs|en` i lokalizovan
@@ -112,9 +126,8 @@
   IZOSTAVLJAJU — nikad se ne popunjava pretpostavkom; test
   `test_offline_never_invents_missing_fields`. Dvojezicno (bs/en) preko i18n,
   ukljucujuci note linije (`ai_note_*`) i `ai_none`. 6 novih testova.
-  NAPOMENA (postojeci, siri gap): tekst NALAZA (title/why/...) pisu scanneri na
-  bosanskom, pa engleski UI prikazuje bosanski sadrzaj nalaza — lokalizacija
-  scannera je odvojen posao.
+  ZAVRSENO 2026-10-22 (isti dan): svi skeneri (9/9) + base "skipped" stringovi
+  su migrirani — nalazi, offline objasnjenja i CLI izlaz su dvojezicni.
 - KARANTIN-PREGLED 2026-10-22: fajlovi iz RANIJIH sesija bili su nedostupni —
   "Poništi sve" (`self._undone`) zna samo za tekuću sesiju, pa je poslije
   restarta preostajalo samo trajno brisanje. Sada `list_quarantine` /

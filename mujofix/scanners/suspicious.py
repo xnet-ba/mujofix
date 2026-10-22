@@ -85,7 +85,7 @@ class SuspiciousScanner(Scanner):
         return windows.is_windows()
 
     def unavailable_reason(self) -> str:
-        return "lista procesa i potpisi citaju se samo na Windowsu"
+        return self.t("sc_susp_unavailable")
 
     def _scan(self, ctx: ScanContext) -> list[Finding]:
         findings: list[Finding] = []
@@ -123,12 +123,10 @@ class SuspiciousScanner(Scanner):
             shown = suspects[:20]
             findings.append(Finding(
                 id="suspicious-process", scanner=self.name,
-                title=f"{len(suspects)} sumnjivih procesa (ne tvrdimo da je virus)",
-                why="Proces bez validnog potpisa na neobicnoj lokaciji ili "
-                    "autostart iz Temp-a su klasicni znaci zloupotrebe. "
-                    "Ovo je sumnja na osnovu razloga ispod, ne dijagnoza.",
-                severity="MEDIUM", impact="moguca zloupotreba sistema",
-                risk="nizak: samo prijavljujemo, nista ne gasimo automatski",
+                title=self.t("sc_susp_title", n=len(suspects)),
+                why=self.t("sc_susp_why"),
+                severity="MEDIUM", impact=self.t("sc_susp_impact"),
+                risk=self.t("sc_susp_risk"),
                 reversible=False,
                 evidence={"count": len(suspects), "suspects": shown,
                           "truncated": len(suspects) > len(shown)},
@@ -144,12 +142,10 @@ class SuspiciousScanner(Scanner):
         if rt_enabled is False:
             findings.append(Finding(
                 id="suspicious-defender-off", scanner=self.name,
-                title="Defender real-time zaštita je isključena",
-                why="Bez real-time zastite sistem je otvoren za poznate "
-                    "prijetnje. MujoFix ovo nikad sam ne mijenja — samo "
-                    "javlja da provjeris.",
-                severity="MEDIUM", impact="bez aktivne antivirus zastite",
-                risk="nema: samo citamo status",
+                title=self.t("sc_susp_defender_title"),
+                why=self.t("sc_susp_defender_why"),
+                severity="MEDIUM", impact=self.t("sc_susp_defender_impact"),
+                risk=self.t("sc_susp_defender_risk"),
                 reversible=False,
                 evidence={"RealTimeProtectionEnabled": False},
                 tech_details="Get-MpComputerStatus (read-only)",

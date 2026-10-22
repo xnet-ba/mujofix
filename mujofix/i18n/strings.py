@@ -183,6 +183,80 @@ STRINGS = {
         "sc_duplicates_risk": ("srednji: prva kopija ostaje, ostale u karantin; "
                                "rollback vraća"),
         "sc_duplicates_tech": "veličina -> sha256(64KB) -> puni sha256",
+        "sc_net_dns_title": "Internet imena se ne razrješavaju (DNS ne radi)",
+        "sc_net_dns_why": ("Bez DNS-a ne otvara se nijedna stranica ni "
+                           "servis; uzrok je obično ruter, DNS server ili "
+                           "hosts fajl."),
+        "sc_net_dns_impact": "nema pristupa internetu imenima",
+        "sc_net_unreachable_title": "DNS radi, ali nema veze do internet servisa",
+        "sc_net_unreachable_why": ("Imena se razrješavaju, ali TCP veza do "
+                                   "javnih servera ne uspijeva — moguć "
+                                   "firewall, proxy ili prekid kod "
+                                   "provajdera."),
+        "sc_net_unreachable_impact": "internet praktično ne radi",
+        "sc_net_slow_title": "Veza do interneta je spora ({ms} ms)",
+        "sc_net_slow_why": ("TCP handshake preko sekunde znači zagušenje, "
+                            "loš WiFi ili problem kod provajdera. Mjereno "
+                            "ka javnom DNS-u."),
+        "sc_net_slow_impact": "sporo učitavanje svega",
+        "sc_net_hosts_title": "Sumnjivi zapisi u hosts fajlu ({n})",
+        "sc_net_hosts_why": ("Hosts fajl preusmjerava poznate domene mimo "
+                             "DNS-a — klasična tehnika otmice prometa. "
+                             "Provjeri da li si ih sam dodao."),
+        "sc_net_hosts_impact": "moguće preusmjeravanje na lažno",
+        "sc_net_hosts_risk": "nizak: uklanjanje zapisa je reverzibilno",
+        "sc_net_proxy_title": "Uključen je proxy za internet promet",
+        "sc_net_proxy_why": ("Proxy može usporavati i nadgledati promet. Ako "
+                             "ga nisi sam uključio (firma, VPN), vrijedi "
+                             "provjeriti."),
+        "sc_net_proxy_impact": "moguće usporenje/nadzor prometa",
+        "sc_net_proxy_risk": "nizak: isključivanje je reverzibilno",
+        "sc_net_proxy_set": "postavljen",
+        "sc_net_winsock_title": "Winsock katalog se ne može pročitati",
+        "sc_net_winsock_why": ("Oštećen mrežni stek zna rušiti veze svim "
+                               "programima; popravka je `netsh winsock "
+                               "reset` + restart."),
+        "sc_net_winsock_impact": "mogući prekidi veza",
+        "sc_net_winsock_risk": "srednji: reset traži restart",
+        "sc_net_check_risk": "nizak: provjera ne mijenja ništa",
+        "sc_perm_uac_title": "UAC (kontrola korisničkih naloga) je isključen",
+        "sc_perm_uac_why": ("Bez UAC-a svaki program tiho dobija admin prava "
+                            "— najjači sigurnosni mehanizam Windowsa ne "
+                            "radi."),
+        "sc_perm_uac_impact": "bilo koji program može mijenjati sistem",
+        "sc_perm_uac_risk": "nizak: uključivanje je reverzibilno (uz UAC prompt)",
+        "sc_perm_acl_title": "Preširoke dozvole na sistemskim folderima",
+        "sc_perm_acl_why": ("Obični korisnici (ili Everyone) mogu pisati po "
+                            "sistemskim folderima — podmetanje "
+                            "malware-a."),
+        "sc_perm_acl_impact": "moguće trajno kompromitovanje sistema",
+        "sc_perm_acl_risk": "srednji: zatezanje ACL-a traži oprez",
+        "sc_perm_shares_title": "{n} nedefaultnih dijeljenih foldera",
+        "sc_perm_shares_why": ("Svaki share je ulaz u računar s mreže; "
+                               "provjeri da li su namjerni i kome su "
+                               "dostupni."),
+        "sc_perm_shares_impact": "mogući ulaz s mreže",
+        "sc_perm_shares_risk": "nizak: gašenje sharea je reverzibilno",
+        "sc_perm_path_title": "Svijet-zapisivi folderi u PATH-u",
+        "sc_perm_path_why": "Isto kao Windows verzija: podmetanje programa.",
+        "sc_perm_path_impact": "rizik podmetanja programa",
+        "sc_perm_path_risk": "nizak: skidanje prava je reverzibilno",
+        "sc_susp_title": "{n} sumnjivih procesa (ne tvrdimo da je virus)",
+        "sc_susp_why": ("Proces bez validnog potpisa na neobičnoj lokaciji "
+                        "ili autostart iz Temp-a su klasični znaci "
+                        "zloupotrebe. Ovo je sumnja na osnovu razloga "
+                        "ispod, ne dijagnoza."),
+        "sc_susp_impact": "moguća zloupotreba sistema",
+        "sc_susp_risk": "nizak: samo prijavljujemo, ništa ne gasimo automatski",
+        "sc_susp_defender_title": "Defender real-time zaštita je isključena",
+        "sc_susp_defender_why": ("Bez real-time zaštite sistem je otvoren za "
+                                 "poznate prijetnje. MujoFix ovo nikad sam "
+                                 "ne mijenja — samo javlja da provjeriš."),
+        "sc_susp_defender_impact": "bez aktivne antivirus zaštite",
+        "sc_susp_defender_risk": "nema: samo čitamo status",
+        "sc_susp_unavailable": "lista procesa i potpisi čitaju se samo na Windowsu",
+        "sc_unavailable_generic": "modul nije podržan na ovoj platformi",
+        "sc_error": "greška scannera ({kind}): {e}",
         "sc_disk_almost_full_title": "Disk je gotovo pun (ostalo {gb} GB)",
         "sc_disk_almost_full_why": ("Kad ponestane slobodnog prostora, Windows "
                                    "usporava, updatei pucaju, a programi se "
@@ -399,6 +473,79 @@ STRINGS = {
         "sc_duplicates_risk": ("medium: the first copy stays, the rest go to "
                                "quarantine; rollback restores"),
         "sc_duplicates_tech": "size -> sha256(64KB) -> full sha256",
+        "sc_net_dns_title": "Internet names do not resolve (DNS is not working)",
+        "sc_net_dns_why": ("Without DNS no page or service opens; the cause "
+                           "is usually the router, the DNS server or the "
+                           "hosts file."),
+        "sc_net_dns_impact": "no internet access by name",
+        "sc_net_unreachable_title": "DNS works, but there is no connection to internet services",
+        "sc_net_unreachable_why": ("Names resolve, but the TCP connection to "
+                                   "public servers fails — possible "
+                                   "firewall, proxy or provider outage."),
+        "sc_net_unreachable_impact": "the internet effectively does not work",
+        "sc_net_slow_title": "The internet connection is slow ({ms} ms)",
+        "sc_net_slow_why": ("A TCP handshake over one second means "
+                            "congestion, bad WiFi or a provider problem. "
+                            "Measured against a public DNS."),
+        "sc_net_slow_impact": "everything loads slowly",
+        "sc_net_hosts_title": "Suspicious hosts file entries ({n})",
+        "sc_net_hosts_why": ("The hosts file redirects known domains past "
+                             "DNS — a classic traffic hijack technique. "
+                             "Check whether you added them yourself."),
+        "sc_net_hosts_impact": "possible redirect to a fake address",
+        "sc_net_hosts_risk": "low: removing entries is reversible",
+        "sc_net_proxy_title": "A proxy is enabled for internet traffic",
+        "sc_net_proxy_why": ("A proxy can slow down and monitor traffic. If "
+                             "you did not enable it yourself (company, VPN), "
+                             "it is worth checking."),
+        "sc_net_proxy_impact": "possible slowdown/traffic monitoring",
+        "sc_net_proxy_risk": "low: disabling it is reversible",
+        "sc_net_proxy_set": "set",
+        "sc_net_winsock_title": "The Winsock catalog cannot be read",
+        "sc_net_winsock_why": ("A damaged network stack can break connections "
+                               "for every program; the fix is `netsh "
+                               "winsock reset` + restart."),
+        "sc_net_winsock_impact": "possible connection drops",
+        "sc_net_winsock_risk": "medium: the reset needs a restart",
+        "sc_net_check_risk": "low: the check changes nothing",
+        "sc_perm_uac_title": "UAC (user account control) is disabled",
+        "sc_perm_uac_why": ("Without UAC every program silently gets admin "
+                            "rights — the strongest Windows security "
+                            "mechanism is off."),
+        "sc_perm_uac_impact": "any program can change the system",
+        "sc_perm_uac_risk": "low: enabling it is reversible (with a UAC prompt)",
+        "sc_perm_acl_title": "Overly broad permissions on system folders",
+        "sc_perm_acl_why": ("Regular users (or Everyone) can write to system "
+                            "folders — malware can be planted."),
+        "sc_perm_acl_impact": "possible permanent system compromise",
+        "sc_perm_acl_risk": "medium: tightening ACLs needs care",
+        "sc_perm_shares_title": "{n} non-default shared folders",
+        "sc_perm_shares_why": ("Every share is an entry point from the "
+                               "network; check whether they are intentional "
+                               "and who can reach them."),
+        "sc_perm_shares_impact": "possible entry from the network",
+        "sc_perm_shares_risk": "low: disabling a share is reversible",
+        "sc_perm_path_title": "World-writable folders in PATH",
+        "sc_perm_path_why": "Same as the Windows version: program planting.",
+        "sc_perm_path_impact": "risk of a planted program",
+        "sc_perm_path_risk": "low: removing rights is reversible",
+        "sc_susp_title": "{n} suspicious processes (we are not claiming a virus)",
+        "sc_susp_why": ("A process without a valid signature in an unusual "
+                        "location or an autostart from Temp are classic "
+                        "signs of abuse. This is a suspicion based on the "
+                        "reasons below, not a diagnosis."),
+        "sc_susp_impact": "possible system abuse",
+        "sc_susp_risk": "low: we only report, nothing is killed automatically",
+        "sc_susp_defender_title": "Defender real-time protection is off",
+        "sc_susp_defender_why": ("Without real-time protection the system is "
+                                 "open to known threats. MujoFix never "
+                                 "changes this itself — it only tells you to "
+                                 "check."),
+        "sc_susp_defender_impact": "no active antivirus protection",
+        "sc_susp_defender_risk": "none: we only read the status",
+        "sc_susp_unavailable": "process list and signatures are read only on Windows",
+        "sc_unavailable_generic": "module not supported on this platform",
+        "sc_error": "scanner error ({kind}): {e}",
         "sc_disk_almost_full_title": "Disk is almost full ({gb} GB left)",
         "sc_disk_almost_full_why": ("When free space runs out Windows slows "
                                     "down, updates fail and programs crash "

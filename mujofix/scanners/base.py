@@ -39,7 +39,7 @@ class Scanner(abc.ABC):
         return True
 
     def unavailable_reason(self) -> str:
-        return "modul nije podrzan na ovoj platformi"
+        return self.t("sc_unavailable_generic")
 
     @abc.abstractmethod
     def _scan(self, ctx: ScanContext) -> list[Finding]:
@@ -55,7 +55,7 @@ class Scanner(abc.ABC):
         except Exception as exc:  # scanner ne smije srusiti cijeli SCAN
             return ScanReport(
                 scanner=self.name,
-                skipped=f"greska scannera ({type(exc).__name__}): {exc}",
+                skipped=self.t("sc_error", kind=type(exc).__name__, e=exc),
             )
         return ScanReport(
             scanner=self.name,

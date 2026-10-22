@@ -94,12 +94,11 @@ class PermissionsScanner(Scanner):
             if uac is False:
                 findings.append(Finding(
                     id="permissions-uac-off", scanner=self.name,
-                    title="UAC (kontrola korisničkih naloga) je isključen",
-                    why="Bez UAC-a svaki program tiho dobija admin prava — "
-                        "najjaci sigurnosni mehanizam Windowsa ne radi.",
+                    title=self.t("sc_perm_uac_title"),
+                    why=self.t("sc_perm_uac_why"),
                     severity="CRITICAL",
-                    impact="bilo koji program moze mijenjati sistem",
-                    risk="nizak: ukljucivanje je reverzibilno (uz UAC prompt)",
+                    impact=self.t("sc_perm_uac_impact"),
+                    risk=self.t("sc_perm_uac_risk"),
                     reversible=True,
                     evidence={"EnableLUA": "0"},
                     tech_details=f"HKLM\\{UAC_KEY}"))
@@ -111,12 +110,11 @@ class PermissionsScanner(Scanner):
             if weak:
                 findings.append(Finding(
                     id="permissions-acl", scanner=self.name,
-                    title="Preširoke dozvole na sistemskim folderima",
-                    why="Obicni korisnici (ili Everyone) mogu pisati po "
-                        "sistemskim folderima — podmetanje malware-a.",
+                    title=self.t("sc_perm_acl_title"),
+                    why=self.t("sc_perm_acl_why"),
                     severity="CRITICAL",
-                    impact="moguce trajno kompromitovanje sistema",
-                    risk="srednji: zatezanje ACL-a trazi oprez",
+                    impact=self.t("sc_perm_acl_impact"),
+                    risk=self.t("sc_perm_acl_risk"),
                     reversible=True,
                     evidence={"folders": [{"path": p, "writers": ids}
                                           for p, ids in weak]},
@@ -125,11 +123,10 @@ class PermissionsScanner(Scanner):
             if shares:
                 findings.append(Finding(
                     id="permissions-shares", scanner=self.name,
-                    title=f"{len(shares)} nedefaultnih dijeljenih foldera",
-                    why="Svaki share je ulaz u racunar s mreze; provjeri da "
-                        "li su namjerni i kome su dostupni.",
-                    severity="LOW", impact="moguci ulaz s mreze",
-                    risk="nizak: gasenje sharea je reverzibilno",
+                    title=self.t("sc_perm_shares_title", n=len(shares)),
+                    why=self.t("sc_perm_shares_why"),
+                    severity="LOW", impact=self.t("sc_perm_shares_impact"),
+                    risk=self.t("sc_perm_shares_risk"),
                     reversible=True,
                     evidence={"shares": shares[:20]},
                     tech_details="net share (resource moze sadrzavati remark)"))
@@ -140,10 +137,10 @@ class PermissionsScanner(Scanner):
             if writable:
                 findings.append(Finding(
                     id="permissions-path-writable", scanner=self.name,
-                    title="Svijet-zapisivi folderi u PATH-u",
-                    why="Isto kao Windows verzija: podmetanje programa.",
-                    severity="MEDIUM", impact="rizik podmetanja programa",
-                    risk="nizak: skidanje prava je reverzibilno",
+                    title=self.t("sc_perm_path_title"),
+                    why=self.t("sc_perm_path_why"),
+                    severity="MEDIUM", impact=self.t("sc_perm_path_impact"),
+                    risk=self.t("sc_perm_path_risk"),
                     reversible=True,
                     evidence={"entries": writable[:20]},
                     tech_details="stat S_IWOTH (POSIX fallback)"))

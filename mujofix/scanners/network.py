@@ -74,12 +74,11 @@ class NetworkScanner(Scanner):
         except OSError as exc:
             return [Finding(
                 id="network-dns", scanner=self.name,
-                title="Internet imena se ne razrješavaju (DNS ne radi)",
-                why="Bez DNS-a ne otvara se nijedna stranica ni servis; "
-                    "uzrok je obicno ruter, DNS server ili hosts fajl.",
+                title=self.t("sc_net_dns_title"),
+                why=self.t("sc_net_dns_why"),
                 severity="CRITICAL",
-                impact="nema pristupa internetu imenima",
-                risk="nizak: provjera ne mijenja nista",
+                impact=self.t("sc_net_dns_impact"),
+                risk=self.t("sc_net_check_risk"),
                 reversible=False,
                 evidence={"host": DNS_TEST_HOST, "error": str(exc)},
                 tech_details="socket.getaddrinfo",
@@ -97,20 +96,18 @@ class NetworkScanner(Scanner):
         if best is None:
             findings.append(Finding(
                 id="network-unreachable", scanner=self.name,
-                title="DNS radi, ali nema veze do internet servisa",
-                why="Imena se razrjesavaju, ali TCP veza do javnih servera ne "
-                    "uspijeva — moguc firewall, proxy ili prekid kod provajdera.",
-                severity="MEDIUM", impact="internet prakticno ne radi",
-                risk="nizak: provjera ne mijenja nista", reversible=False,
+                title=self.t("sc_net_unreachable_title"),
+                why=self.t("sc_net_unreachable_why"),
+                severity="MEDIUM", impact=self.t("sc_net_unreachable_impact"),
+                risk=self.t("sc_net_check_risk"), reversible=False,
                 evidence=evidence_net, tech_details="TCP connect :53"))
         elif best >= SLOW_MS:
             findings.append(Finding(
                 id="network-slow", scanner=self.name,
-                title=f"Veza do interneta je spora ({best:.0f} ms)",
-                why="TCP handshake preko sekunde znaci zagušenje, los WiFi "
-                    "ili problem kod provajdera. Mjereno ka javnom DNS-u.",
-                severity="MEDIUM", impact="sporo ucitavanje svega",
-                risk="nizak: provjera ne mijenja nista", reversible=False,
+                title=self.t("sc_net_slow_title", ms=f"{best:.0f}"),
+                why=self.t("sc_net_slow_why"),
+                severity="MEDIUM", impact=self.t("sc_net_slow_impact"),
+                risk=self.t("sc_net_check_risk"), reversible=False,
                 evidence=evidence_net, tech_details="TCP connect :53"))
 
         suspicious = [(ip, host) for ip, host in _read_hosts()
@@ -119,12 +116,10 @@ class NetworkScanner(Scanner):
         if suspicious:
             findings.append(Finding(
                 id="network-hosts", scanner=self.name,
-                title=f"Sumnjivi zapisi u hosts fajlu ({len(suspicious)})",
-                why="Hosts fajl preusmjerava poznate domene mimo DNS-a — "
-                    "klasicna tehnika otmice prometa. Provjeri da li si ih "
-                    "sam dodao.",
-                severity="MEDIUM", impact="moguce preusmjeravanje na lazno",
-                risk="nizak: uklanjanje zapisa je reverzibilno",
+                title=self.t("sc_net_hosts_title", n=len(suspicious)),
+                why=self.t("sc_net_hosts_why"),
+                severity="MEDIUM", impact=self.t("sc_net_hosts_impact"),
+                risk=self.t("sc_net_hosts_risk"),
                 reversible=True,
                 evidence={"path": _hosts_path(),
                           "entries": suspicious[:20]},
@@ -140,15 +135,14 @@ class NetworkScanner(Scanner):
                 pass
         for var in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"):
             if os.environ.get(var):
-                proxy[var] = "postavljen"
+                proxy[var] = self.t("sc_net_proxy_set")
         if proxy:
             findings.append(Finding(
                 id="network-proxy", scanner=self.name,
-                title="Uključen je proxy za internet promet",
-                why="Proxy moze usporavati i nadgledati promet. Ako ga nisi "
-                    "sam ukljucio (firma, VPN), vrijedi provjeriti.",
-                severity="LOW", impact="moguce usporenje/nadzor prometa",
-                risk="nizak: iskljucivanje je reverzibilno", reversible=True,
+                title=self.t("sc_net_proxy_title"),
+                why=self.t("sc_net_proxy_why"),
+                severity="LOW", impact=self.t("sc_net_proxy_impact"),
+                risk=self.t("sc_net_proxy_risk"), reversible=True,
                 evidence={"proxy": proxy},
                 tech_details="registry Internet Settings + env"))
 
@@ -158,11 +152,10 @@ class NetworkScanner(Scanner):
             if proc.returncode != 0:
                 findings.append(Finding(
                     id="network-winsock", scanner=self.name,
-                    title="Winsock katalog se ne može pročitati",
-                    why="Ostecen mrezni stek zna rusiti veze svim programima; "
-                        "popravka je `netsh winsock reset` + restart.",
-                    severity="MEDIUM", impact="moguci prekidi veza",
-                    risk="srednji: reset trazi restart",
+                    title=self.t("sc_net_winsock_title"),
+                    why=self.t("sc_net_winsock_why"),
+                    severity="MEDIUM", impact=self.t("sc_net_winsock_impact"),
+                    risk=self.t("sc_net_winsock_risk"),
                     reversible=False,
                     evidence={"error": proc.stderr.strip()[-200:]},
                     tech_details="netsh winsock show catalog"))
