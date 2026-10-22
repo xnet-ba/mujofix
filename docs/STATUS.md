@@ -90,6 +90,11 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- VERZIJA 2026-10-21: `[Unreleased]` u CHANGELOG-u je zatvoren kao **0.3.0**
+  (build iz main-a je prije prijavljivao 0.2.0 — isto kao izdata verzija, pa bi
+  `update` i ime instalera bili pogresni). `mujofix/version.py` fallback
+  podignut na 0.3.0. **NIJE tagovano ni objavljeno** — README i badge i dalje
+  pokazuju izdatu 0.2.0 (njeni asseti postoje); release 0.3.0 ceka odluku.
 - PAKOVANJE 2026-10-21 (dokaz na hostu, ne samo kompajliranje): PyInstaller
   build po `mujofix.spec` prolazi (Linux ignorise `.ico` uz upozorenje), a
   ZAMRZNUTI exe stvarno radi: `dist/MujoFix/MujoFixCLI scan --summary` -> "4

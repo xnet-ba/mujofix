@@ -1,75 +1,99 @@
 # Changelog (semantičko verzioniranje; `mujofix.spec` čita vrh ovog fajla)
 
-## [Unreleased]
+## [0.3.0] - 2026-10-21
+
 ### Promijenjeno
-- **Uklonjen lokalni backend:** MujoFix je samo instalabilna Windows
-  aplikacija — nema `opencode serve`, porta ni lozinke; živi model ide
-  kroz `opencode run` kao child proces.
+- **Uklonjen lokalni backend:** MujoFix je isključivo instalabilna Windows
+  aplikacija — nema `opencode serve`, porta ni lozinke, ništa se ne izlaže na
+  mreži. Živi model ide kroz `opencode run` kao child proces (jedan po
+  zahtjevu). Uklonjeni su `OpencodeServer`, `pick_free_port`, health-check i
+  vlasništvo nad procesom; `LiveSession` sada samo nosi stanje
+  (`chain`/`note`/`live`). `FORBIDDEN_FLAGS` zabranjuje i
+  `--attach`/`--port`/`--hostname` (čuvari da se server ne vrati).
+- **Izgled: Fluent 2 / Windows 11** — Segoe UI, zaobljene kontrole, automatska
+  svijetla/tamna tema (`AppsUseLightTheme`, override `MUJOFIX_THEME`), Mica
+  pozadina na Win11 preko DWM (best-effort: ako poziv ne uspije, ostaje solidna
+  boja), ikona aplikacije u exe-u/installeru/prozoru i snimke u README-u.
+- Pristanak (consent) i README: uslovi OpenCode Zen besplatne razine potvrđeni
+  iz primarnih izvora (ToS + Zen docs, 2026-10-18) — neplaćeni računi: sadržaj
+  se smije koristiti za unapređenje usluge; pojedini besplatni modeli mogu
+  koristiti podatke za poboljšanje modela; dio zahtjeva (OpenAI/Anthropic) čuva
+  se 30 dana. Test čuva to stanje.
 
 ### Dodano
-- JSON dnevnik izvršavanja (sve faze koraka + sažetak) u
-  `%LOCALAPPDATA%\MujoFix\audit\` poslije svake popravke.
-- Ikona aplikacije (Fluent 2): u exe-u, installeru, prozoru i prečicama.
-- Izbor jezika u UI-ju (Bosanski/English) i pamćenje veličine prozora.
-- Fluent 2 / Windows 11 izgled: Segoe UI, zaobljene kontrole, automatska
-  svijetla/tamna tema i Mica pozadina na Win11 (best-effort).
-- Dugme "AI: uključi/isključi": pristanak se moze promijeniti bilo kad
-  (prije se ekran prikazivao samo jednom, pa je obecanje "iskljuci bilo kad"
-  bilo netacno).
-- Zivi put je sada stvarno upotrebljiv: `build_chain` prije starta servera
-  upise izolirani `opencode.json` (bez toga server nema agenta `mujofix` ni MCP
-  alate, pa bi `run --agent mujofix` pao). Config ide u
-  `%LOCALAPPDATA%\MujoFix\ai` (ne u cwd, koji u EXE-u moze biti nezapisiv).
-  MCP komanda: `mujofix.cli mcp` (novi stdio mod; zamrznut → `MujoFixCLI.exe`
-  `mcp`, jer GUI exe nema konzolu). Novi `tests/test_mcp_stdio.py` dokazuje
-  stvarni MCP handshake: `initialize`, tačno 5 alata, sortirani katalog,
-  nepoznat alat = greska.
-- Zivi AI put u GUI-ju: uz pristanak se u pozadinskoj niti (`ExplainWorker`)
-  digne ugrađeni `opencode serve` (127.0.0.1, slucajna lozinka) i koristi
-  besplatan Zen model; bez pristanka ili na svaki kvar (nema binary-ja, server
-  se ne digne, nema besplatnog modela) lanac ostaje **offline** uz iskren
-  razlog. `build_chain`/`LiveSession` drze vlasnistvo nad procesom i gase ga
-  na zatvaranju prozora (bez zaostalih procesa). netestirano na Windows VM-u.
+- **JSON dnevnik izvršavanja** (sve faze koraka + sažetak) u
+  `%LOCALAPPDATA%\MujoFix\audit\` poslije svake popravke; putanja ide u log, a
+  kvar dnevnika ne ruši aplikaciju. Novi `mujofix/audit.py` + `tests/test_audit.py`.
+- **Probni (dry-run) mod** u GUI-ju (checkbox): prolazi precondition i prikaže
+  šta bi uradio, a ništa ne mijenja; report to izričito kaže i dnevnik se
+  označava kao `dry-run`.
+- **Izbor jezika (Bosanski/English)** u UI-ju (primjenjuje se pri sljedećem
+  pokretanju) i pamćenje veličine/pozicije prozora.
+- **Dugme „AI: uključi/isključi"**: pristanak se može promijeniti bilo kad
+  (prije se ekran prikazivao samo jednom, pa je obećanje „isključi bilo kad"
+  bilo netačno).
+- **UI je kompletno dvojezičan** (bs+en) i pokriven `tests/test_i18n.py`
+  (paritet ključeva, nema hardkodovanog teksta u `mujofix/ui/`).
+- **`mujofix.cli mcp`** — stdio MCP server (zamrznuto `MujoFixCLI.exe mcp`);
+  `tests/test_mcp_stdio.py` dokazuje stvarni handshake: `initialize`, tačno 5
+  alata, sortiran katalog, nepoznat alat = greška.
+- **Testovi/cuvari:** `tests/test_theme.py`, `tests/test_icon.py`,
+  `tests/test_workflows.py` (hvata YAML trap koji tiho ugasi CI),
+  `scripts/make_icon.py`, `scripts/make_screenshots.py`.
+- **CI:** smoke korak u `installer-windows` na svakom push-u — zapakovani
+  `MujoFixCLI.exe` mora proći `scan --summary` i `update`.
+
 ### Ispravljeno
-- Izolacija configa: nas `opencode.json` se stapao sa korisnickim globalnim
-  (`~/.config/opencode`) — agent je dobijao globalne MCP servere (npr.
-  playwright) i pluginove. Server se sada dize sa izolovanim
-  `XDG_CONFIG_HOME` (kredencijali ostaju u data diru, zivi model radi).
-- AI plan se nije prikazivao (validirao se pa bacao): sada se prikaze kao
-  citljiva lista koraka; primjena i dalje ide preko akcija odabranih nalaza.
-- Zivi put: prompt je tvrdio da nalazi dolaze samo kao MCP podaci (a u zivom
-  putu `get_findings` je prazan) i `get_system_info` je bez snimka vracao
-  lazni "spike" fixture modelu koji ne smije izmisljati. Prompt sada opisuje
-  stvarni put (nalazi = podaci u poruci), prazan snimak daje postenu biljesku.
-- Ekran pristanka prikazuje tacan tekst zahtjeva (i onaj koji stvarno ide
-  modelu): ista funkcija `build_prompt` gradi i primjer i zahtjev.
-- Privatnost: anonimizacija se prije radila SAMO za ekran "sto je poslano",
-  a modelu su isli sirovi nalazi (`C:\Users\<ime>\...`, IP, MAC, serijski).
-  Sada `FallbackChain.explain` anonimizira jednom na ulazu — poslano i
-  logovano su isti payload.
-- `ai/agent_config.py`: agent je bio `mode: "subagent"`, a `opencode run
-  --agent mujofix` tada tiho koristi DEFAULT agent (sa svim alatima) —
-  zabrana alata se zaobilazila. Sada `mode: "all"`; dokazano protiv pinovanog
-  binarnog (upozorenje "Falling back to default agent" samo za subagent).
-- `ai/agent_config.py`: config je bio V2 oblik koji pinovani (V1) opencode
-  odbija (`ConfigInvalidError`, 400) — zivi put bi pao pri startu. Sada V1
-  (`mcp` mapa, `agent`, `prompt`, `tools`: svi ugradjeni alati `false`,
-  `mcp_*: true`); imena alata iz pinovanog `agent create --help`. Novi
-  integracioni test to dokazuje protiv stvarnog binarnog (200 + deny).
-- `ai/provider.py`: `run --format json` daje event stream, a plan se cita iz
-  ```json bloka u tekstu — plan se nikad ne bi izvukao. Vraceno na default
-  (tekstualni) izlaz; `_cmd()` izdvojen i pokriven testom.
-- `free_zen_models` je vracao prazno (filtrirao po "zen", stvarni ID-jevi su
-  `opencode/<id>`); sada prepoznaje besplatne Zen modele po stvarnom prefiksu
-  `opencode/` + "-free" marker (+ lista stealth modela), a potencijalno placene
-  ne ukljucuje.
-### Promijenjeno
-- Pristanak (consent) i README: uslovi OpenCode Zen besplatne razine su
-  potvrđeni iz primarnih izvora (ToS + Zen docs, 2026-10-18) — umjesto
-  "NEPOTVRĐENI" stoji konkretna tvrdnja (neplaćeni računi: sadržaj se smije
-  koristiti za unapređenje usluge; pojedini besplatni modeli mogu koristiti
-  podatke za poboljšanje modela; dio zahtjeva se čuva 30 dana). Dodat test
-  koji čuva to stanje.
+- **Anonimizacija je štitila samo ekran, ne i zahtjev:** model je dobijao
+  sirove nalaze (`C:\Users\<ime>\...`, IP, MAC, serijski), a ekran „šta je
+  poslano" je prikazivao očišćenu kopiju. Sada `FallbackChain.explain`
+  anonimizira jednom na ulazu — poslano i logovano su isti payload.
+- **Ekran pristanka je prikazivao drugi tekst** od onoga što stvarno ide
+  modelu; sada ista funkcija (`build_prompt`) gradi i primjer i zahtjev.
+- **Agent je bio `mode: "subagent"`** → `opencode run --agent mujofix` je tiho
+  koristio DEFAULT agent (sa svim alatima), pa se zabrana alata zaobilazila.
+  Sada `mode: "all"`; dokazano protiv pinovanog binarnog.
+- **Config je bio V2 oblik** koji pinovani (V1) opencode odbija
+  (`ConfigInvalidError`) — živi put bi pao. Sada V1 (`mcp` mapa, `agent`,
+  `prompt`, `tools`: svi ugrađeni alati `false`, `mcp_*: true`); dokaz:
+  `opencode debug config` sa izolovanim config-home (agent + `deny`, samo naš
+  MCP, 0 pluginova).
+- **Config se nikad nije upisivao u aplikaciji** (samo u testovima), pa agent
+  `mujofix` nije ni postojao u živom putu — sada `build_chain` upisuje izolirani
+  `opencode.json` u `%LOCALAPPDATA%\MujoFix\ai` (ne u cwd, koji u EXE-u može
+  biti nezapisiv).
+- **„Izolovani" config se stvarno stucao sa korisničkim globalnim**
+  (`~/.config/opencode`): agent je naslijedio tuđe MCP servere (npr. playwright)
+  i pluginove. Sada child dobija `XDG_CONFIG_HOME`; kredencijali (`auth.json`)
+  ostaju u data diru.
+- **Prompt je tvrdio da nalazi dolaze samo kao MCP podaci**, a u živom putu
+  `get_findings` je prazan; `get_system_info` je bez snimka vraćao lažni
+  „spike" fixture modelu koji ne smije izmišljati. Prompt sada opisuje stvarni
+  put (nalazi = podaci u poruci), a prazan snimak daje poštenu bilješku.
+- **AI plan se validirao pa bacao** — korisnik ga nikad nije vidio; sada se
+  prikaže kao čitljiva lista koraka (primjena i dalje ide preko akcija
+  odabranih nalaza).
+- **`run --format json` daje event stream**, a plan se čita iz ```json bloka u
+  tekstu — plan se nikad ne bi izvukao. Vraćeno na tekstualni izlaz.
+- **`free_zen_models` je vraćao prazno** (filtrirao po „zen", stvarni ID-jevi
+  su `opencode/<id>`); sada prepoznaje besplatne Zen modele po prefiksu
+  `opencode/` + `-free` marker (i lista stealth modela), a potencijalno plaćene
+  ne uključuje.
+- **Engleski UI je curio bosanski** (hardkodovan tekst van `tr()`): naslov i
+  dugmad ekrana pristanka, naslov pregleda poslanog i log poruke; sada sve ide
+  kroz `tr()` uz čuvar u testovima.
+- **Installer je pao u CI** jer Inno rješava `SetupIconFile` relativno na
+  `SourceDir` (repo root), a ne na folder `.iss`-a; popravljeno i pokriveno
+  testom koji rješava putanje kao Inno.
+- **README je obećavao više od koda:** „paralelni moduli skeniranja" (svi se
+  izvršavaju redom), modul „Performanse" sa „boot vremenom" (ne postoji),
+  „5/5 akcija" (katalog ima 7; host dokaz pokriva 3), „izvještaj prije/poslije"
+  i „export registry ključeva"/„System Restore Point" (nije implementirano),
+  `143` testa (sada 211). Sve ispravljeno u bs+en.
+- **Crna lista zaštićenih zona je bila uža od tvrdnje i preširoka odjednom:**
+  dodane su Program Files, Dokumenti/Slike/Desktop/Download, boot BCD i
+  Defender, a uklonjen `c:\windows` jer je blokirao i legitiman
+  `C:\Windows\Temp` i WU cache.
 
 ## [0.2.0] - 2026-10-18
 ### Dodano
