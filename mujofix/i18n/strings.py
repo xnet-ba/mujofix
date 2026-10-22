@@ -334,6 +334,16 @@ STRINGS = {
         "cli_update_uptodate": "Verzija {v} je najnovija.",
         "act_proxy_changed": "proxy stanje se promijenilo prije snapshota",
         "act_env_path_gone": "PATH nestao izmedju precondition i snapshota",
+        "act_hosts_changed": "hosts fajl se promijenio vise nego sto je planirano",
+        "act_hosts_done": "uklonjeno {n} zapisa ({ip} {host})",
+        "act_hosts_gone": "zapis {ip} {host} je nestao prije snapshota",
+        "act_hosts_no_file": "hosts fajl ne postoji: {p}",
+        "act_hosts_not_found": "zapis {ip} {host} nije u hosts fajlu",
+        "act_hosts_ready": "zapis {ip} {host} je u hosts fajlu",
+        "act_hosts_still": "zapis {ip} {host} je i dalje u hosts fajlu",
+        "act_hosts_unreadable": "hosts fajl se ne moze procitati: {e}",
+        "act_remove_hosts_entry_description": "Uklanjamo sumnjiv zapis iz hosts fajla (vracamo po potrebi).",
+        "act_remove_hosts_entry_risk": "srednji: hosts je zastita DNS-a; snapshot cuva cijeli fajl, rollback ga vraca",
         "sc_disk_almost_full_title": "Disk je gotovo pun (ostalo {gb} GB)",
         "sc_disk_almost_full_why": ("Kad ponestane slobodnog prostora, Windows "
                                    "usporava, updatei pucaju, a programi se "
@@ -700,6 +710,16 @@ STRINGS = {
         "cli_update_uptodate": "Version {v} is the latest.",
         "act_proxy_changed": "the proxy state changed before the snapshot",
         "act_env_path_gone": "PATH disappeared between precondition and snapshot",
+        "act_hosts_changed": "the hosts file changed more than planned",
+        "act_hosts_done": "removed {n} entry(ies) ({ip} {host})",
+        "act_hosts_gone": "entry {ip} {host} disappeared before the snapshot",
+        "act_hosts_no_file": "hosts file does not exist: {p}",
+        "act_hosts_not_found": "entry {ip} {host} is not in the hosts file",
+        "act_hosts_ready": "entry {ip} {host} is in the hosts file",
+        "act_hosts_still": "entry {ip} {host} is still in the hosts file",
+        "act_hosts_unreadable": "hosts file cannot be read: {e}",
+        "act_remove_hosts_entry_description": "Remove a suspicious entry from the hosts file (restore on request).",
+        "act_remove_hosts_entry_risk": "medium: hosts is a DNS protection; the snapshot keeps the whole file and rollback restores it",
         "sc_disk_almost_full_title": "Disk is almost full ({gb} GB left)",
         "sc_disk_almost_full_why": ("When free space runs out Windows slows "
                                     "down, updates fail and programs crash "

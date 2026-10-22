@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from mujofix.actions.duplicates import QuarantineDuplicates
 from mujofix.actions.env import FixTempVar, RemovePathEntry
+from mujofix.actions.hosts import RemoveHostsEntry
 from mujofix.actions.proxy import DisableProxy
 from mujofix.actions.service import RestartService
 from mujofix.actions.startup import DisableStartupItem
@@ -33,6 +34,17 @@ def finding_to_actions(finding: dict) -> list:
         return actions
     if fid == "config-path-missing":
         return [RemovePathEntry(entry) for entry in evidence.get("entries", [])]
+    if fid == "network-hosts" and evidence.get("path"):
+        actions = []
+        for entry in evidence.get("entries", []):
+            if isinstance(entry, (list, tuple)) and len(entry) >= 2:
+                actions.append(RemoveHostsEntry(evidence["path"],
+                                                str(entry[0]), str(entry[1])))
+            elif isinstance(entry, dict) and entry.get("ip"):
+                actions.append(RemoveHostsEntry(evidence["path"],
+                                                str(entry["ip"]),
+                                                str(entry.get("host", ""))))
+        return actions
     if fid == "config-temp-var" and evidence.get("var"):
         return [FixTempVar(evidence["var"])]
     if fid == "network-proxy" and evidence.get("proxy", {}).get("registry"):

@@ -151,7 +151,7 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
   <tr><th>Faza</th><th>Sadržaj</th><th>Stanje</th></tr>
   <tr><td><b>0 — SPIKE</b></td><td>Bundlovani OpenCode kao child, besplatni modeli, MCP alat, zabrana shell-a, offline</td><td>🟢 kod + dokaz na hostu (1–2); 3–5 čekaju živi model</td></tr>
   <tr><td><b>1</b></td><td>Skeleton + CLI scanner (startup, disk, servisi) + model nalaza</td><td>🟢 gotovo (Linux + host dokazi)</td></tr>
-  <tr><td><b>2</b></td><td>Action katalog + runner (snapshot/verify/rollback)</td><td>🟢 gotovo (katalog 7 akcija; 3 potvrđene host dokazom, ostale testovi — vidi <a href="docs/TESTING.md">TESTING</a>)</td></tr>
+  <tr><td><b>2</b></td><td>Action katalog + runner (snapshot/verify/rollback)</td><td>🟢 gotovo (katalog 8 akcija; 3 potvrđene host dokazom, ostale testovi — vidi <a href="docs/TESTING.md">TESTING</a>)</td></tr>
   <tr><td><b>3</b></td><td>GUI (sažetak, plan, odobravanje, progres, izvještaj)</td><td>🟢 gotovo (GUI smoke na hostu)</td></tr>
   <tr><td><b>4</b></td><td>Puni AI sloj (MCP, validator, fallback, pristanak, offline)</td><td>🟢 kod gotov (offline default; Zen ToS neprovjeren)</td></tr>
   <tr><td><b>5</b></td><td>Preostali moduli (mreža, drajveri, duplikati, procesi, permisije…)</td><td>🟢 gotovo (9/9 scannera na hostu, 0 skipped)</td></tr>

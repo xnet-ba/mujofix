@@ -3,6 +3,12 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Dodano
+- **Nova akcija `remove_hosts_entry`:** nalaz `network-hosts` (sumnjiv
+  zapis u hosts fajlu = DNS hijack) do sada nije imao popravku. Snapshot
+  čuva cijeli hosts fajl, uklanja se tačno prijavljeni zapis, ostatak
+  ostaje netaknut, upis je atomaran, verify traži nestanak zapisa uz
+  identičan ostatak, a rollback vraća bajt-identično. Traži elevaciju
+  (hosts je zaštićen); nije u AI allowlisti — ide kroz odabrane nalaze.
 - **Dovršena lokalizacija akcija i CLI-ja:** poruke akcija (precondition/
   apply/verify/rollback + greške) idu kroz `ctx.t(...)` (jezik u
   `ActionContext`), opis i rizik akcije preko `action_text(...)` (klasni

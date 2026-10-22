@@ -33,6 +33,9 @@ Automatizovani dio (scan, pin, live update provjera, sha256):
 - [ ] clean_temp na test folderu (fajl stariji od 7 dana, sadržaj identičan nakon rollback-a)
 - [ ] restart_service na Spooleru (treba UAC prompt + objašnjenje prije)
 - [ ] "Poništi sve" iz GUI-a vraća sve tri promjene
+- [ ] remove_hosts_entry: dodaj test-zapis u hosts (`10.0.0.1
+      zlonamjerni.test`), pokreni uz admin — zapis nestane, ostali
+      zapisi/komentari ostaju; "Poništi sve" vraća fajl identično
 
 ## D. AI sloj uživo
 - [ ] Ekran pristanka se pokaže prije prvog AI poziva; "Ostajem offline" radi

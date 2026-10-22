@@ -8,7 +8,7 @@
   Node-a, tada `opencode serve` na 127.0.0.1 + lozinka). Detalji nize u
   "Ryzen lab".
   NAPOMENA 2026-10-21: server je uklonjen (`opencode run` je child proces —
-  vidi unos ARHITEKTURA); katalog danas ima 7 akcija, a `scripts/host_proof.py`
+  vidi unos ARHITEKTURA); katalog danas ima 8 akcija, a `scripts/host_proof.py`
   pokriva 3 (startup, temp, servis) — ostale kroz testove.
 - 104/104 unit testa u tom runu; trenutno 193 lokalno (Linux/offscreen).
 - Integracioni testovi protiv binarnog: config dokazan na 1.18.34, novi put
@@ -94,6 +94,17 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- AKCIJA 2026-10-22 (nova popravka): nalaz `network-hosts` (DNS hijack zapis u
+  hosts fajlu) je do sada bio SAMO preporuka — nije imao akciju. Sada
+  `mujofix/actions/hosts.py` (`remove_hosts_entry`): snapshot cuva CIJELI hosts
+  fajl, uklanja se tacno prijavljeni zapis (ip+ime), ostalo (komentari, drugi
+  zapisi) ostaje netaknuto, upis je atomaran (temp + os.replace), verify trazi
+  da je zapis nestao i da je ostatak identican, rollback vraca bajt-identicno.
+  `needs_elevation=True` (hosts je zastita na Windowsu) — bez admina se preskace
+  kroz postojeci UAC obrazac. Namjerno NIJE u `ACTION_ALLOWLIST` (AI ne smije
+  predlagati izmjenu hosts fajla; ide samo kroz odabrane nalaze). Testovi:
+  `tests/test_hosts_action.py` (8) — apply/verify/rollback identicno, cuvanje
+  ostatka fajla, odbijanje kad zapisa nema, dvojezicne poruke, mapping.
 - I18N-AKCIJE 2026-10-22: ista lokalizacija za akcije i CLI. `ActionContext.lang`
   + `ctx.t(...)` za poruke (Runner i svih 7 akcija), `action_text(action, field,
   lang)` za `description`/`risk` (klasni atributi ne mogu zvati self), `plan_lines
@@ -520,8 +531,9 @@ kreiranje repoa. Push ide preko `origin` (SSH).
 
 - `actions/base.py`: Action ugovor (precondition/snapshot/apply/verify/rollback),
   Runner (pad nakon snapshot-a -> rollback), dry-run, karantin, audit log.
-- 7 akcija: disable_startup_item (HKCU/HKLM, UAC samo za HKLM),
+- 8 akcija: disable_startup_item (HKCU/HKLM, UAC samo za HKLM),
   clean_temp (starije od 7 dana u karantin, manifest), restart_service (`sc`,
+  UAC), remove_hosts_entry (hosts zapis, UAC; snapshot cuva cijeli fajl),
   treba UAC, rizik srednji), remove_path_entry (mrtvi PATH unos, HKCU/HKLM,
   cuva registry tip), fix_temp_var (TEMP/TMP u HKCU Environment),
   disable_proxy (HKCU Internet Settings, ProxyEnable=0),
