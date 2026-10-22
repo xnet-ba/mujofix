@@ -94,6 +94,15 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- OBJAVLJENO 2026-10-22: **v0.3.0** (tag + GitHub Release). CI `build` job
+  zelen: pin provjera, OpenCode download + SHA-256, PyInstaller, smoke
+  zapakovanog CLI-ja, Inno installer, SHA256SUMS, Release. Asseti:
+  `MujoFix-Setup-0.3.0.exe` (76 MB, sha256
+  e0eb1002505779e897868f94d687b6c7c8108138f634a4480be8ec6a51494bf2),
+  `MujoFix-v0.3.0.zip` (115 MB), `SHA256SUMS.txt`.
+  Ziv update put provjeren protiv stvarnog release-a: korisnik na 0.2.0 ->
+  available=True, latest 0.3.0, izabran `MujoFix-Setup-0.3.0.exe`; korisnik na
+  0.3.0 -> available=False. README (bs+en) i badge podignuti na 0.3.0.
 - VERZIJA 2026-10-21: `[Unreleased]` u CHANGELOG-u je zatvoren kao **0.3.0**
   (build iz main-a je prije prijavljivao 0.2.0 — isto kao izdata verzija, pa bi
   `update` i ime instalera bili pogresni). `mujofix/version.py` fallback

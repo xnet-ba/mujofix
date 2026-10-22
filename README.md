@@ -6,7 +6,7 @@
 
 **Klikneš SCAN — aplikacija nađe probleme, prevede ih u običan jezik, predloži plan popravki, ti odobriš, ona popravi, provjeri i vrati nazad ako nešto pođe po zlu.**
 
-[![Status](https://img.shields.io/badge/status-v0.2.0-blue)](docs/STATUS.md)
+[![Status](https://img.shields.io/badge/status-v0.3.0-blue)](docs/STATUS.md)
 [![Licenca](https://img.shields.io/badge/licenca-MIT-green)](LICENSE)
 [![Platforma](https://img.shields.io/badge/Windows-10%20%7C%2011-blue)](docs/STATUS.md)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-yellow)](AGENTS.md)
@@ -171,14 +171,14 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
       <b><code>MujoFix-v&lt;verzija&gt;.zip</code></b> — portabilna verzija (raspakuj i pokreni <code>MujoFix.exe</code>).</li>
   <li><b>Provjeri hash</b> (opciono, ali preporučeno) — uz release ide <code>SHA256SUMS.txt</code>:
 <pre># PowerShell, u folderu gdje si preuzeo fajlove:
-$a = (Get-FileHash .\MujoFix-Setup-0.2.0.exe -Algorithm SHA256).Hash.ToLower()
-$b = ((Select-String .\SHA256SUMS.txt -Pattern "MujoFix-Setup-0.2.0.exe").Line -split '\s+')[0]
+$a = (Get-FileHash .\MujoFix-Setup-0.3.0.exe -Algorithm SHA256).Hash.ToLower()
+$b = ((Select-String .\SHA256SUMS.txt -Pattern "MujoFix-Setup-0.3.0.exe").Line -split '\s+')[0]
 $a -eq $b   # mora vratiti True
 </pre></li>
-  <li><b>Pokreni <code>MujoFix-Setup-0.2.0.exe</code>.</b> Instalira se u <code>%LOCALAPPDATA%\MujoFix</code>, <b>bez administratorskih prava</b> (samo za trenutnog korisnika).</li>
+  <li><b>Pokreni <code>MujoFix-Setup-0.3.0.exe</code>.</b> Instalira se u <code>%LOCALAPPDATA%\MujoFix</code>, <b>bez administratorskih prava</b> (samo za trenutnog korisnika).</li>
   <li><b>SmartScreen upozorenje je očekivano</b> — build još nije potpisan. Klikni <i>More info</i> → <i>Run anyway</i>.</li>
   <li>Prečica ide u Start meni; <b>desktop ikona je opciona</b> (kućica u instalaciji, isključena po defaultu).</li>
-  <li><b>Tiha instalacija</b> (npr. više računara): <code>MujoFix-Setup-0.2.0.exe /SILENT</code> (ili <code>/VERYSILENT</code>).</li>
+  <li><b>Tiha instalacija</b> (npr. više računara): <code>MujoFix-Setup-0.3.0.exe /SILENT</code> (ili <code>/VERYSILENT</code>).</li>
   <li><b>Deinstalacija:</b> Apps &amp; features → MujoFix. Uklanja i ugrađenu OpenCode kopiju i podatke aplikacije (<code>%LOCALAPPDATA%\MujoFix</code>).</li>
 </ol>
 
