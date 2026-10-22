@@ -288,5 +288,47 @@ class TestUpdateBoundaryFuzz(unittest.TestCase):
                 self.assertTrue(info["asset"].get("url"))
 
 
+class TestMcpMessageBoundaryFuzz(unittest.TestCase):
+    """MCP poruke dolaze od vanjskog procesa — `handle_message` ne smije puci."""
+
+    def setUp(self):
+        self.rng = random.Random(SEED + 3)
+
+    def test_never_raises_and_always_returns_valid_shape(self):
+        from mujofix.ai.mujofix_mcp import handle_message
+
+        for _ in range(400):
+            msg = random_value(self.rng)
+            response = handle_message(msg)
+            if response is None:
+                continue
+            self.assertIsInstance(response, dict)
+            self.assertEqual(response.get("jsonrpc"), "2.0")
+            self.assertIn("id", response)
+            self.assertTrue("result" in response or "error" in response)
+            if "error" in response:
+                self.assertIsInstance(response["error"]["message"], str)
+
+    def test_tools_call_with_bad_params_never_crashes(self):
+        from mujofix.ai.mujofix_mcp import handle_message
+
+        for params in (None, [], "x", 42, {"name": None}, {"name": "nema_alata"},
+                       {"name": "get_findings", "arguments": [1]},
+                       {"name": "propose_plan", "arguments": {"plan": "x"}},
+                       {"name": "propose_plan",
+                        "arguments": {"plan": {"steps": [None]}}}):
+            response = handle_message({"jsonrpc": "2.0", "id": 1,
+                                       "method": "tools/call",
+                                       "params": params})
+            self.assertIsInstance(response, dict)
+            self.assertTrue("result" in response or "error" in response)
+
+    def test_unknown_method_with_id_gets_error_without_id_gets_nothing(self):
+        from mujofix.ai.mujofix_mcp import handle_message
+
+        self.assertIn("error", handle_message({"method": "nema", "id": 7}))
+        self.assertIsNone(handle_message({"method": "nema"}))  # notifikacija
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -3,6 +3,15 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Ispravljeno
+- **MCP server je mogao umrijeti od neispravne poruke:** `serve()` je čitao
+  `msg.get(...)` **izvan** `try` bloka, pa je validan JSON koji nije objekat
+  (npr. `[1,2]`) bacao `AttributeError` i **ubijao server** — a poruke dolaze
+  od vanjskog procesa (opencode/model). Unutar `try` se hvatao samo
+  `ValueError`, pa je i `params` koji nije objekat rušio server. Sada je
+  obrada izdvojena u `handle_message()` koja **nikad ne baca** (vraća
+  JSON-RPC grešku), uz provjere tipova; mrtve `_respond`/`_respond_error`
+  su uklonjene. Testovi: fuzz kroz `handle_message` + pravi stdio test koji
+  prvo pošalje 6 linija smeća pa traži normalan odgovor.
 - **Update granica očvrsnuta protiv neispravnih podataka s mreže:**
   `find_asset`/`pick_asset` su radili `asset["name"]` → **`KeyError`** (ne
   `UpdateError`) na unosu bez imena, a CLI hvata samo `UpdateError` — pa bi

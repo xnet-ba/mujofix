@@ -195,24 +195,53 @@ def _tools_list() -> list[dict]:
     ]
 
 
-def _respond(msg_id: object, result: object) -> None:
-    sys.stdout.write(
-        json.dumps({"jsonrpc": "2.0", "id": msg_id, "result": result}) + "\n"
-    )
-    sys.stdout.flush()
+def handle_message(msg: object) -> dict | None:
+    """Obradi jednu JSON-RPC poruku; NIKAD ne baca (vrati odgovor ili None).
+
+    Granica je vanjski proces (opencode/model), pa neispravna poruka ne smije
+    srusiti server: validan JSON koji nije objekat (npr. `[1,2]`), `params` koji
+    nije objekat, ili nepoznat metod vracaju JSON-RPC gresku.
+    """
+    if not isinstance(msg, dict):
+        return _error_response(None, "poruka mora biti JSON objekat")
+    method = str(msg.get("method", ""))
+    msg_id = msg.get("id")
+    try:
+        if method == "initialize":
+            return _ok_response(msg_id, {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {"tools": {}},
+                "serverInfo": {"name": SERVER_NAME, "version": SERVER_VERSION},
+            })
+        if method == "tools/list":
+            return _ok_response(msg_id, {"tools": _tools_list()})
+        if method == "tools/call":
+            params = msg.get("params")
+            if not isinstance(params, dict):
+                return _error_response(msg_id, "params mora biti objekat")
+            arguments = params.get("arguments")
+            if arguments is not None and not isinstance(arguments, dict):
+                return _error_response(msg_id, "arguments mora biti objekat")
+            return _ok_response(msg_id, _call_tool(
+                str(params.get("name", "")), arguments or {}))
+        if msg_id is not None:
+            return _error_response(msg_id, f"nepodrzan method '{method}'")
+        return None
+    except Exception as exc:  # granica: nikad ne srusi server
+        return _error_response(msg_id, str(exc))
 
 
-def _respond_error(msg_id: object, message: str) -> None:
-    sys.stdout.write(
-        json.dumps(
-            {
-                "jsonrpc": "2.0",
-                "id": msg_id,
-                "error": {"code": -32602, "message": message},
-            }
-        )
-        + "\n"
-    )
+def _ok_response(msg_id: object, result: object) -> dict:
+    return {"jsonrpc": "2.0", "id": msg_id, "result": result}
+
+
+def _error_response(msg_id: object, message: str) -> dict:
+    return {"jsonrpc": "2.0", "id": msg_id,
+            "error": {"code": -32602, "message": message}}
+
+
+def _write(response: dict) -> None:
+    sys.stdout.write(json.dumps(response) + "\n")
     sys.stdout.flush()
 
 
@@ -225,33 +254,9 @@ def serve() -> None:
             msg = json.loads(line)
         except json.JSONDecodeError:
             continue
-        method = msg.get("method", "")
-        msg_id = msg.get("id")
-        try:
-            if method == "initialize":
-                _respond(
-                    msg_id,
-                    {
-                        "protocolVersion": "2024-11-05",
-                        "capabilities": {"tools": {}},
-                        "serverInfo": {
-                            "name": SERVER_NAME,
-                            "version": SERVER_VERSION,
-                        },
-                    },
-                )
-            elif method == "tools/list":
-                _respond(msg_id, {"tools": _tools_list()})
-            elif method == "tools/call":
-                params = msg.get("params", {})
-                _respond(
-                    msg_id,
-                    _call_tool(params.get("name", ""), params.get("arguments", {})),
-                )
-            elif msg_id is not None:
-                _respond_error(msg_id, f"nepodrzan method '{method}'")
-        except ValueError as exc:
-            _respond_error(msg_id, str(exc))
+        response = handle_message(msg)
+        if response is not None:
+            _write(response)
 
 
 if __name__ == "__main__":

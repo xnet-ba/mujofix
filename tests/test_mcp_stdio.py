@@ -124,6 +124,25 @@ class TestMcpStdioSurface(unittest.TestCase):
         self.assertIn("error", got)
         self.assertNotIn("result", got)
 
+    def test_survives_garbage_lines_then_still_answers(self):
+        """Server cita od DRUGOG procesa: neispravna poruka ne smije ga ubiti."""
+        # 6 linija smeca; "nije json" se preskace (bez odgovora), ostalih 5
+        # dobiju JSON-RPC gresku. Tacno toliko odgovora ispraznimo.
+        for garbage in ("nije json", "[1,2,3]", '"samo string"', "42", "null",
+                        '{"method": "tools/call", "params": [1,2], "id": 900}'):
+            self.proc.stdin.write(garbage + "\n")
+        self.proc.stdin.flush()
+        for _ in range(5):
+            line = self.proc.stdout.readline()
+            self.assertTrue(line, "server je umro na smecu")
+            got = json.loads(line)
+            self.assertIn("error", got, got)
+            self.assertIn("message", got["error"])
+        # poslije smeca server mora normalno odgovoriti na uredan zahtjev
+        got = self._rpc({"jsonrpc": "2.0", "id": 901, "method": "tools/list"})
+        self.assertIn("result", got)
+        self.assertTrue(got["result"]["tools"])
+
 
 if __name__ == "__main__":
     unittest.main()

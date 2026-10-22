@@ -94,6 +94,14 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- MCP-GRANICA 2026-10-22 (fuzz, treci krug): `serve()` je citao `msg.get(...)`
+  IZVAN try bloka, pa je validan JSON koji nije objekat (npr. `[1,2]`) bacao
+  AttributeError i UBIO server (poruke dolaze od vanjskog procesa!); unutar try se
+  hvatao samo ValueError, pa je i `params` koji nije objekat rusive. Sada
+  `handle_message(msg) -> dict|None` nikad ne baca (provjere tipova + JSON-RPC
+  greska), `serve()` je tanak sloj, mrtve `_respond`/`_respond_error` uklonjene.
+  Testovi: 3 fuzz (`test_fuzz_boundaries`) + pravi stdio test koji posalje 6
+  linija smeca pa trazi normalan odgovor. 293 testa.
 - UPDATE-GRANICA 2026-10-22 (fuzz, drugi krug): `tests/test_fuzz_boundaries.py`
   sada gadja i update put (podaci s mreze). Nasao i popravio: `find_asset`/
   `pick_asset` su radili `asset["name"]` -> KeyError (CLI hvata samo UpdateError);
