@@ -124,6 +124,65 @@ STRINGS = {
         "sc_services_risk": ("srednji: restart servisa je reverzibilan, ali "
                              "uzrok rušenja može ostati"),
         "sc_services_unavailable": "servisi postoje samo na Windowsu",
+        "sc_common_unknown": "nepoznato",
+        "sc_config_path_writable_title": ("{n} foldera u PATH-u može "
+                                          "mijenjati svako"),
+        "sc_config_path_writable_why": ("Svijet-zapisiv folder u PATH-u "
+                                        "znači da bilo koji program može "
+                                        "podmetnuti lažni .exe koji ćeš "
+                                        "slučajno pokrenuti."),
+        "sc_config_path_writable_impact": "rizik podmetanja programa",
+        "sc_config_path_writable_risk": ("srednji: skidanje prava pisanja "
+                                         "traži oprez"),
+        "sc_config_path_writable_tech": ("stat S_IWOTH nad PATH stavkama "
+                                         "(samo POSIX)"),
+        "sc_config_path_missing_title": "{n} PATH stavki ne postoji",
+        "sc_config_path_missing_why": ("Mrtve stavke u PATH-u usporavaju "
+                                       "traženje programa i lome skripte "
+                                       "koje računaju na njih."),
+        "sc_config_path_missing_impact": "sporije pokretanje komandi",
+        "sc_config_path_missing_risk": "nizak: čišćenje je reverzibilno",
+        "sc_config_path_missing_tech": "os.path.isdir nad PATH stavkama",
+        "sc_config_temp_title": "Varijabla {var} ne pokazuje na ispravan folder",
+        "sc_config_temp_why": ("Programi pišu privremene fajlove u TEMP; "
+                               "loša putanja ruši instalere i snimanja."),
+        "sc_config_temp_impact": "rušenje instalera/programa",
+        "sc_config_temp_risk": "nizak: postavljanje putanje je reverzibilno",
+        "sc_config_temp_tech": "os.environ + isdir",
+        "sc_config_power_title": "Aktivan je štedljivi plan napajanja",
+        "sc_config_power_why": ("Power Saver smanjuje performanse da uštedi "
+                                "struju — na desktopu je to često čista "
+                                "šteta."),
+        "sc_config_power_impact": "smanjene performanse",
+        "sc_config_power_risk": "nizak: promjena plana je reverzibilna",
+        "sc_config_sfc_title": "SFC tragovi: {n} grešaka u CBS logu",
+        "sc_config_sfc_why": ("Servisiranje komponenti prijavljuje neuspjehe "
+                              "— moguća oštećena sistemska datoteka "
+                              "(provjera: sfc /scannow)."),
+        "sc_config_sfc_impact": "moguća nestabilnost sistema",
+        "sc_config_sfc_risk": "nizak: samo čitamo log, ne mijenjamo ništa",
+        "sc_config_power_tech": "powercfg /getactivescheme",
+        "sc_config_sfc_tech": "rep CBS.log ({n} B)",
+        "sc_drivers_title": "{n} drajvera starijih od {years} godina",
+        "sc_drivers_why": ("Zastarjeli drajveri znaju rušiti sistem nakon "
+                           "updatea Windowsa; noviji donose ispravke "
+                           "stabilnosti."),
+        "sc_drivers_impact": "moguća nestabilnost/plavi ekran",
+        "sc_drivers_risk": ("srednji: update drajvera traži restart; rollback "
+                            "kroz Device Manager"),
+        "sc_drivers_tech": ("pnputil /enum-drivers. Nekorištene programe ne "
+                            "prijavljujemo: Windows ne mjeri korištenje po "
+                            "programu."),
+        "sc_drivers_unavailable": "pnputil postoji samo na Windowsu",
+        "sc_duplicates_title": "{n} grupa duplikata (~{mb} MB viška)",
+        "sc_duplicates_why": ("Iste velike datoteke na više mjesta jedu disk. "
+                              "Potvrđene kopije idu u karantin (jedna "
+                              "ostaje) — ništa se ne briše, rollback vraća "
+                              "sve."),
+        "sc_duplicates_impact": "moguće oslobađanje ~{mb} MB (karantin)",
+        "sc_duplicates_risk": ("srednji: prva kopija ostaje, ostale u karantin; "
+                               "rollback vraća"),
+        "sc_duplicates_tech": "veličina -> sha256(64KB) -> puni sha256",
         "sc_disk_almost_full_title": "Disk je gotovo pun (ostalo {gb} GB)",
         "sc_disk_almost_full_why": ("Kad ponestane slobodnog prostora, Windows "
                                    "usporava, updatei pucaju, a programi se "
@@ -285,6 +344,61 @@ STRINGS = {
         "sc_services_risk": ("medium: restarting a service is reversible, but "
                              "the crash cause may remain"),
         "sc_services_unavailable": "services only exist on Windows",
+        "sc_common_unknown": "unknown",
+        "sc_config_path_writable_title": "{n} PATH folders are writable by anyone",
+        "sc_config_path_writable_why": ("A world-writable PATH folder means any "
+                                        "program can drop a fake .exe that you "
+                                        "may run by accident."),
+        "sc_config_path_writable_impact": "risk of a planted program",
+        "sc_config_path_writable_risk": ("medium: removing write rights needs "
+                                         "care"),
+        "sc_config_path_writable_tech": ("stat S_IWOTH on PATH entries "
+                                         "(POSIX only)"),
+        "sc_config_path_missing_title": "{n} PATH entries do not exist",
+        "sc_config_path_missing_why": ("Dead PATH entries slow down program "
+                                       "lookups and break scripts that rely "
+                                       "on them."),
+        "sc_config_path_missing_impact": "slower command startup",
+        "sc_config_path_missing_risk": "low: cleanup is reversible",
+        "sc_config_path_missing_tech": "os.path.isdir on PATH entries",
+        "sc_config_temp_title": "The {var} variable does not point to a valid folder",
+        "sc_config_temp_why": ("Programs write temporary files to TEMP; a bad "
+                               "path breaks installers and saves."),
+        "sc_config_temp_impact": "installers/programs crashing",
+        "sc_config_temp_risk": "low: setting the path is reversible",
+        "sc_config_temp_tech": "os.environ + isdir",
+        "sc_config_power_title": "A power-saver plan is active",
+        "sc_config_power_why": ("Power Saver lowers performance to save "
+                                "energy — on a desktop that is usually pure "
+                                "loss."),
+        "sc_config_power_impact": "reduced performance",
+        "sc_config_power_risk": "low: changing the plan is reversible",
+        "sc_config_sfc_title": "SFC traces: {n} failures in the CBS log",
+        "sc_config_sfc_why": ("Component servicing reports failures — a system "
+                              "file may be damaged (check: sfc /scannow)."),
+        "sc_config_sfc_impact": "possible system instability",
+        "sc_config_sfc_risk": "low: we only read the log, nothing is changed",
+        "sc_config_power_tech": "powercfg /getactivescheme",
+        "sc_config_sfc_tech": "tail CBS.log ({n} B)",
+        "sc_drivers_title": "{n} drivers older than {years} years",
+        "sc_drivers_why": ("Outdated drivers can crash Windows after an "
+                           "update; newer ones carry stability fixes."),
+        "sc_drivers_impact": "possible instability/blue screen",
+        "sc_drivers_risk": ("medium: a driver update needs a restart; rollback "
+                            "via Device Manager"),
+        "sc_drivers_tech": ("pnputil /enum-drivers. We do not report unused "
+                            "programs: Windows does not measure usage per "
+                            "program."),
+        "sc_drivers_unavailable": "pnputil only exists on Windows",
+        "sc_duplicates_title": "{n} duplicate groups (~{mb} MB wasted)",
+        "sc_duplicates_why": ("The same large files in several places waste "
+                              "disk. Confirmed copies go to quarantine (one "
+                              "stays) — nothing is deleted, rollback restores "
+                              "everything."),
+        "sc_duplicates_impact": "about {mb} MB could be freed (quarantine)",
+        "sc_duplicates_risk": ("medium: the first copy stays, the rest go to "
+                               "quarantine; rollback restores"),
+        "sc_duplicates_tech": "size -> sha256(64KB) -> full sha256",
         "sc_disk_almost_full_title": "Disk is almost full ({gb} GB left)",
         "sc_disk_almost_full_why": ("When free space runs out Windows slows "
                                     "down, updates fail and programs crash "

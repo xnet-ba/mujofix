@@ -69,7 +69,7 @@ class DriversScanner(Scanner):
         return windows.is_windows()
 
     def unavailable_reason(self) -> str:
-        return "pnputil postoji samo na Windowsu"
+        return self.t("sc_drivers_unavailable")
 
     def _scan(self, ctx: ScanContext) -> list[Finding]:
         try:
@@ -89,16 +89,12 @@ class DriversScanner(Scanner):
             return []
         return [Finding(
             id="drivers-old", scanner=self.name,
-            title=f"{len(old)} drajvera starijih od {OLD_YEARS} godina",
-            why="Zastarjeli drajveri znaju rusiti sistem nakon updatea "
-                "Windowsa; noviji donose ispravke stabilnosti.",
-            severity="MEDIUM", impact="moguca nestabilnost/plavi ekran",
-            risk="srednji: update drajvera trazi restart; rollback kroz "
-                 "Device Manager",
+            title=self.t("sc_drivers_title", n=len(old), years=OLD_YEARS),
+            why=self.t("sc_drivers_why"),
+            severity="MEDIUM", impact=self.t("sc_drivers_impact"),
+            risk=self.t("sc_drivers_risk"),
             reversible=True,
             evidence={"count": len(old), "drivers": old[:20],
                       "total_third_party": len(drivers)},
-            tech_details=("pnputil /enum-drivers. Nekoristene programe ne "
-                          "prijavljujemo: Windows ne mjeri koristenje po "
-                          "programu."),
+            tech_details=self.t("sc_drivers_tech"),
         )]

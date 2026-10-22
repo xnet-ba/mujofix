@@ -121,16 +121,14 @@ class DuplicatesScanner(Scanner):
         wasted = sum(g["size"] * (len(g["paths"]) - 1) for g in groups)
         return [Finding(
             id="duplicates-found", scanner=self.name,
-            title=(f"{len(groups)} grupa duplikata "
-                   f"(~{wasted // 1024**2} MB viška)"),
-            why="Iste velike datoteke na vise mjesta jedu disk. Potvrdjene "
-                "kopije idu u karantin (jedna ostaje) — nista se ne brise, "
-                "rollback vraca sve.",
+            title=self.t("sc_duplicates_title", n=len(groups),
+                         mb=wasted // 1024 ** 2),
+            why=self.t("sc_duplicates_why"),
             severity="MEDIUM" if wasted >= 1024**3 else "LOW",
-            impact=f"moguce oslobadjanje ~{wasted // 1024**2} MB (karantin)",
-            risk="srednji: prva kopija ostaje, ostale u karantin; rollback vraca",
+            impact=self.t("sc_duplicates_impact", mb=wasted // 1024 ** 2),
+            risk=self.t("sc_duplicates_risk"),
             reversible=True,
             evidence={"groups": groups[:20],
                       "wasted_bytes": wasted, "walked_files": walked},
-            tech_details="velicina -> sha256(64KB) -> puni sha256",
+            tech_details=self.t("sc_duplicates_tech"),
         )]

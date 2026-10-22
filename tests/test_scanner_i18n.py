@@ -20,23 +20,42 @@ SCANNERS = os.path.join(ROOT, "mujofix", "scanners")
 BS_CHARS = "čćžšđ"
 
 # Scanner-i koji su kompletno prevedeni (tekst ide kroz `t(ctx, ...)`).
-MIGRATED = {"disk", "services", "startup"}
+MIGRATED = {"config", "disk", "drivers", "duplicates",
+            "services", "startup"}
 # Polja nalaza koja su korisniku vidljiva.
-FIELDS = ("title", "why", "impact", "risk", "tech_details")
+# Prozna polja: moraju ici kroz `self.t(...)`.
+FIELDS = ("title", "why", "impact", "risk")
+# Tehnicki detalji smiju biti cisti kod (npr. "walk(path)"), pa se
+# za njih provjerava samo da ne ostane bosanski tekst s dijakriticima.
+TECH_FIELD = "tech_details"
 
 
-def _text_literals(source: str) -> list[str]:
-    """Korisniku vidljivi literali: polja nalaza + `unavailable_reason`."""
-    out = []
+def _hardcoded_fields(source: str) -> list[str]:
+    """Polja nalaza koja NISU prevedena preko `self.t(...)`.
+
+    Diakritike nisu dovoljan signal (mnogi bosanski stringovi su ASCII, npr.
+    "trazenje programa"), pa se provjerava pravi invariant: svako korisniku
+    vidljivo polje mora biti poziv `self.t(...)`.
+    """
+    bad = []
     for field in FIELDS:
-        for match in re.finditer(rf"{field}\s*=\s*(f?)(\"[^\"]*\"|'[^']*')",
-                                 source):
-            out.append(match.group(2))
+        for line in source.split("\n"):
+            stripped = line.strip()
+            if not stripped.startswith(f"{field}="):
+                continue
+            if not stripped.startswith(f"{field}=self.t("):
+                bad.append(stripped[:70])
+    for line in source.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith(f"{TECH_FIELD}="):
+            if set(BS_CHARS) & set(stripped.lower()):
+                bad.append(stripped[:70])
     for match in re.finditer(
-            r"def unavailable_reason[^\n]*\n(?:.*\n)*?\s*return\s+"
-            r"(f?)(\"[^\"]*\"|'[^']*')", source):
-        out.append(match.group(2))
-    return out
+            r"def unavailable_reason[^\n]*\n(?:.*\n)*?\s*return\s+(.+)",
+            source):
+        if "self.t(" not in match.group(1):
+            bad.append("unavailable_reason: " + match.group(1)[:50])
+    return bad
 
 
 class TestScannerText(unittest.TestCase):
@@ -51,14 +70,13 @@ class TestScannerText(unittest.TestCase):
         self.assertEqual(bs, en)
         self.assertTrue(bs, "nema sc_ kljuceva")
 
-    def test_migrated_scanners_have_no_hardcoded_bosnian_findings(self):
+    def test_migrated_scanners_route_all_text_through_self_t(self):
         for name in sorted(MIGRATED):
             source = open(os.path.join(SCANNERS, f"{name}.py"),
                           encoding="utf-8").read()
-            leaked = [lit for lit in _text_literals(source)
-                      if set(BS_CHARS) & set(lit.lower())]
+            leaked = _hardcoded_fields(source)
             self.assertEqual(leaked, [],
-                             f"{name}.py ima hardkodovan tekst: {leaked}")
+                             f"{name}.py ima polja van self.t(...): {leaked}")
 
     def test_disk_scanner_renders_in_both_languages(self):
         """Deterministicki: lazni disk_usage -> isti nalaz na oba jezika."""

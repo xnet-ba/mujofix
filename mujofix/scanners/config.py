@@ -61,67 +61,63 @@ class ConfigScanner(Scanner):
         if writable:
             findings.append(Finding(
                 id="config-path-writable", scanner=self.name,
-                title=f"{len(writable)} foldera u PATH-u moze mijenjati svako",
-                why="Svijet-zapisiv folder u PATH-u znaci da bilo koji program "
-                    "moze podmetnuti lazni .exe koji ces slucajno pokrenuti.",
-                severity="MEDIUM", impact="rizik podmetanja programa",
-                risk="srednji: skidanje prava pisanja trazi oprez",
+                title=self.t("sc_config_path_writable_title", n=len(writable)),
+                why=self.t("sc_config_path_writable_why"),
+                severity="MEDIUM",
+                impact=self.t("sc_config_path_writable_impact"),
+                risk=self.t("sc_config_path_writable_risk"),
                 reversible=True,
                 evidence={"entries": writable[:20]},
-                tech_details="stat S_IWOTH nad PATH stavkama"))
+                tech_details=self.t("sc_config_path_writable_tech")))
         if missing:
             findings.append(Finding(
                 id="config-path-missing", scanner=self.name,
-                title=f"{len(missing)} PATH stavki ne postoji",
-                why="Mrtve stavke u PATH-u usporavaju trazenje programa i "
-                    "lome skripte koje racunaju na njih.",
-                severity="LOW", impact="sporije pokretanje komandi",
-                risk="nizak: ciscenje je reverzibilno", reversible=True,
+                title=self.t("sc_config_path_missing_title", n=len(missing)),
+                why=self.t("sc_config_path_missing_why"),
+                severity="LOW", impact=self.t("sc_config_path_missing_impact"),
+                risk=self.t("sc_config_path_missing_risk"), reversible=True,
                 evidence={"entries": missing[:20]},
-                tech_details="os.path.isdir nad PATH stavkama"))
+                tech_details=self.t("sc_config_path_missing_tech")))
 
         for var in ("TEMP", "TMP"):
             value = os.environ.get(var, "")
             if not value or not os.path.isdir(value):
                 findings.append(Finding(
                     id="config-temp-var", scanner=self.name,
-                    title=f"Varijabla {var} ne pokazuje na ispravan folder",
-                    why="Programi pisu privremene fajlove u TEMP; losa putanja "
-                        "rusi instalere i snimanja.",
-                    severity="MEDIUM", impact="rusenje instalera/programa",
-                    risk="nizak: postavljanje putanje je reverzibilno",
+                    title=self.t("sc_config_temp_title", var=var),
+                    why=self.t("sc_config_temp_why"),
+                    severity="MEDIUM", impact=self.t("sc_config_temp_impact"),
+                    risk=self.t("sc_config_temp_risk"),
                     reversible=True,
                     evidence={"var": var, "value": value},
-                    tech_details="os.environ + isdir"))
+                    tech_details=self.t("sc_config_temp_tech")))
 
         if windows.is_windows() and not ctx.cancelled:
             try:
                 saver, scheme = _power_saver_active()
             except OSError:
-                saver, scheme = False, "nepoznato"
+                saver, scheme = False, self.t("sc_common_unknown")
             if saver:
                 findings.append(Finding(
                     id="config-power-saver", scanner=self.name,
-                    title="Aktivan je štedljivi plan napajanja",
-                    why="Power Saver smanjuje performanse da ustedi struju — "
-                        "na desktopu je to cesto cista steta.",
-                    severity="LOW", impact="smanjene performanse",
-                    risk="nizak: promjena plana je reverzibilna",
+                    title=self.t("sc_config_power_title"),
+                    why=self.t("sc_config_power_why"),
+                    severity="LOW", impact=self.t("sc_config_power_impact"),
+                    risk=self.t("sc_config_power_risk"),
                     reversible=True,
                     evidence={"scheme": scheme[:200]},
-                    tech_details="powercfg /getactivescheme"))
+                    tech_details=self.t("sc_config_power_tech")))
             failures, sample = _cbs_failures()
             if failures > 5:
                 findings.append(Finding(
                     id="config-sfc", scanner=self.name,
-                    title=f"SFC tragovi: {failures} grešaka u CBS logu",
-                    why="Servisiranje komponenti prijavljuje neuspjehe — "
-                        "moguca ostecena sistemska datoteka (provjera: "
-                        "sfc /scannow).",
+                    title=self.t("sc_config_sfc_title", n=failures),
+                    why=self.t("sc_config_sfc_why"),
                     severity="MEDIUM",
-                    impact="moguca nestabilnost sistema",
-                    risk="nizak: samo citamo log, ne mijenjamo nista",
+                    impact=self.t("sc_config_sfc_impact"),
+                    risk=self.t("sc_config_sfc_risk"),
                     reversible=False,
                     evidence={"failures": failures, "sample": sample},
-                    tech_details=f"rep CBS.log ({CBS_TAIL_BYTES} B)"))
+                    tech_details=self.t("sc_config_sfc_tech",
+                                         n=CBS_TAIL_BYTES)))
         return findings
