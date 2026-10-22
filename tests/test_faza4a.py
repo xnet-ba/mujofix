@@ -269,13 +269,16 @@ class TestBuildChain(unittest.TestCase):
         session = build_chain(True, self.wd, binary="/x/opencode",
                               model_lister=boom)
         self.assertFalse(session.live)
-        self.assertIn("zivi model nedostupan", session.note)
+        from mujofix.i18n.strings import tr
+        self.assertIn(tr("ai_note_unavailable", "bs", e="none").split(" (")[0],
+                      session.note)
 
     def test_no_free_model_is_offline(self):
         session = build_chain(True, self.wd, binary="/x/opencode",
                               model_lister=lambda _b: ["anthropic/claude"])
         self.assertFalse(session.live)
-        self.assertIn("nema besplatnog Zen modela", session.note)
+        from mujofix.i18n.strings import tr as _tr
+        self.assertIn(_tr("ai_note_no_free_model", "bs"), session.note)
 
     def test_live_chain_prefers_free_marker_over_stealth(self):
         session = build_chain(True, self.wd, binary="/x/opencode",

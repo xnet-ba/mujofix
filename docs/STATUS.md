@@ -94,6 +94,17 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- OFFLINE 2026-10-22: offline objašnjenje (koje većina korisnika vidi, jer
+  besplatni Zen tier odbija poziv iz naseg CLI-a) bilo je jedan red sablona.
+  Sada `offline_explain(finding, lang)` gradi iz PODATAKA nalaza: why/impact/
+  risk (+reverzibilno)/dokaz (dict -> `k=v`)/tehnicki detalji + koja akcija
+  postoji u katalogu (ili izricito da nema). Polja koje nalaz nema se
+  IZOSTAVLJAJU — nikad se ne popunjava pretpostavkom; test
+  `test_offline_never_invents_missing_fields`. Dvojezicno (bs/en) preko i18n,
+  ukljucujuci note linije (`ai_note_*`) i `ai_none`. 6 novih testova.
+  NAPOMENA (postojeci, siri gap): tekst NALAZA (title/why/...) pisu scanneri na
+  bosanskom, pa engleski UI prikazuje bosanski sadrzaj nalaza — lokalizacija
+  scannera je odvojen posao.
 - KARANTIN-PREGLED 2026-10-22: fajlovi iz RANIJIH sesija bili su nedostupni —
   "Poništi sve" (`self._undone`) zna samo za tekuću sesiju, pa je poslije
   restarta preostajalo samo trajno brisanje. Sada `list_quarantine` /

@@ -157,7 +157,7 @@ class ExplainWorker(QThread):
     failed = Signal(str)
 
     def __init__(self, findings, username, hostname, consent_on,
-                 build_fn=None, workdir=None, parent=None):
+                 build_fn=None, workdir=None, parent=None, lang="bs"):
         super().__init__(parent)
         self._findings = findings
         self._username = username
@@ -165,10 +165,17 @@ class ExplainWorker(QThread):
         self._consent_on = consent_on
         self._build = build_fn or build_chain
         self._workdir = workdir
+        self._lang = lang
 
     def run(self):
         try:
-            session = self._build(self._consent_on, self._workdir)
+            if self._build is build_chain:
+                # pravi lanac: prosledi jezik (offline tekst je dvojezican)
+                session = self._build(self._consent_on, self._workdir,
+                                      lang=self._lang)
+            else:
+                # injektovan builder (testovi) — drzi se postojeceg ugovora
+                session = self._build(self._consent_on, self._workdir)
             resp = session.chain.explain(
                 AIRequest(self._findings, self._username, self._hostname))
         except Exception as exc:
@@ -443,7 +450,7 @@ class MainWindow(QMainWindow):
         self._ai = ExplainWorker(payload["findings"], username, hostname,
                                  consent_on, build_fn=self._ai_build_fn,
                                  workdir=self._ai_workdir or default_ai_workdir(),
-                                 parent=self)
+                                 parent=self, lang=self.lang)
         self._ai.done.connect(self._on_explained)
         self._ai.failed.connect(self._on_explain_failed)
         self._ai.start()

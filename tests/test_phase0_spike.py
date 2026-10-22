@@ -225,13 +225,64 @@ class TestValidator(unittest.TestCase):
 
 
 class TestOfflineFallback(unittest.TestCase):
+    """Offline je put koji vecina korisnika vidi — mora biti bogat i ISKREN."""
+
+    FINDING = {
+        "id": "disk-temp", "scanner": "disk",
+        "title": "Privremeni fajlovi zauzimaju 4.8 GB",
+        "why": "stare instalacije drze fajlove",
+        "severity": "MEDIUM", "impact": "manje slobodnog prostora",
+        "risk": "nizak: karantin", "reversible": True,
+        "evidence": {"temp_dir": "C:/Users/x/AppData/Local/Temp",
+                     "bytes": 4800000000, "files": 1834},
+        "tech_details": "C:/Windows/Temp",
+    }
+
     def test_offline_explains_without_network(self):
-        text = offline_explain({"title": "pun temp",
-                                "severity": "LOW",
+        text = offline_explain({"title": "pun temp", "severity": "LOW",
                                 "evidence": "2.1 GB"})
         self.assertIn("OFFLINE", text)
         self.assertIn("pun temp", text)
         self.assertIn("2.1 GB", text)
+
+    def test_offline_uses_every_field_it_has(self):
+        text = offline_explain(self.FINDING)
+        for expected in (self.FINDING["title"], self.FINDING["why"],
+                         self.FINDING["impact"], self.FINDING["risk"],
+                         "bytes=4800000000", "files=1834",
+                         "temp_dir=C:/Users/x/AppData/Local/Temp",
+                         self.FINDING["tech_details"]):
+            self.assertIn(expected, text, expected)
+        self.assertIn("clean_temp", text)  # koja akcija postoji
+        self.assertIn("može se poništiti: da", text)
+
+    def test_offline_says_when_there_is_no_action(self):
+        finding = dict(self.FINDING, id="nema-akcije", scanner="suspicious")
+        text = offline_explain(finding)
+        self.assertIn("nema automatske popravke", text)
+
+    def test_offline_never_invents_missing_fields(self):
+        """Nema polja -> nema reda (nikad se ne popunjava pretpostavkom)."""
+        text = offline_explain({"title": "X", "severity": "LOW"})
+        self.assertNotIn("Zašto:", text)
+        self.assertNotIn("Uticaj:", text)
+        self.assertNotIn("Tehnički detalji:", text)
+        self.assertIn("scanner nije priložio dodatne podatke", text)
+
+    def test_offline_is_bilingual_and_echoes_scanner_data(self):
+        text = offline_explain(self.FINDING, "en")
+        self.assertIn("[OFFLINE, no AI]", text)
+        self.assertIn("Why:", text)
+        self.assertIn("severity: MEDIUM", text)
+        # tekst nalaza je od scannera (bosanski) i vidi se takav kakav jeste
+        self.assertIn(self.FINDING["title"], text)
+
+    def test_provider_localizes_the_note_for_no_findings(self):
+        from mujofix.ai.provider import AIRequest, OfflineProvider
+        bs = OfflineProvider("bs").explain(AIRequest([], "", ""))
+        en = OfflineProvider("en").explain(AIRequest([], "", ""))
+        self.assertIn("zdrav", bs.text)
+        self.assertIn("healthy", en.text)
 
 
 if __name__ == "__main__":

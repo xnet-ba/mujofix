@@ -3,6 +3,13 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Dodano
+- **Bogatija offline objašnjenja** (put koji većina korisnika vidi, jer
+  besplatni Zen tier odbija poziv iz našeg CLI-a): umjesto jednog reda,
+  objašnjenje sada nosi zašto/uticaj/rizik (i da li se može poništiti)/
+  dokaz/tehničke detalje + šta aplikacija može (postoji li akcija u
+  katalogu). Gradi se ISKLJUČIVO iz podataka nalaza — polja koje nema se
+  izostavljaju, ništa se ne popunjava pretpostavkom. Dvojezično (bs/en),
+  uključujući „note" linije lanca.
 - **Pregled karantina:** lista šta je unutra (datum, veličina, originalna
   putanja) i vraćanje pojedinačnih fajlova — uključujući one iz RANIJIH
   sesija; do sada je poslije restarta preostajalo samo trajno brisanje

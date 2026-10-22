@@ -141,14 +141,59 @@ def write_config(workdir: str, mcp_command: list[str]) -> str:
     return path
 
 
-def offline_explain(finding: dict) -> str:
-    """Predefinisano objasnjenje bez AI-ja (radi bez interneta i bez modela)."""
-    title = finding.get("title", "nepoznat nalaz")
-    severity = finding.get("severity", "?")
-    evidence = finding.get("evidence", "nema dodatnih dokaza")
-    return (
-        f"[OFFLINE, bez AI-ja] {title} (ozbiljnost: {severity}). "
-        f"Dokaz: {evidence}. "
-        "AI objasnjenje nije dostupno (nema veze ili modela); "
-        "popravka je moguca samo kroz odobreni plan u aplikaciji."
-    )
+def _evidence_text(evidence: object, empty: str) -> str:
+    """Citljiv dokaz iz nalaza; ne dodaje nista sto nije u nalazu."""
+    if evidence is None or evidence == "":
+        return empty
+    if isinstance(evidence, dict):
+        parts = []
+        for key in sorted(evidence):
+            value = evidence[key]
+            if isinstance(value, (list, tuple)):
+                value = ", ".join(str(item) for item in value)
+            text = str(value)
+            parts.append(f"{key}={text[:120]}")
+        return "; ".join(parts) if parts else empty
+    return str(evidence)
+
+
+def offline_explain(finding: dict, lang: str = "bs") -> str:
+    """Objasnjenje bez AI-ja iz ISKLJUCIVO podataka koje je scanner prikupio.
+
+    Ne izmislja nista: svaka recenica preslikava polje nalaza. Ako polja nema,
+    red se izostavlja (nikad se ne popunjava pretpostavkom). Kaze i sta
+    aplikacija moze (postoji li akcija za taj nalaz), ali ne obecava uspjeh.
+    """
+    from mujofix.actions.mapping import finding_to_actions
+    from mujofix.i18n.strings import tr
+
+    def t(key: str, **kw) -> str:
+        return tr(key, lang, **kw)
+
+    lines = [t("ai_offline_title",
+               title=finding.get("title", t("ai_offline_unknown")),
+               sev=finding.get("severity", "?"))]
+    for key, field in (("ai_offline_why", "why"),
+                       ("ai_offline_impact", "impact")):
+        value = finding.get(field)
+        if value:
+            lines.append(t(key, v=value))
+    if finding.get("risk"):
+        reversible = t("ai_yes") if finding.get("reversible") else t("ai_no")
+        lines.append(t("ai_offline_risk", v=finding["risk"], rev=reversible))
+    lines.append(t("ai_offline_evidence", v=_evidence_text(
+        finding.get("evidence"), t("ai_offline_no_evidence"))))
+    if finding.get("tech_details"):
+        lines.append(t("ai_offline_tech", v=finding["tech_details"]))
+
+    try:
+        actions = finding_to_actions(finding)
+    except Exception:
+        actions = []
+    if actions:
+        listed = "; ".join(f"{a.name} ({a.risk})" for a in actions)
+        lines.append(t("ai_offline_action", v=listed))
+    else:
+        lines.append(t("ai_offline_no_action"))
+    lines.append(t("ai_offline_footer"))
+    return "\n".join(lines)

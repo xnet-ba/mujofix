@@ -19,6 +19,7 @@ from dataclasses import dataclass, field, replace
 from mujofix.ai.agent_config import AGENT_ID, offline_explain
 from mujofix.ai.mujofix_mcp import validate_plan
 from mujofix.ai.sanitize import sanitize
+from mujofix.i18n.strings import tr
 
 MAX_FINDINGS_PER_CALL = 10
 MAX_PLAN_STEPS = 20
@@ -52,15 +53,19 @@ class Provider(abc.ABC):
 
 
 class OfflineProvider(Provider):
-    """Uvijek radi: predefinisana objasnjenja, nikad plan, nikad mreza."""
+    """Uvijek radi: objasnjenja iz podataka nalaza, nikad plan, nikad mreza."""
 
     name = "offline"
 
+    def __init__(self, lang: str = "bs") -> None:
+        self.lang = lang
+
     def explain(self, request: AIRequest) -> AIResponse:
-        parts = [offline_explain(f) for f in
+        from mujofix.i18n.strings import tr
+
+        parts = [offline_explain(f, self.lang) for f in
                  request.findings[:MAX_FINDINGS_PER_CALL]]
-        return AIResponse(text="\n\n".join(parts) or
-                          "Nema nalaza. Računar je zdrav.",
+        return AIResponse(text="\n\n".join(parts) or tr("ai_none", self.lang),
                           model="offline", plan=None, offline=True)
 
 
@@ -315,7 +320,8 @@ class LiveSession:
 
 
 def build_chain(consent_on: bool, workdir: str | None = None, *,
-                binary: str | None = None, model_lister=None) -> LiveSession:
+                binary: str | None = None, model_lister=None,
+                lang: str = "bs") -> LiveSession:
     """Lanac za objasnjenje: offline po defaultu, zivi Zen uz pristanak.
 
     Nikad ne baca i nikad ne pokrece proces bez pristanka. Svaki neuspjeh
@@ -324,16 +330,16 @@ def build_chain(consent_on: bool, workdir: str | None = None, *,
     se pokrece tek pri objasnjenju, kao child proces.
     """
     if not consent_on:
-        return LiveSession(FallbackChain([OfflineProvider()]),
-                           "offline: pristanak nije dat")
+        return LiveSession(FallbackChain([OfflineProvider(lang)]),
+                           tr("ai_note_no_consent", lang))
     from mujofix.ai import opencode_runtime
 
     workdir = workdir or os.getcwd()
     try:
         bin_path = binary or opencode_runtime.bundled_binary()
     except Exception as exc:
-        return LiveSession(FallbackChain([OfflineProvider()]),
-                           f"offline: nema OpenCode binary-ja ({exc})")
+        return LiveSession(FallbackChain([OfflineProvider(lang)]),
+                           tr("ai_note_no_binary", lang, e=exc))
     try:
         # Bez ovoga `run --agent mujofix` ne bi nasao nas agent ni MCP alate:
         # config se upisuje u radni dir, a child ga cita preko XDG_CONFIG_HOME.
@@ -342,15 +348,15 @@ def build_chain(consent_on: bool, workdir: str | None = None, *,
         env = child_env(workdir)
         models = free_zen_models((model_lister or list_models)(bin_path))
     except Exception as exc:
-        return LiveSession(FallbackChain([OfflineProvider()]),
-                           f"offline: zivi model nedostupan ({exc})")
+        return LiveSession(FallbackChain([OfflineProvider(lang)]),
+                           tr("ai_note_unavailable", lang, e=exc))
     if not models:
-        return LiveSession(FallbackChain([OfflineProvider()]),
-                           "offline: nema besplatnog Zen modela")
+        return LiveSession(FallbackChain([OfflineProvider(lang)]),
+                           tr("ai_note_no_free_model", lang))
     # "-free" marker ispred stealth modela (stealth je za prikupljanje
     # povratnih informacija), pa abecedno — deterministicki izbor.
     chosen = sorted(models, key=lambda m: ("-free" not in m.lower(),
                                            m.lower()))[0]
     provider = OpenCodeProvider(bin_path, workdir, chosen, env=env)
-    return LiveSession(FallbackChain([provider, OfflineProvider()]),
-                       f"zivi model: {chosen}", live=True)
+    return LiveSession(FallbackChain([provider, OfflineProvider(lang)]),
+                       tr("ai_note_live", lang, m=chosen), live=True)
