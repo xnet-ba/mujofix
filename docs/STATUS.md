@@ -94,6 +94,13 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- KARANTIN-PREGLED 2026-10-22: fajlovi iz RANIJIH sesija bili su nedostupni —
+  "Poništi sve" (`self._undone`) zna samo za tekuću sesiju, pa je poslije
+  restarta preostajalo samo trajno brisanje. Sada `list_quarantine` /
+  `load_quarantine_index` / `restore_quarantine_file` (originalna putanja iz
+  manifesta; odbija pregaziti postojeci fajl; bez manifesta dize razlog) i
+  `ui/quarantine.py` dijalog (lista + "Vrati odabrano"/"Obriši odabrano").
+  Testovi: 3 unit (`tests/test_quarantine.py`) + 2 GUI (`test_faza4b`).
 - KARANTIN 2026-10-22 (nadjen stvarni defekt, ne samo dokumentacija): karantin
   se NIKAD nije cistio — `%LOCALAPPDATA%\MujoFix\quarantine` je rastao
   zauvek, a izvjestaj je mogao tvrditi "oslobodjeno" za fajlove koji su samo

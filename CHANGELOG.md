@@ -3,6 +3,11 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Dodano
+- **Pregled karantina:** lista šta je unutra (datum, veličina, originalna
+  putanja) i vraćanje pojedinačnih fajlova — uključujući one iz RANIJIH
+  sesija; do sada je poslije restarta preostajalo samo trajno brisanje
+  („Poništi sve" zna samo za tekuću sesiju). Fajl bez manifesta nema
+  poznatu originalnu putanju, pa se može samo obrisati (i to se kaže).
 - **Čišćenje karantina + stvarno „oslobođeno":** karantin se prije NIKAD nije
   čistio (fajlovi su ostajali u `%LOCALAPPDATA%\MujoFix\quarantine`), pa
   tvrdnja o oslobođenom prostoru nije bila istinita. Novi

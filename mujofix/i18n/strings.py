@@ -12,6 +12,21 @@ STRINGS = {
         "select_none": "Ništa",
         "show_tech": "Prikaži tehničke detalje",
         "undo_all": "Poništi sve",
+        "quarantine_view": "Karantin",
+        "quarantine_view_now": "Karantin ({n})",
+        "quarantine_title": "MujoFix — karantin",
+        "quarantine_info": ("U karantinu: {n} fajlova, {gb}. Fajlovi bez "
+                            "poznate originalne putanje se mogu samo "
+                            "obrisati."),
+        "quarantine_unknown_source": "nepoznata originalna putanja",
+        "quarantine_size": "Veličina",
+        "quarantine_original": "Originalna putanja",
+        "quarantine_restore": "Vrati odabrano",
+        "quarantine_delete": "Obriši odabrano",
+        "quarantine_restored": "Vraćeno na: {p}",
+        "quarantine_restore_failed": "Nije vraćeno: {e}",
+        "quarantine_delete_confirm": ("Trajno obrisati {name} ({gb})?\n"
+                                      "Ovo se NE može poništiti."),
         "purge_quarantine": "Očisti karantin",
         "purge_quarantine_now": "Očisti karantin ({n} fajlova, {gb})",
         "purge_confirm": ("Trajno obrisati {n} fajlova iz karantina ({gb})?\n"
@@ -86,6 +101,20 @@ STRINGS = {
         "select_none": "None",
         "show_tech": "Show technical details",
         "undo_all": "Undo all",
+        "quarantine_view": "Quarantine",
+        "quarantine_view_now": "Quarantine ({n})",
+        "quarantine_title": "MujoFix — quarantine",
+        "quarantine_info": ("In quarantine: {n} files, {gb}. Files with no "
+                            "known original path can only be deleted."),
+        "quarantine_unknown_source": "unknown original path",
+        "quarantine_size": "Size",
+        "quarantine_original": "Original path",
+        "quarantine_restore": "Restore selected",
+        "quarantine_delete": "Delete selected",
+        "quarantine_restored": "Restored to: {p}",
+        "quarantine_restore_failed": "Not restored: {e}",
+        "quarantine_delete_confirm": ("Permanently delete {name} ({gb})?\n"
+                                      "This CANNOT be undone."),
         "purge_quarantine": "Clean quarantine",
         "purge_quarantine_now": "Clean quarantine ({n} files, {gb})",
         "purge_confirm": ("Permanently delete {n} files from quarantine ({gb})?\n"

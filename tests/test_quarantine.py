@@ -11,9 +11,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from mujofix.actions.base import (
     ActionContext,
     Runner,
+    list_quarantine,
     purge_quarantine,
     quarantine_file,
     quarantine_usage,
+    restore_quarantine_file,
 )
 from mujofix.actions.temp import CleanTemp
 
@@ -87,6 +89,59 @@ class TestQuarantine(unittest.TestCase):
             deleted, freed = purge_quarantine(qdir)
             self.assertEqual(deleted, 3)
             self.assertEqual(freed, total)
+
+    def test_list_and_restore_use_manifest_for_original_path(self):
+        """Bez manifesta se ne zna odakle je fajl — tada samo brisanje."""
+        with tempfile.TemporaryDirectory() as tmp:
+            qdir = os.path.join(tmp, "q")
+            origin = os.path.join(tmp, "orig.txt")
+            with open(origin, "wb") as handle:
+                handle.write(b"podaci")
+            record = quarantine_file(origin, qdir)
+            from mujofix.actions.base import save_manifest
+            save_manifest(qdir, "temp-manifest", [record])
+
+            entries = list_quarantine(qdir)
+            self.assertEqual(len(entries), 1)
+            self.assertEqual(entries[0]["original"], origin)
+            self.assertEqual(entries[0]["size"], 6)
+
+            restored = restore_quarantine_file(qdir, entries[0]["name"])
+            self.assertEqual(restored, origin)
+            self.assertTrue(os.path.exists(origin))
+            self.assertEqual(list_quarantine(qdir), [])  # karantin prazan
+
+    def test_restore_without_manifest_raises_with_reason(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            qdir = os.path.join(tmp, "q")
+            src = os.path.join(tmp, "a.tmp")
+            with open(src, "wb") as handle:
+                handle.write(b"x")
+            record = quarantine_file(src, qdir)  # BEZ manifesta
+            name = os.path.basename(record["quarantined"])
+            entry = list_quarantine(qdir)[0]
+            self.assertIsNone(entry["original"])
+            with self.assertRaises(OSError) as ctx:
+                restore_quarantine_file(qdir, name)
+            self.assertIn("manifesta", str(ctx.exception))
+
+    def test_restore_refuses_to_overwrite_existing_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            qdir = os.path.join(tmp, "q")
+            origin = os.path.join(tmp, "orig.txt")
+            with open(origin, "wb") as handle:
+                handle.write(b"staro")
+            record = quarantine_file(origin, qdir)
+            from mujofix.actions.base import save_manifest
+            save_manifest(qdir, "temp-manifest", [record])
+            with open(origin, "wb") as handle:  # novi fajl na istoj putanji
+                handle.write(b"novo")
+            with self.assertRaises(OSError) as ctx:
+                restore_quarantine_file(qdir, os.path.basename(
+                    record["quarantined"]))
+            self.assertIn("vec postoji", str(ctx.exception))
+            with open(origin, "rb") as handle:
+                self.assertEqual(handle.read(), b"novo")  # nije pregazen
 
 
 if __name__ == "__main__":

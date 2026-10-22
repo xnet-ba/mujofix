@@ -114,6 +114,72 @@ def quarantine_usage(quarantine_dir: str) -> tuple[int, int]:
     return files, total
 
 
+def load_quarantine_index(quarantine_dir: str) -> dict[str, str]:
+    """Mapa `ime fajla u karantinu -> originalna putanja` (iz manifesta).
+
+    Manifesti (`<akcija>-manifest.json`) se pisu pri svakom apply-u; bez njih se
+    ne moze znati odakle je fajl dosao, pa se takav fajl moze samo obrisati.
+    """
+    index: dict[str, str] = {}
+    if not os.path.isdir(quarantine_dir):
+        return index
+    for name in os.listdir(quarantine_dir):
+        if not name.endswith("-manifest.json"):
+            continue
+        try:
+            with open(os.path.join(quarantine_dir, name), encoding="utf-8") as h:
+                records = json.load(h)
+        except (OSError, json.JSONDecodeError):
+            continue
+        for record in records if isinstance(records, list) else []:
+            quarantined = record.get("quarantined")
+            original = record.get("original")
+            if quarantined and original:
+                index[os.path.basename(quarantined)] = original
+    return index
+
+
+def list_quarantine(quarantine_dir: str) -> list[dict]:
+    """Fajlovi u karantinu: ime, putanja, velicina, vrijeme, originalna putanja."""
+    if not os.path.isdir(quarantine_dir):
+        return []
+    index = load_quarantine_index(quarantine_dir)
+    entries: list[dict] = []
+    for name in os.listdir(quarantine_dir):
+        path = os.path.join(quarantine_dir, name)
+        if not os.path.isfile(path) or name.endswith("-manifest.json"):
+            continue
+        try:
+            size, mtime = os.path.getsize(path), os.path.getmtime(path)
+        except OSError:
+            continue
+        entries.append({"name": name, "path": path, "size": size,
+                        "mtime": mtime, "original": index.get(name)})
+    return sorted(entries, key=lambda entry: entry["mtime"], reverse=True)
+
+
+def restore_quarantine_file(quarantine_dir: str, name: str) -> str:
+    """Vrati jedan fajl iz karantina na originalnu putanju; vrati tu putanju.
+
+    Za razliku od `restore_quarantined` (tihi, idempotentan, za rollback), ova
+    funkcija DIZE OSError sa razlogom kada se ne moze vratiti — GUI to prikaze.
+    """
+    original = load_quarantine_index(quarantine_dir).get(name)
+    if not original:
+        raise OSError(
+            "originalna putanja nije poznata (nema manifesta za taj fajl)")
+    source = os.path.join(quarantine_dir, name)
+    if not os.path.isfile(source):
+        raise OSError("fajl nije u karantinu")
+    if os.path.exists(original):
+        raise OSError(f"na originalnoj putanji vec postoji fajl: {original}")
+    parent = os.path.dirname(original)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    shutil.move(source, original)
+    return original
+
+
 def purge_quarantine(quarantine_dir: str) -> tuple[int, int]:
     """Trajno obrisi sadrzaj karantina (fajlove i manifeste).
 

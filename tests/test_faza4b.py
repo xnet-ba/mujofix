@@ -156,5 +156,86 @@ class TestConsent(unittest.TestCase):
             dlg.close()
 
 
+class TestQuarantineDialog(unittest.TestCase):
+    """Vracanje fajlova iz karantina (i iz RANIJIH sesija) iz GUI-ja."""
+
+    @classmethod
+    def setUpClass(cls):
+        from PySide6.QtWidgets import QApplication
+
+        cls.app = QApplication.instance() or QApplication([])
+
+    def _dialog(self, tmp):
+        from mujofix.ui.quarantine import QuarantineDialog
+
+        return QuarantineDialog(tmp, lang="bs")
+
+    def test_lists_restores_and_handles_unknown_source(self):
+        import time
+        from unittest.mock import patch
+
+        from PySide6.QtWidgets import QMessageBox
+
+        from mujofix.actions.base import quarantine_file, save_manifest
+
+        with tempfile.TemporaryDirectory() as tmp:
+            qdir = os.path.join(tmp, "q")
+            known = os.path.join(tmp, "known.txt")
+            with open(known, "wb") as handle:
+                handle.write(b"aaa")
+            record = quarantine_file(known, qdir)
+            save_manifest(qdir, "temp-manifest", [record])
+            unknown_src = os.path.join(tmp, "unknown.txt")
+            with open(unknown_src, "wb") as handle:
+                handle.write(b"b")
+            quarantine_file(unknown_src, qdir)  # bez manifesta
+
+            dialog = self._dialog(qdir)
+            try:
+                self.assertEqual(dialog.list.count(), 2)
+                self.assertIn("2 fajlova", dialog.info.text())
+                # nadji red sa poznatim originalom i vrati ga
+                for row in range(dialog.list.count()):
+                    dialog.list.setCurrentRow(row)
+                    if dialog.btn_restore.isEnabled():
+                        break
+                with patch.object(QMessageBox, "information"):
+                    dialog.restore_selected()
+                self.assertTrue(os.path.exists(known))
+                self.assertEqual(dialog.list.count(), 1)  # refresh
+                # preostali je bez originala -> vrati je onemoguceno
+                dialog.list.setCurrentRow(0)
+                self.assertIsNone(dialog._entries[0]["original"])
+                self.assertFalse(dialog.btn_restore.isEnabled())
+            finally:
+                dialog.close()
+
+    def test_delete_selected_aspect(self):
+        from unittest.mock import patch
+
+        from PySide6.QtWidgets import QMessageBox
+
+        from mujofix.actions.base import quarantine_file
+
+        with tempfile.TemporaryDirectory() as tmp:
+            qdir = os.path.join(tmp, "q")
+            src = os.path.join(tmp, "x.tmp")
+            with open(src, "wb") as handle:
+                handle.write(b"x")
+            quarantine_file(src, qdir)
+            dialog = self._dialog(qdir)
+            try:
+                self.assertEqual(dialog.list.count(), 1)
+                dialog.list.setCurrentRow(0)  # bez selekcije nema akcije
+                with patch.object(QMessageBox, "question",
+                                  return_value=QMessageBox.Yes):
+                    dialog.delete_selected()
+                self.assertEqual(dialog.list.count(), 0)
+                self.assertIn("0 fajlova", dialog.info.text())
+                self.assertFalse(dialog.btn_delete.isEnabled())
+            finally:
+                dialog.close()
+
+
 if __name__ == "__main__":
     unittest.main()

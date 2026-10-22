@@ -56,6 +56,7 @@ from mujofix.ai.sanitize import sanitize  # noqa: E402
 from mujofix.i18n.strings import tr  # noqa: E402
 from mujofix.platform import windows  # noqa: E402
 from mujofix.ui import theme  # noqa: E402
+from mujofix.ui.quarantine import QuarantineDialog  # noqa: E402
 from mujofix.ui.consent import ConsentDialog, SentLogViewer  # noqa: E402
 
 QUARANTINE_SUBDIR = "quarantine"
@@ -312,8 +313,11 @@ class MainWindow(QMainWindow):
         self.btn_undo.clicked.connect(self.undo_all)
         self.btn_purge = QPushButton(self._t("purge_quarantine"))
         self.btn_purge.clicked.connect(self.purge_quarantine_clicked)
+        self.btn_quarantine = QPushButton(self._t("quarantine_view"))
+        self.btn_quarantine.clicked.connect(self.open_quarantine)
         report_row.addWidget(self.btn_undo)
         report_row.addWidget(self.btn_purge)
+        report_row.addWidget(self.btn_quarantine)
         layout.addLayout(report_row)
         self._refresh_quarantine_button()
 
@@ -597,8 +601,17 @@ class MainWindow(QMainWindow):
         if files:
             self.btn_purge.setText(
                 self._t("purge_quarantine_now", n=files, gb=_gb(total)))
+            self.btn_quarantine.setText(self._t("quarantine_view_now", n=files))
         else:
             self.btn_purge.setText(self._t("purge_quarantine"))
+            self.btn_quarantine.setText(self._t("quarantine_view"))
+
+    def open_quarantine(self):
+        """Pregled karantina — vracanje pojedinacnih fajlova iz ranijih sesija."""
+        dialog = QuarantineDialog(self._ctx.quarantine_dir, self,
+                                  lang=self.lang)
+        dialog.exec()
+        self._refresh_quarantine_button()
 
     def purge_quarantine_clicked(self):
         """Trajno brisanje karantina — samo uz izricitu potvrdu korisnika."""
