@@ -329,6 +329,31 @@ class TestMcpMessageBoundaryFuzz(unittest.TestCase):
         self.assertIn("error", handle_message({"method": "nema", "id": 7}))
         self.assertIsNone(handle_message({"method": "nema"}))  # notifikacija
 
+    def test_load_findings_file_rejects_bad_shapes(self):
+        """Neispravan snapshot se odbija ODMAH (jasna greska), ne duboko kasnije."""
+        import json as _json
+        import tempfile
+
+        from mujofix.ai.mujofix_mcp import load_findings_file
+
+        bad = [{}, {"findings": "x"}, {"findings": [1, 2]},
+               {"findings": [{"id": "a"}, "nije-dict"]}, ["lista"],
+               "string", None]
+        for payload in bad:
+            with tempfile.TemporaryDirectory() as tmp:
+                path = os.path.join(tmp, "f.json")
+                with open(path, "w", encoding="utf-8") as handle:
+                    _json.dump(payload, handle)
+                with self.assertRaises(ValueError):
+                    load_findings_file(path)
+        # ispravan snapshot prolazi
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "ok.json")
+            with open(path, "w", encoding="utf-8") as handle:
+                _json.dump({"findings": [{"id": "a"}], "system_info": {"x": 1}},
+                           handle)
+            load_findings_file(path)  # ne baca
+
 
 if __name__ == "__main__":
     unittest.main()

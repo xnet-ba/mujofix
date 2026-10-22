@@ -119,7 +119,12 @@ def load_findings_file(path: str) -> None:
         data = json.load(handle)
     if not isinstance(data, dict) or "findings" not in data:
         raise ValueError("findings fajl mora imati kljuc 'findings'")
-    STORE["findings"] = data["findings"]
+    findings = data["findings"]
+    if not isinstance(findings, list):
+        raise ValueError("'findings' mora biti lista")
+    if any(not isinstance(item, dict) for item in findings):
+        raise ValueError("svaki nalaz mora biti objekat")
+    STORE["findings"] = findings
     STORE["system_info"] = data.get("system_info")
 
 

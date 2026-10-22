@@ -3,6 +3,9 @@
 ## [0.4.0] (u razvoju — nije objavljeno)
 
 ### Ispravljeno
+- **`load_findings_file` sada odbija neispravan snapshot odmah** (mora biti
+  objekat sa `findings` **listom objekata**), umjesto da greška ispliva
+  duboko kasnije u obradi alata.
 - **MCP server je mogao umrijeti od neispravne poruke:** `serve()` je čitao
   `msg.get(...)` **izvan** `try` bloka, pa je validan JSON koji nije objekat
   (npr. `[1,2]`) bacao `AttributeError` i **ubijao server** — a poruke dolaze

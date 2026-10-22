@@ -94,6 +94,11 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- GRANICE — ZATVOREN KRUG 2026-10-22: sve cetiri ulazne granice su pregledane
+  fuzz testovima i ocvrsnute: (1) `sanitize` (privatnost), (2) `validate_plan`
+  (AI predlog), (3) `update` (podaci s mreze), (4) MCP `handle_message` +
+  `load_findings_file` (vanjski proces). Uz to: `load_findings_file` odbija
+  neispravan snapshot odmah (findings mora biti lista objekata).
 - MCP-GRANICA 2026-10-22 (fuzz, treci krug): `serve()` je citao `msg.get(...)`
   IZVAN try bloka, pa je validan JSON koji nije objekat (npr. `[1,2]`) bacao
   AttributeError i UBIO server (poruke dolaze od vanjskog procesa!); unutar try se
