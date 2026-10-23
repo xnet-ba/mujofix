@@ -260,6 +260,13 @@
   u izvjestaj; otkazivanje ne brise nista). Testovi: `tests/test_quarantine.py`
   (4) + 3 GUI. CHANGELOG otvoren kao 0.4.0 (u razvoju) da dev build ne tvrdi
   0.3.0.
+- OBJAVLJENO 2026-10-22: **v0.4.0** (tag + GitHub Release, sva 4 CI joba zelena).
+  Asseti: `MujoFix-Setup-0.4.0.exe` (76 MB, sha256
+  68842830aa3eb4d9ebf3e7a2ccf8e2a4fa6c7d088a90ca64d390bf673e8ef6fa),
+  `MujoFix-v0.4.0.zip` (115 MB), `SHA256SUMS.txt`.
+  Ziv update put provjeren protiv stvarnog release-a: korisnik na 0.3.0 ->
+  available=True, latest 0.4.0, izabran `MujoFix-Setup-0.4.0.exe`, SHA256SUMS ima
+  njegov hash. README (bs+en) i badge podignuti na 0.4.0.
 - OBJAVLJENO 2026-10-22: **v0.3.0** (tag + GitHub Release). CI `build` job
   zelen: pin provjera, OpenCode download + SHA-256, PyInstaller, smoke
   zapakovanog CLI-ja, Inno installer, SHA256SUMS, Release. Asseti:

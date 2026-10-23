@@ -39,15 +39,15 @@ Grab the latest from [Releases](https://github.com/xnet-ba/mujofix/releases):
 2. (Optional) verify the hash against the `SHA256SUMS.txt` from the same release:
 
 ```powershell
-$a = (Get-FileHash .\MujoFix-Setup-0.3.0.exe -Algorithm SHA256).Hash.ToLower()
-$b = ((Select-String .\SHA256SUMS.txt -Pattern "MujoFix-Setup-0.3.0.exe").Line -split '\s+')[0]
+$a = (Get-FileHash .\MujoFix-Setup-0.4.0.exe -Algorithm SHA256).Hash.ToLower()
+$b = ((Select-String .\SHA256SUMS.txt -Pattern "MujoFix-Setup-0.4.0.exe").Line -split '\s+')[0]
 $a -eq $b   # must print True
 ```
 
 3. Run the setup. It installs to `%LOCALAPPDATA%\MujoFix`, **no admin required** (current user only).
 4. **The SmartScreen warning is expected** — the build is unsigned: *More info* → *Run anyway*.
 5. A Start-menu shortcut is created; the **desktop icon is optional** (unchecked by default).
-6. **Silent install:** `MujoFix-Setup-0.3.0.exe /SILENT` (or `/VERYSILENT`).
+6. **Silent install:** `MujoFix-Setup-0.4.0.exe /SILENT` (or `/VERYSILENT`).
 7. **Uninstall:** *Apps & features* → MujoFix. Removes the bundled OpenCode copy and app data (`%LOCALAPPDATA%\MujoFix`).
 
 **Update:** `MujoFixCLI.exe update` checks for a new version; `update --apply` downloads it, verifies sha256 and launches the installer. The GUI has a *Check for updates* button. **Requirements:** Windows 10/11 x64 — **no Node or Python** (OpenCode is bundled and pinned).
