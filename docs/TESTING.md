@@ -86,6 +86,12 @@ uz tvrde kočnice (samo test-artefakti) i vraćanje u `finally`. Akcije 4-6 su
 - [ ] UAC prompt se pojavi TEK uz prethodno objašnjenje u aplikaciji
 
 ## F. Installer
+
+> **Izvršeno na pravom Win11 (2026-10-23)**: tiha instalacija bez admina (exit 0),
+> MujoFix.exe/CLI/opencode/Start meni na mestu, desktop ikona po defaultu NE,
+> uninstall zapis (AppId ključ, ver 0.4.0), **instalirani CLI radi** (scan +
+> update), a **deinstalacija sve uklanja** (app folder, Start meni, registry).
+> Dokaz: `lab/results-win11-laptop/installer.txt`.
 - [ ] Instalacija bez admina radi (korisnički profil)
 - [ ] OpenCode kopija u %LOCALAPPDATA%\MujoFix\opencode, verzija = pin
 - [ ] Deinstalacija uklanja sve (opencode kopija + podaci)

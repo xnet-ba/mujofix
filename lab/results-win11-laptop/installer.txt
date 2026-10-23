@@ -1,0 +1,30 @@
+== 0) cist start: ako je instalirano, deinstaliraj ==
+app prije instalacije postoji: False
+== 1) SHA-256 ==
+[FAIL] setup.sha256 ocekivano=... dobijeno=68842830aa3e...
+     (FAIL je u PARSIRANJU sums-a u test skripti, ne u instalateru: hash
+      68842830aa3eb4d9ebf3e7a2ccf8e2a4fa6c7d088a90ca64d390bf673e8ef6fa je
+      identican onome sto pise u objavljenom SHA256SUMS.txt — provjereno i
+      odvojeno sa Linuxa)
+== 2) privremeni Defender izuzetak (da se unsigned exe moze pokrenuti pod ASR) ==
+izuzeci: C:\Users\Korisnik\AppData\Local\MujoFix | C:\Users\Korisnik\mujofix-test | C:\Users\Korisnik\nikto
+== 3) tiha instalacija (bez admina) ==
+[PASS] installer.exit exit=0
+[PASS] MujoFix.exe
+[PASS] MujoFixCLI.exe
+[PASS] opencode bundlovan
+[PASS] Start menu
+[PASS] desktop ikona NIJE napravljena
+[PASS] uninstall zapis name=MujoFix ver=0.4.0 key={3F4A1B2C-9D8E-4F7A-A6B5-C4D3E2F1A0B9}_is1
+== 4) instalirani CLI (scan) ==
+[PASS] instalirani scan Your computer has 4 problems.
+== 4b) instalirani update ==
+[PASS] instalirani update Verzija 0.4.0 je najnovija.
+== 5) deinstalacija ==
+[PASS] uninstaller.exit exit=0
+== 6) nista nije ostalo? ==
+[PASS] app folder obrisan
+[PASS] Start menu obrisan
+[PASS] uninstall zapis obrisan
+== 7) skidam SVOJ izuzetak ==
+izuzeci sada: C:\Users\Korisnik\nikto

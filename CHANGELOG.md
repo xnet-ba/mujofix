@@ -13,6 +13,9 @@
   akcija ne uspije. Rezultat validacije: scan 11/11, **host_proof 12/12
   PASS**, pinovani opencode prihvata config (11 alata `deny`), CLI bs/en +
   JSON + živi update. Dokazi: `lab/results-win11-laptop/`.
+- **Installer provjeren na pravom Windowsu:** tiha instalacija bez admina,
+  Start meni, uninstall zapis, **instalirani CLI radi** (scan + update), a
+  **deinstalacija uklanja sve** (app folder, Start meni, registry).
 
 ### Dodano
 - **`scripts/install-and-validate.ps1`** — validacija na PRAVOM Windowsu

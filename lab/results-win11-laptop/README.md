@@ -25,6 +25,7 @@ Prva **nezavisna validacija na fizičkoj mašini** (ne VM): `sha-laptop-win11`
 | `scripts/host_proof.py` (akcije, apply → verify → rollback) | ✅ **12/12 PASS** (`host_proof.txt`) |
 | `scripts/phase0_spike.py` (pinovani opencode) | ✅ 1, 2, 5 PASS; 3/4 SKIP (nema model kredencijala) |
 | GUI render (offscreen, PySide6) | ✅ `docs/screenshots/*.png` su sada sa **pravog Windowsa** |
+| **Installer** (tiha instalacija → provjera → deinstalacija) | ✅ `installer.txt`: exit 0, MujoFix.exe/CLI/opencode/Start meni, desktop ikona po defaultu NE, uninstall zapis (AppId ključ, ver 0.4.0); **instalirani CLI radi** (scan + update); deinstalacija **sve uklanja** (app folder, Start meni, registry) |
 
 `host_proof` detalj: `startup` ✅, `temp` ✅, `service` (Spooler restart) ✅,
 **`hosts`** ✅ (uklonjen zapis, ostatak nepromijenjen, rollback bajt-identičan),
@@ -59,5 +60,5 @@ Prva **nezavisna validacija na fizičkoj mašini** (ne VM): `sha-laptop-win11`
 - **GUI interakcija** (klikanje kroz „Popravi sve", UAC prompt): GUI je
   renderovan i akcije su dokazane kroz `host_proof`, ali klikanje kroz prozor
   nije odrađeno (nema interaktivne sesije za agenta).
-- **Installer** (`MujoFix-Setup-0.4.0.exe`) na ovoj mašini nije pokrenut
-  (korištena je portabilna verzija).
+- **Installer** je pokrenut i provjeren (vidi `installer.txt`); jedino je
+  SHA-256 provjera u skripti imala bug u parsiranju (sam hash je tačan).

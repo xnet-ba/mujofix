@@ -105,6 +105,17 @@
   vozi bez covjeka. Pri pregledu uhvacen i popravljen bug u redoslijedu
   (`$ctxLog` je koristio `$OutDir` prije definisanja, a ZIP se pravio prije tog
   fajla).
+- INSTALLER 2026-10-23 (na pravom Win11): tiha instalacija **bez admina** (exit
+  0), `MujoFix.exe`/`MujoFixCLI.exe`/bundlovani `opencode`/Start meni na mestu,
+  desktop ikona po defaultu NE (kako je i definisano), uninstall zapis u
+  `HKCU\...\Uninstall\{3F4A1B2C-...}_is1` (DisplayName MujoFix, ver 0.4.0).
+  **Instalirani CLI radi**: `scan` -> "Your computer has 4 problems.",
+  `update` -> "Verzija 0.4.0 je najnovija." **Deinstalacija sve uklanja** (app
+  folder, Start meni, registry zapis). Dokaz: `lab/results-win11-laptop/installer.txt`.
+  (Jedini FAIL u tom izlazu je bug u PARSIRANJU SHA256SUMS-a u mojoj test
+  skripti — sam hash je identican objavljenom, provjereno i odvojeno.)
+  Napomena: za pokretanje unsigned exe-a pod ASR-om je koristen privremeni
+  Defender izuzetak, koji je na kraju uklonjen.
 - VALIDACIJA NA PRAVOM WINDOWSU 2026-10-23 (laptop sha-laptop-win11, pristup
   preko SSH-a uz kredencijale; sesija elevated = bez UAC): **prva nezavisna
   validacija na fizickoj masini** — dokazi u `lab/results-win11-laptop/`.
