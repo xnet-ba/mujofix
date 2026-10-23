@@ -105,6 +105,15 @@
   vozi bez covjeka. Pri pregledu uhvacen i popravljen bug u redoslijedu
   (`$ctxLog` je koristio `$OutDir` prije definisanja, a ZIP se pravio prije tog
   fajla).
+- PRISTUP ZADRZAN 2026-10-23: SSH pristup laptopu (`sha-laptop-win11`) je
+  namjerno ostavljen za buduce validacije — agentov javni kljuc
+  (`mujofix-agent`) je u `%ProgramData%\ssh\administrators_authorized_keys`,
+  `sshd` radi, sesija je elevated. Masina je inace cista (nema test foldera,
+  instalacije, zakazanih zadataka; `hosts` standardni). OPOZIV (kad zatreba):
+  ukloniti liniju `mujofix-agent` iz tog fajla (ili promijeniti Windows
+  lozinku). NAPOMENA za sledeci krug: na ovoj masini ASR/WDAC blokira
+  pokretanje naseg unsigned exe-a, pa prije testova treba privremeni Defender
+  izuzetak za folder iz kojeg se app pokrece (i ukloniti ga poslije).
 - GUI-DESKTOP 2026-10-23 (na pravom Win11): aplikacija pokrenuta u interaktivnoj
   sesiji preko zakazanog zadatka (`/it`); prozor se renderuje ispravno u tamnoj
   temi, a vidljivo je dugme "Pokreni kao administrator" — jer interaktivno
