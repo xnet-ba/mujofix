@@ -70,5 +70,41 @@ class TestCoverageTable(unittest.TestCase):
                              f"{readme}: brojevi u uvodu tabele ne odgovaraju")
 
 
+class TestHonestLimitsSection(unittest.TestCase):
+    """Sekcija "sta app NE radi" mora postojati i ne smije izgubiti tvrdnje.
+
+    Nije test proze: provjerava da su konkretne, provjerene tvrdnje i dalje tu
+    (boot vrijeme, restore point, potpis, VM matrica, telemetrija).
+    """
+
+    BS_ANCHORS = ("Ne mjeri vrijeme boot-a", "System Restore Point",
+                  "Ne mijenja zaštitne politike", "Nema telemetrije",
+                  "Build nije potpisan", "VM matrica")
+    EN_ANCHORS = ("does not measure boot time", "System Restore Point",
+                  "does not change protection policies", "No telemetry",
+                  "build is unsigned", "clean-VM matrix")
+
+    def test_section_exists_with_key_claims(self):
+        for path, anchors, marker in (
+                ("README.md", self.BS_ANCHORS, "NE radi"),
+                ("README.en.md", self.EN_ANCHORS, "does NOT do")):
+            text = open(os.path.join(ROOT, path), encoding="utf-8").read()
+            self.assertIn(marker, text, path)
+            for anchor in anchors:
+                self.assertIn(anchor, text, f"{path}: nema '{anchor}'")
+
+    def test_claims_match_the_code(self):
+        """Tvrdnje iz liste moraju ostati istinite (provjera u kodu)."""
+        startup = open(os.path.join(ROOT, "mujofix", "scanners", "startup.py"),
+                       encoding="utf-8").read()
+        self.assertIn("ne mjerenje boot vremena", startup)  # boot se ne mjeri
+        ui = open(os.path.join(ROOT, "mujofix", "ui", "main_window.py"),
+                  encoding="utf-8").read()
+        self.assertIn("purge_quarantine", ui)  # brisanje samo rucno, uz potvrdu
+        update = open(os.path.join(ROOT, "mujofix", "update.py"),
+                      encoding="utf-8").read()
+        self.assertIn("urllib.request", update)  # jedini "phone home": update
+
+
 if __name__ == "__main__":
     unittest.main()

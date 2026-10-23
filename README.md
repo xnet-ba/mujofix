@@ -153,6 +153,25 @@ render, bs jezik; emoji iz sažetka se u offscreen snimci ne crtaju — na Windo
 | `tasks-autostart-untrusted` | ✅ disable_task | |
 <!-- coverage:end -->
 
+## <h2>🚫 Šta aplikacija NE radi (iskreno)</h2>
+
+<ul>
+  <li><b>Ne mjeri vrijeme boot-a.</b> Startup nalaz broji stavke i to izričito kaže; stvarno vrijeme podizanja se ne mjeri nigdje u kodu.</li>
+  <li><b>Ne pravi System Restore Point.</b> Sigurnosna mreža je snapshot po akciji + rollback + karantin (traži admin/Checkpoint-Computer).</li>
+  <li><b>Ne instalira drajvere ni Windows zakrpe.</b> Zastarjeli drajveri i isključen Windows Update se <i>prijavljuju</i>, ne popravljaju.</li>
+  <li><b>Ne mijenja zaštitne politike:</b> Defender (izuzeci, real-time), UAC, BitLocker, Secure Boot, deljeni folderi, firewall — sve je <b>samo čitanje + preporuka</b>.</li>
+  <li><b>Ne gasi procese</b> i nikad ne tvrdi „virus" — sumnjivi nalazi kažu „sumnjivo, razlozi: …".</li>
+  <li><b>Ne briše trajno bez tvoje potvrde.</b> Fajlovi idu u karantin; trajno briše samo dugme „Očisti karantin" (uz potvrdu) i to se upiše u dnevnik.</li>
+  <li><b>Karantin nema automatski rok.</b> Ništa se ne briše samo — dok ti ne očistiš, fajlovi stoje u <code>%LOCALAPPDATA%\MujoFix\quarantine</code>.</li>
+  <li><b>Nema telemetrije.</b> Mreža se koristi samo za: provjeru ažuriranja (GitHub), AI objašnjenje (uz pristanak, anonimizirano) i mrežnu dijagnostiku (DNS/TCP probe ka javnom DNS-u).</li>
+  <li><b>AI ništa ne izvršava.</b> Model objašnjava i predlaže; izvršava samo deterministički katalog akcija, uz tvoje odobrenje. Ako besplatni model nije dostupan, lanac iskreno pada na offline.</li>
+  <li><b>Radi samo na Windowsu</b> (10 22H2+ / 11). Na drugim sistemima se scanneri iskreno preskaču (CLI se pokreće, ali nema šta da skenira).</li>
+  <li><b>Build nije potpisan</b> — SmartScreen upozorenje je očekivano, ne bug.</li>
+  <li><b>Puna VM matrica (čist Win10/Win11) je otvorena.</b> Sve što nije izvršeno na pravom Windowsu stoji označeno kao <i>netestirano</i> (<a href="docs/TESTING.md">docs/TESTING.md</a>).</li>
+</ul>
+
+---
+
 ## <h2>🤖 AI sloj</h2>
 
 <p>MujoFix koristi <b>OpenCode</b> (pinovana, testirana verzija, MIT licenca) kao AI motor — instalira se zajedno s aplikacijom, korisnik ne instalira ništa ručno (ni Node ni npm).</p>

@@ -119,6 +119,25 @@ Startup, services, disk, network, configuration, drivers, large files & duplicat
 | `tasks-autostart-untrusted` | ✅ disable_task | |
 <!-- coverage:end -->
 
+## 🚫 What the app does NOT do (honestly)
+
+<ul>
+  <li><b>It does not measure boot time.</b> The startup finding counts items and says so; actual boot time is not measured anywhere in the code.</li>
+  <li><b>It does not create a System Restore Point.</b> The safety net is a per-action snapshot + rollback + quarantine (needs admin/Checkpoint-Computer).</li>
+  <li><b>It does not install drivers or Windows patches.</b> Outdated drivers and a disabled Windows Update are <i>reported</i>, not fixed.</li>
+  <li><b>It does not change protection policies:</b> Defender (exclusions, real-time), UAC, BitLocker, Secure Boot, shares, firewall — all <b>read-only + recommendation</b>.</li>
+  <li><b>It does not kill processes</b> and never claims "virus" — suspicious findings say "suspicious, reasons: …".</li>
+  <li><b>It never deletes permanently without your confirmation.</b> Files go to quarantine; the only permanent delete is the "Clean quarantine" button (with confirmation), and it is written to the run log.</li>
+  <li><b>Quarantine has no automatic expiry.</b> Nothing is deleted on its own — files stay in <code>%LOCALAPPDATA%\MujoFix\quarantine</code> until you clean it.</li>
+  <li><b>No telemetry.</b> The network is used only for: update checks (GitHub), AI explanations (with consent, anonymized) and network diagnostics (DNS/TCP probes to a public DNS).</li>
+  <li><b>The AI executes nothing.</b> The model explains and proposes; only the deterministic action catalog runs, with your approval. If a free model is unavailable the chain honestly falls back to offline.</li>
+  <li><b>Windows only</b> (10 22H2+ / 11). On other systems scanners are honestly skipped (the CLI runs, but there is nothing to scan).</li>
+  <li><b>The build is unsigned</b> — the SmartScreen warning is expected, not a bug.</li>
+  <li><b>The full clean-VM matrix (Win10/Win11) is open.</b> Anything not executed on a real Windows box is marked <i>untested</i> (<a href="docs/TESTING.md">docs/TESTING.md</a>).</li>
+</ul>
+
+---
+
 ## 🤖 AI layer
 
 Bundled, pinned OpenCode as a child process (`opencode run`, no local server, no port, no password — nothing is exposed on the network; MujoFix is an installable Windows app only). The `mujofix` agent has **all built-in tools denied** — only MujoFix MCP tools (read-only + plan validator). Fallback chain: model A → B → C → offline. The offline explanation is bilingual and built **only from the data the scanner collected** (why, impact, risk, evidence, technical details, which action exists) — no assumptions, no AI. With consent, the app runs the CLI as a child process and uses a **free Zen model** (e.g. `opencode/beam-free`); if the binary or a free model is unavailable it silently falls back to **offline** with an honest reason in the log. *Untested:* the live path has not yet run on a Windows VM ([Issue #1](https://github.com/xnet-ba/mujofix/issues/1)). Consent screen first (what is sent, to whom, real payload example); anonymized before sending; Zen free-tier data terms are **confirmed** (checked 2026-10-18 against the [ToS](https://opencode.ai/legal/terms-of-service) and [Zen docs](https://opencode.ai/v2/docs/console/models/)) — a free Zen tier is **not private**: unpaid accounts' content may be used to improve the service, some free models may use collected data to improve the model during their promo period, and OpenAI/Anthropic requests are retained 30 days.

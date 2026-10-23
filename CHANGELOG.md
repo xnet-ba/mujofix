@@ -3,6 +3,15 @@
 ## [0.4.1] (u razvoju — nije objavljeno)
 
 ### Dodano
+- **README: sekcija „Šta aplikacija NE radi"** (bs+en) — konsolidovana,
+  iskrena lista ograničenja na jednom mjestu: ne mjeri boot vrijeme, ne pravi
+  System Restore Point, ne instalira drajvere/zakrpe, ne mijenja zaštitne
+  politike (Defender/UAC/BitLocker/Secure Boot), ne gasi procese, ne briše
+  trajno bez potvrde, karantin nema automatski rok, nema telemetrije, AI
+  ništa ne izvršava, Windows-only, build nije potpisan, VM matrica otvorena.
+  Čuvar `test_coverage_docs` provjerava da tvrdnje postoje i da odgovaraju
+  kodu (boot se ne mjeri, brisanje karantina je ručno, jedini „phone home"
+  je update).
 - **Novi scanner `security` (samo čitanje):** BitLocker na sistemskom disku,
   Secure Boot, TPM i Windows Update servis. Svaka provjera je **nezavisna**
   (ako se jedna ne može izvršiti, preskače se bez tvrdnje, ostale se rade),

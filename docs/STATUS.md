@@ -95,6 +95,16 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- OGRANICENJA 2026-10-22: README (bs+en) dobio sekciju "Sta aplikacija NE radi" —
+  jedna iskrena lista (12 tvrdnji), svaka provjerena u kodu: boot vrijeme se ne
+  mjeri (`startup.py` to i pise), nema System Restore Pointa, ne instalira
+  drajvere/zakrpe, ne mijenja zastitne politike (Defender/UAC/BitLocker/Secure
+  Boot/shares/firewall), ne gasi procese i ne tvrdi "virus", ne brise trajno bez
+  potvrde, karantin NEMA automatski rok (samo rucno ciscenje), nema telemetrije
+  (mreza: update + AI uz pristanak + mrezna dijagnostika), AI nista ne izvrsava,
+  Windows-only, build nije potpisan, VM matrica otvorena. Cuvar
+  `TestHonestLimitsSection` (2 testa) provjerava da tvrdnje postoje i da se
+  poklapaju sa kodom.
 - SIGURNOST 2026-10-22 (nova pokrivenost, samo citanje): novi scanner
   `mujofix/scanners/security.py` — BitLocker (sistemski disk), Secure Boot, TPM,
   Windows Update servis (wuauserv). Provjere su NEZAVISNE (jedna koja padne ne
