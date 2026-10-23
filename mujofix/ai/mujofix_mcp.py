@@ -200,6 +200,20 @@ def _tools_list() -> list[dict]:
     ]
 
 
+def _tool_result(payload: object, is_error: bool = False) -> dict:
+    """MCP `tools/call` rezultat po specu (2024-11-05): `content[]` + `isError`.
+
+    Ranije se vracao goli objekat (npr. `{"actions": [...]}`), sto klijent
+    (opencode/model) ne prikaze kako treba — model je video prazan/„Unknown"
+    odgovor. Dokazano uzivo na pravom Windowsu sa gemini-2.5-flash.
+    """
+    return {
+        "content": [{"type": "text",
+                     "text": json.dumps(payload, ensure_ascii=False)}],
+        "isError": bool(is_error),
+    }
+
+
 def handle_message(msg: object) -> dict | None:
     """Obradi jednu JSON-RPC poruku; NIKAD ne baca (vrati odgovor ili None).
 
@@ -227,8 +241,14 @@ def handle_message(msg: object) -> dict | None:
             arguments = params.get("arguments")
             if arguments is not None and not isinstance(arguments, dict):
                 return _error_response(msg_id, "arguments mora biti objekat")
-            return _ok_response(msg_id, _call_tool(
-                str(params.get("name", "")), arguments or {}))
+            try:
+                payload = _call_tool(str(params.get("name", "")),
+                                     arguments or {})
+            except Exception as exc:  # greska ALATA ide kao isError rezultat
+                return _ok_response(msg_id,
+                                    _tool_result({"error": str(exc)},
+                                                 is_error=True))
+            return _ok_response(msg_id, _tool_result(payload))
         if msg_id is not None:
             return _error_response(msg_id, f"nepodrzan method '{method}'")
         return None

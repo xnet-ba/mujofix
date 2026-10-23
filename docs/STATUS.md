@@ -105,6 +105,19 @@
   vozi bez covjeka. Pri pregledu uhvacen i popravljen bug u redoslijedu
   (`$ctxLog` je koristio `$OutDir` prije definisanja, a ZIP se pravio prije tog
   fajla).
+- MCP SPEC 2026-10-23 (interop bug nadjen UZIVO sa pravim modelom): nas MCP je za
+  `tools/call` vracao goli objekat (`{"actions": [...]}`) kao `result`, a MCP spec
+  zahtijeva `{"content": [{"type":"text","text": ...}], "isError": false}`. Zbog
+  toga je model (gemini-2.5-flash, preko masininog Google kredencijala) video
+  prazan/„Unknown" odgovor alata. Sada `_tool_result(...)` pakuje po specu, a
+  greske alata idu kao `isError: true` rezultat (ne JSON-RPC error). Nasi testovi
+  su provjeravali POGRESAN oblik (zato bug nije ranije nadjen) — sada citaju
+  `content[0].text` preko `tool_payload()`.
+- TEST-RUNNER 2026-10-23: puna `unittest discover` sesija s vremena na vrijeme
+  pukne u PySide6 offscreen teardown-u (kumulativno Qt stanje), a pad jednog
+  modula sakrije rezultate ostalih. Novi `scripts/run_tests.py` vrti svaki modul u
+  SVOM procesu i sabira rezultate (337 testova, 0 padova); CI (Ubuntu + Windows)
+  sada koristi njega. AGENTS azuriran.
 - FALSE-POSITIVE 2026-10-23 (nadjen na pravom Win11): `config-sfc` je prijavljivao
   MEDIUM "12 gresaka u CBS logu" na ISPRAVNOM sistemu. Provjera na masini: 12
   "Failed" linija u zadnjih 512 KB, **svih 12 `Info`** ("Failed to open package /

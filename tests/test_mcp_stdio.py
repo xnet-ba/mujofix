@@ -30,6 +30,18 @@ class TestMcpCommand(unittest.TestCase):
         self.assertEqual(cmd, [os.path.join("/App", exe), "mcp"])
 
 
+def tool_payload(response: dict) -> dict:
+    """Izvuci payload iz MCP `tools/call` rezultata (spec: content[] + isError).
+
+    Klijent (opencode) ocekuje `content` listu; ranije smo vracali goli objekat,
+    sto je model prikazivao kao prazno (dokazano uzivo).
+    """
+    result = response["result"]
+    assert "content" in result, f"nema content[] u MCP rezultatu: {result}"
+    assert "isError" in result
+    return json.loads(result["content"][0]["text"])
+
+
 class TestMcpStdioSurface(unittest.TestCase):
     """Stvarni MCP handshake protiv `mujofix.cli mcp` (bez modela, bez mreze)."""
 
@@ -76,7 +88,7 @@ class TestMcpStdioSurface(unittest.TestCase):
         got = self._rpc({"jsonrpc": "2.0", "id": 3, "method": "tools/call",
                          "params": {"name": "get_action_catalog",
                                     "arguments": {}}})
-        actions = got["result"]["actions"]
+        actions = tool_payload(got)["actions"]
         self.assertEqual(actions, sorted(actions))
         self.assertTrue(actions)
 
@@ -85,13 +97,13 @@ class TestMcpStdioSurface(unittest.TestCase):
         got = self._rpc({"jsonrpc": "2.0", "id": 5, "method": "tools/call",
                          "params": {"name": "get_system_info",
                                     "arguments": {}}})
-        res = got["result"]
+        res = tool_payload(got)
         self.assertIsNone(res["system_info"])
         self.assertIn("findings snapshot", res["note"])
         f = self._rpc({"jsonrpc": "2.0", "id": 6, "method": "tools/call",
                        "params": {"name": "get_findings", "arguments": {}}})
-        self.assertEqual(f["result"]["findings"], [])
-        self.assertIn("findings snapshot", f["result"]["note"])
+        self.assertEqual(tool_payload(f)["findings"], [])
+        self.assertIn("findings snapshot", tool_payload(f)["note"])
 
     def test_loaded_snapshot_is_served_verbatim(self):
         import tempfile
@@ -111,8 +123,9 @@ class TestMcpStdioSurface(unittest.TestCase):
                  "params": {"name": "get_findings", "arguments": {}}}) + "\n")
             proc.stdin.flush()
             got = json.loads(proc.stdout.readline())
-            self.assertEqual(got["result"]["findings"], payload["findings"])
-            self.assertNotIn("note", got["result"])
+            self.assertEqual(tool_payload(got)["findings"],
+                             payload["findings"])
+            self.assertNotIn("note", tool_payload(got))
         finally:
             proc.stdin.close()
             proc.wait(timeout=10)
@@ -121,8 +134,10 @@ class TestMcpStdioSurface(unittest.TestCase):
     def test_unknown_tool_is_an_error(self):
         got = self._rpc({"jsonrpc": "2.0", "id": 4, "method": "tools/call",
                          "params": {"name": "bash", "arguments": {}}})
-        self.assertIn("error", got)
-        self.assertNotIn("result", got)
+        # MCP spec: greska ALATA ide kao isError rezultat (ne JSON-RPC error)
+        self.assertNotIn("error", got)                 # nema JSON-RPC greske
+        self.assertTrue(got["result"]["isError"])
+        self.assertIn("nepoznat alat", tool_payload(got)["error"])
 
     def test_survives_garbage_lines_then_still_answers(self):
         """Server cita od DRUGOG procesa: neispravna poruka ne smije ga ubiti."""

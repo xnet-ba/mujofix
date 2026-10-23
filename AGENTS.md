@@ -7,7 +7,10 @@
   Release dodaje `MujoFix-Setup-<ver>.exe`, a `SHA256SUMS.txt` mora biti
   `sha256sum` format (`<hash>  <ime>`) da bi ga `mujofix.update` verifikovao.
 - Mali koraci: jedan modul/akcija po iteraciji, max ~5 fajlova odjednom.
-  Poslije svakog koraka: `py_compile` + `unittest`, pa tek onda dalje.
+  Poslije svakog koraka: `py_compile` + testovi, pa tek onda dalje.
+  Testovi se vrte preko `python scripts/run_tests.py` (svaki modul u svom
+  procesu — PySide6 offscreen zna srusiti proces u teardown-u i kad su svi
+  testovi prosli; runner gleda `OK`/`FAILED` iz izlaza, ne exit code).
 - Potpun pokretljiv kod, bez pseudo-koda i bez TODO za kriticne dijelove.
 - Oznake iskrenosti: `netestirano` za sve sto nije pokrenuto na Win10/Win11 VM-u;
   nista se ne tvrdi na osnovu pamcenja — samo docs + izvrsenje.

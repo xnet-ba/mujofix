@@ -66,9 +66,12 @@ class TestMcpRealData(unittest.TestCase):
             ], findings_path=path)
         finally:
             os.unlink(path)
+        from tests.test_mcp_stdio import tool_payload
         by_id = {r["id"]: r["result"] for r in resp}
         self.assertEqual(by_id[1]["serverInfo"]["name"], "mujofix")
         self.assertEqual(len(by_id[2]["tools"]), 5)
+        for i in (3, 4, 5):
+            by_id[i] = tool_payload({"result": by_id[i]})
         self.assertEqual(by_id[3]["findings"][0]["id"], "disk-temp")
         self.assertEqual(by_id[4]["evidence"], {"bytes": 2000})
         self.assertIn("error", by_id[5])
@@ -83,9 +86,10 @@ class TestMcpRealData(unittest.TestCase):
             rpc(2, "tools/call", {"name": "propose_plan",
                                   "arguments": {"plan": evil}}),
         ])
-        self.assertTrue(resp[0]["result"]["ok"])
-        self.assertIn("error", resp[1])
-        self.assertIn("zasticena", resp[1]["error"]["message"])
+        from tests.test_mcp_stdio import tool_payload
+        self.assertTrue(tool_payload(resp[0])["ok"])
+        self.assertTrue(resp[1]["result"]["isError"])       # odbijen plan
+        self.assertIn("zasticena", tool_payload(resp[1])["error"])
 
 
 class TestValidatorHardening(unittest.TestCase):

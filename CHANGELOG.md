@@ -3,6 +3,14 @@
 ## [0.4.1] (u razvoju — nije objavljeno)
 
 ### Ispravljeno
+- **MCP interop bug (nađen uživo sa pravim modelom):** `tools/call` je vraćao
+  goli objekat kao `result`, a spec zahtijeva `content[]` + `isError` — model
+  je zato vidio prazan odgovor alata. Sada je odgovor po specu, a greške
+  alata idu kao `isError: true` (naši testovi su provjeravali pogrešan oblik).
+- **`scripts/run_tests.py`:** svaki test-modul u svom procesu (PySide6
+  offscreen ume srušiti proces u teardown-u i kad su testovi prošli); CI ga
+  sada koristi na obe platforme.
+
 - **Validacija na pravom Windows 11 laptopu (Enterprise N, WDAC enforced)**
   našla tri buga koja nijedan lokalni test nije mogao: (1) `remove_hosts_entry`
   je padao sa `WinError 5` jer taj Windows **zabranjuje `os.replace`** nad

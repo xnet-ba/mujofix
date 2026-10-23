@@ -21,7 +21,7 @@ jobs:
       - name: Compile check
         run: python -m compileall -q mujofix tests scripts
       - name: Unit tests
-        run: env QT_QPA_PLATFORM=offscreen python -m unittest discover -s tests
+        run: python scripts/run_tests.py
 
   test-windows:
     runs-on: windows-latest
@@ -33,7 +33,7 @@ jobs:
       - name: Install UI deps
         run: pip install -r requirements.txt
       - name: Unit tests (mockovani, ali prolaze kroz realan winreg path)
-        run: python -m unittest discover -s tests
+        run: python scripts/run_tests.py
       - name: Zivi scan na pravom Windowsu (Server kernel, realan API)
         run: |
           $env:PYTHONPATH = "mujofix"
