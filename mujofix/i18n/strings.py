@@ -156,9 +156,10 @@ STRINGS = {
         "sc_config_power_impact": "smanjene performanse",
         "sc_config_power_risk": "nizak: promjena plana je reverzibilna",
         "sc_config_sfc_title": "SFC tragovi: {n} grešaka u CBS logu",
-        "sc_config_sfc_why": ("Servisiranje komponenti prijavljuje neuspjehe "
-                              "— moguća oštećena sistemska datoteka "
-                              "(provjera: sfc /scannow)."),
+        "sc_config_sfc_why": ("Servisiranje komponenti prijavljuje greške "
+                              "(samo `Error` nivo; obične `Info` poruke o "
+                              "paketima se ignorišu) — moguća oštećena sistemska "
+                              "datoteka (provjera: sfc /scannow)."),
         "sc_config_sfc_impact": "moguća nestabilnost sistema",
         "sc_config_sfc_risk": "nizak: samo čitamo log, ne mijenjamo ništa",
         "sc_config_power_tech": "powercfg /getactivescheme",
@@ -603,8 +604,10 @@ STRINGS = {
         "sc_config_power_impact": "reduced performance",
         "sc_config_power_risk": "low: changing the plan is reversible",
         "sc_config_sfc_title": "SFC traces: {n} failures in the CBS log",
-        "sc_config_sfc_why": ("Component servicing reports failures — a system "
-                              "file may be damaged (check: sfc /scannow)."),
+        "sc_config_sfc_why": ("Component servicing reports errors (Error level "
+                              "only; plain Info messages about packages are "
+                              "ignored) — a system file may be damaged (check: "
+                              "sfc /scannow)."),
         "sc_config_sfc_impact": "possible system instability",
         "sc_config_sfc_risk": "low: we only read the log, nothing is changed",
         "sc_config_power_tech": "powercfg /getactivescheme",

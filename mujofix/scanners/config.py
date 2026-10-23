@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import stat
 import subprocess
 
@@ -12,6 +13,8 @@ from mujofix.scanners.base import ScanContext, Scanner, register
 
 CBS_LOG = r"C:\Windows\Logs\CBS\CBS.log"
 CBS_TAIL_BYTES = 512 * 1024
+# CBS format: "<datum>, <Nivo>   CBS   ..." — nas zanima samo Error nivo
+_CBS_ERROR_RE = re.compile(r",\s*Error\s", re.IGNORECASE)
 
 
 def _path_entries() -> list[str]:
@@ -42,7 +45,12 @@ def _cbs_failures() -> tuple[int, list[str]]:
             tail = handle.read().decode("utf-8", errors="replace")
     except OSError:
         return 0, []
-    bad = [line.strip() for line in tail.splitlines() if "Failed" in line]
+    # SAMO `Error` nivo: CBS log je pun `Info` linija tipa "Failed to open
+    # package / CBS_E_INVALID_PACKAGE" koje su NORMALNA buka (dokazano na
+    # zdravom Win11: 12 "Failed" linija, svih 12 Info, 0 Error). Ranije je taj
+    # nalaz bio false positive na ispravnom sistemu.
+    bad = [line.strip() for line in tail.splitlines()
+           if "Failed" in line and _CBS_ERROR_RE.search(line)]
     return len(bad), bad[-5:]
 
 
@@ -108,12 +116,12 @@ class ConfigScanner(Scanner):
                     evidence={"scheme": scheme[:200]},
                     tech_details=self.t("sc_config_power_tech")))
             failures, sample = _cbs_failures()
-            if failures > 5:
+            if failures:
                 findings.append(Finding(
                     id="config-sfc", scanner=self.name,
                     title=self.t("sc_config_sfc_title", n=failures),
                     why=self.t("sc_config_sfc_why"),
-                    severity="MEDIUM",
+                    severity="MEDIUM" if failures > 5 else "LOW",
                     impact=self.t("sc_config_sfc_impact"),
                     risk=self.t("sc_config_sfc_risk"),
                     reversible=False,

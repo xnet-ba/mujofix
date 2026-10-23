@@ -125,5 +125,49 @@ class TestConfigScanner(unittest.TestCase):
         self.assertEqual(report.findings, [])
 
 
+class TestCbsSeverity(unittest.TestCase):
+    """CBS log: samo `Error` nivo je signal; `Info` "Failed to open package" je buka."""
+
+    def _cbs(self, lines, tmp):
+        from mujofix.scanners import config as cfg
+        log = os.path.join(tmp, "CBS.log")
+        with open(log, "w", encoding="utf-8") as handle:
+            handle.write("\n".join(lines) + "\n")
+        with patch.object(cfg, "CBS_LOG", log):
+            return cfg._cbs_failures()
+
+    def test_info_level_failures_are_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            lines = ["2026-10-22 23:50:32, Info   CBS   Failed to open package. "
+                     "[HRESULT = 0x800f0805 - CBS_E_INVALID_PACKAGE]"] * 12
+            count, sample = self._cbs(lines, tmp)
+        self.assertEqual(count, 0)   # prije: 12 (false positive na zdravom sistemu)
+        self.assertEqual(sample, [])
+
+    def test_error_level_failures_are_counted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            lines = ["2026-10-23 10:00:00, Error  CBS   Failed to repair file "
+                     "C:\\Windows\\System32\\x.dll"]
+            count, sample = self._cbs(lines, tmp)
+        self.assertEqual(count, 1)
+        self.assertIn("Failed to repair", sample[0])
+
+    def test_severity_grades_low_then_medium(self):
+        from mujofix.scanners import config as cfg
+        with tempfile.TemporaryDirectory() as tmp:
+            for n, expected in ((1, "LOW"), (6, "MEDIUM")):
+                log = os.path.join(tmp, "CBS.log")
+                with open(log, "w", encoding="utf-8") as handle:
+                    handle.write("\n".join(
+                        f"2026-10-23 10:00:0{i}, Error  CBS   Failed x"
+                        for i in range(n)) + "\n")
+                with patch.object(cfg, "CBS_LOG", log), \
+                     patch.object(cfg.windows, "is_windows", return_value=True):
+                    report = cfg.ConfigScanner().scan(ScanContext(lang="bs"))
+                got = [f for f in report.findings if f.id == "config-sfc"]
+                self.assertEqual(len(got), 1, n)
+                self.assertEqual(got[0].severity, expected, n)
+
+
 if __name__ == "__main__":
     unittest.main()
