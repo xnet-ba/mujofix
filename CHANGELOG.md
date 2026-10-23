@@ -1,6 +1,6 @@
 # Changelog (semantičko verzioniranje; `mujofix.spec` čita vrh ovog fajla)
 
-## [0.4.1] (u razvoju — nije objavljeno)
+## [0.4.1] - 2026-10-23
 
 ### Ispravljeno
 - **MCP interop bug (nađen uživo sa pravim modelom):** `tools/call` je vraćao
@@ -10,24 +10,6 @@
 - **`scripts/run_tests.py`:** svaki test-modul u svom procesu (PySide6
   offscreen ume srušiti proces u teardown-u i kad su testovi prošli); CI ga
   sada koristi na obe platforme.
-
-- **Validacija na pravom Windows 11 laptopu (Enterprise N, WDAC enforced)**
-  našla tri buga koja nijedan lokalni test nije mogao: (1) `remove_hosts_entry`
-  je padao sa `WinError 5` jer taj Windows **zabranjuje `os.replace`** nad
-  `…\etc\hosts` (a dozvoljava kopiju) → dodat fallback; (2) akcija je
-  mijenjala **line-endings (CRLF→LF)** pa nije bila bajt-identična → sada radi
-  nad bajtovima; (3) **izbor jezika (QComboBox) je u tamnoj temi bio
-  nevidljiv** → dodato stilizovanje. Uz to `host_proof.py` više ne pada kad
-  akcija ne uspije. Rezultat validacije: scan 11/11, **host_proof 12/12
-  PASS**, pinovani opencode prihvata config (11 alata `deny`), CLI bs/en +
-  JSON + živi update. Dokazi: `lab/results-win11-laptop/`.
-- **Installer provjeren na pravom Windowsu:** tiha instalacija bez admina,
-  Start meni, uninstall zapis, **instalirani CLI radi** (scan + update), a
-  **deinstalacija uklanja sve** (app folder, Start meni, registry).
-- **`config-sfc` false positive** (nađen na pravom Windowsu): nalaz je
-  prijavljivao „greške u CBS logu" za obične `Info` poruke o paketima
-  („Failed to open package") — sada se broji samo `Error` nivo (1–5 → LOW,
-  >5 → MEDIUM). Verifikovano na istoj mašini: nalaz nestaje.
 
 ### Dodano
 - **`scripts/install-and-validate.ps1`** — validacija na PRAVOM Windowsu
@@ -54,6 +36,24 @@
   — nikad tiho „sve je u redu". Nalazi **nemaju akcije** (mijenjanje
   zaštitnih politika je izvan politike app-a) i tako stoje u tabeli
   pokrivenosti.
+
+- **Validacija na pravom Windows 11 laptopu (Enterprise N, WDAC enforced)**
+  našla tri buga koja nijedan lokalni test nije mogao: (1) `remove_hosts_entry`
+  je padao sa `WinError 5` jer taj Windows **zabranjuje `os.replace`** nad
+  `…\etc\hosts` (a dozvoljava kopiju) → dodat fallback; (2) akcija je
+  mijenjala **line-endings (CRLF→LF)** pa nije bila bajt-identična → sada radi
+  nad bajtovima; (3) **izbor jezika (QComboBox) je u tamnoj temi bio
+  nevidljiv** → dodato stilizovanje. Uz to `host_proof.py` više ne pada kad
+  akcija ne uspije. Rezultat validacije: scan 11/11, **host_proof 12/12
+  PASS**, pinovani opencode prihvata config (11 alata `deny`), CLI bs/en +
+  JSON + živi update. Dokazi: `lab/results-win11-laptop/`.
+- **Installer provjeren na pravom Windowsu:** tiha instalacija bez admina,
+  Start meni, uninstall zapis, **instalirani CLI radi** (scan + update), a
+  **deinstalacija uklanja sve** (app folder, Start meni, registry).
+- **`config-sfc` false positive** (nađen na pravom Windowsu): nalaz je
+  prijavljivao „greške u CBS logu" za obične `Info` poruke o paketima
+  („Failed to open package") — sada se broji samo `Error` nivo (1–5 → LOW,
+  >5 → MEDIUM). Verifikovano na istoj mašini: nalaz nestaje.
 
 ### Ispravljeno
 - **Sažetak je bez admina obećavao popravke koje se preskaču:** brojio je
