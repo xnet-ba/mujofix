@@ -95,6 +95,13 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- DEFENDER-IZUZECI 2026-10-22: dodat nalaz `defender-exclusions` u
+  `suspicious` scanner (isti domen, isti PowerShell put). `Get-MpPreference` ->
+  path/process/extension; MEDIUM kad je izuzetak sirok (disk root, `*`, profil,
+  Temp, Downloads), inace LOW. NAMJERNO bez akcije (politika "nikad ne mijenjamo
+  zastitne politike") — u tabeli pokrivenosti stoji sa tim razlogom. Testovi:
+  `tests/test_defender_exclusions.py` (7) — sirok/uzak izuzetak, nema izuzetaka,
+  oblik iz PowerShell-a (string vs lista), pad PS-a, dvojezicno, `_is_broad`.
 - SCANNER 2026-10-22 (nova pokrivenost): nijedan scanner nije citao Task
   Scheduler, a to je cest autostart/perzistencija. Novi `mujofix/scanners/tasks.py`
   (`tasks-autostart-untrusted`): zadaci koji se pokrecu pri prijavi/boot-u

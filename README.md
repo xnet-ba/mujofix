@@ -106,7 +106,7 @@ render, bs jezik):</p>
   <tr><td>🔧 Drajveri i paketi</td><td>Stari drajveri (pnputil), zaostali instaleri, nekorišteni programi</td><td>5</td></tr>
   <tr><td>⚙️ Konfiguracija</td><td>PATH, env varijable, hosts, power plan, SFC/DISM indikatori</td><td>5</td></tr>
   <tr><td>🌐 Mreža</td><td>DNS, proxy, adapteri, latencija, hosts hijack, Winsock</td><td>5</td></tr>
-  <tr><td>🕵️ Sumnjivi procesi</td><td>Nepotpisani procesi na čudnim lokacijama, autostart iz Temp-a. <b>Ne tvrdi "virus"</b> — kaže "sumnjivo, razlozi: …"</td><td>5</td></tr>
+  <tr><td>🕵️ Sumnjivi procesi</td><td>Nepotpisani procesi na čudnim lokacijama, autostart iz Temp-a, <b>Defender izuzeci</b> (i isključena real-time zaštita). <b>Ne tvrdi "virus"</b> — kaže "sumnjivo, razlozi: …"; izuzeci su <b>samo čitanje</b></td><td>5</td></tr>
   <tr><td>⏰ Zakazani zadaci</td><td>Zadaci koji se pokreću pri prijavi/boot-u, a program im je izvan sistemskih foldera (Task Scheduler)</td><td>5</td></tr>
   <tr><td>🔒 Permisije</td><td>Preširoke ACL dozvole, svijet-zapisivi folderi u PATH-u, UAC, share-ovi</td><td>5</td></tr>
 </table>
@@ -114,7 +114,7 @@ render, bs jezik):</p>
 ---
 
 <!-- coverage:start -->
-<p>Od <b>27</b> nalaza, <b>12</b> ima automatsku popravku (akcija iz kataloga, sa snapshot/verify/rollback); ostali su <b>namjerno samo preporuke</b> — sa razlogom:</p>
+<p>Od <b>28</b> nalaza, <b>12</b> ima automatsku popravku (akcija iz kataloga, sa snapshot/verify/rollback); ostali su <b>namjerno samo preporuke</b> — sa razlogom:</p>
 
 | Nalaz | Popravka | Napomena |
 |---|---|---|
@@ -144,6 +144,7 @@ render, bs jezik):</p>
 | `startup-count` | ✅ disable_startup_item | |
 | `suspicious-process` | ❌ | namjerno report-only — app ne gasi procese i ne tvrdi da je virus |
 | `suspicious-defender-off` | ❌ | app nikad ne dira antivirus/zaštitu (politika) |
+| `defender-exclusions` | ❌ | mijenjanje zaštitnih politika je IZVAN politike app-a — samo prijavljujemo |
 | `tasks-autostart-untrusted` | ✅ disable_task | |
 <!-- coverage:end -->
 

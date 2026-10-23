@@ -383,6 +383,10 @@ STRINGS = {
         "act_task_ready": "zadatak {n} je ukljucen (stanje: {state})",
         "act_task_still": "zadatak {n} nije iskljucen",
         "act_task_unreadable": "stanje zadatka se ne moze procitati: {e}",
+        "sc_defender_excl_impact": "taj sadrzaj nije pod aktivnom zastitom",
+        "sc_defender_excl_risk": "nema: samo citamo (mijenjanje politika je izvan politike app-a)",
+        "sc_defender_excl_title": "Defender ima {n} izuzetaka",
+        "sc_defender_excl_why": "Izuzeci govore Defenderu da ne gleda te fajlove, foldere ili procese. To je cest nacin da se malware zadrzi neprimijecen; provjeri da li su izuzeci tvoji i da li su stvarno potrebni. MI IH NE MIJENJAMO — samo prijavljujemo.",
         "sc_disk_almost_full_title": "Disk je gotovo pun (ostalo {gb} GB)",
         "sc_disk_almost_full_why": ("Kad ponestane slobodnog prostora, Windows "
                                    "usporava, updatei pucaju, a programi se "
@@ -800,6 +804,10 @@ STRINGS = {
         "act_task_ready": "task {n} is enabled (state: {state})",
         "act_task_still": "task {n} was not disabled",
         "act_task_unreadable": "the task state cannot be read: {e}",
+        "sc_defender_excl_impact": "that content is not under active protection",
+        "sc_defender_excl_risk": "none: we only read (changing policies is outside the app's policy)",
+        "sc_defender_excl_title": "Defender has {n} exclusions",
+        "sc_defender_excl_why": "Exclusions tell Defender not to scan those files, folders or processes. That is a common way to keep malware unnoticed; check whether the exclusions are yours and really needed. WE NEVER CHANGE THEM — we only report.",
         "sc_disk_almost_full_title": "Disk is almost full ({gb} GB left)",
         "sc_disk_almost_full_why": ("When free space runs out Windows slows "
                                     "down, updates fail and programs crash "

@@ -78,10 +78,10 @@ Bosnian UI):
 
 ## 🧩 Scanners
 
-Startup, services, disk, network, configuration, drivers, large files & duplicates (never auto-deleted, review only), suspicious processes ("suspicious, reasons: …" — never "virus"), permissions (disabled UAC = CRITICAL, ACLs, shares), scheduled tasks (autostart tasks whose program sits outside system folders). Every module degrades gracefully on unsupported Windows versions.
+Startup, services, disk, network, configuration, drivers, large files & duplicates (never auto-deleted, review only), suspicious processes and Defender exclusions ("suspicious, reasons: …" — never "virus"; exclusions are report-only), permissions (disabled UAC = CRITICAL, ACLs, shares), scheduled tasks (autostart tasks whose program sits outside system folders). Every module degrades gracefully on unsupported Windows versions.
 
 <!-- coverage:start -->
-<p>Of <b>27</b> findings, <b>12</b> have an automatic fix (a catalog action with snapshot/verify/rollback); the rest are <b>deliberately recommendations only</b> — with the reason:</p>
+<p>Of <b>28</b> findings, <b>12</b> have an automatic fix (a catalog action with snapshot/verify/rollback); the rest are <b>deliberately recommendations only</b> — with the reason:</p>
 
 | Nalaz | Popravka | Napomena |
 |---|---|---|
@@ -111,6 +111,7 @@ Startup, services, disk, network, configuration, drivers, large files & duplicat
 | `startup-count` | ✅ disable_startup_item | |
 | `suspicious-process` | ❌ | report-only by design — the app kills nothing and never claims a virus |
 | `suspicious-defender-off` | ❌ | the app never touches antivirus/protection (policy) |
+| `defender-exclusions` | ❌ | changing protection policies is OUTSIDE the app's policy — report only |
 | `tasks-autostart-untrusted` | ✅ disable_task | |
 <!-- coverage:end -->
 

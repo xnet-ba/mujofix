@@ -69,6 +69,38 @@ def _autostart_names() -> set[str]:
     return names
 
 
+# Siroki izuzeci koji ozbiljno slabe zastitu (cesto trik da malware prodje).
+BROAD_SUFFIX_ROOTS = ("c:\\", "d:\\", "*")
+BROAD_PARTS = ("\\users\\", "\\appdata\\", "\\temp\\", "\\downloads\\")
+
+
+def _exclusions() -> dict:
+    """Izuzeci iz Get-MpPreference (path/process/extension)."""
+    command = (
+        "$p = Get-MpPreference; [pscustomobject]@{ "
+        "Path = @($p.ExclusionPath); Process = @($p.ExclusionProcess); "
+        "Extension = @($p.ExclusionExtension) } | ConvertTo-Json -Depth 3"
+    )
+    data = _ps_json(command, timeout_s=30)
+    if not isinstance(data, dict):
+        return {}
+    out = {}
+    for key in ("Path", "Process", "Extension"):
+        value = data.get(key)
+        if isinstance(value, str):
+            value = [value]
+        out[key.lower()] = [str(v) for v in (value or []) if str(v).strip()]
+    return out
+
+
+def _is_broad(entry: str) -> bool:
+    """Da li izuzetak pokriva previse (cijeli disk, profil, Temp, Downloads)."""
+    lowered = os.path.expandvars(entry).lower()
+    if lowered.strip() in BROAD_SUFFIX_ROOTS:
+        return True
+    return any(part in lowered for part in BROAD_PARTS)
+
+
 @register
 class SuspiciousScanner(Scanner):
     name = "suspicious"
@@ -141,5 +173,29 @@ class SuspiciousScanner(Scanner):
                 reversible=False,
                 evidence={"RealTimeProtectionEnabled": False},
                 tech_details="Get-MpComputerStatus (read-only)",
+            ))
+
+        try:
+            ex = _exclusions()
+        except Exception:
+            ex = {}
+        total = sum(len(v) for v in ex.values())
+        if total:
+            flagged = [entry for values in ex.values() for entry in values
+                       if _is_broad(entry)]
+            severity = "MEDIUM" if flagged else "LOW"
+            findings.append(Finding(
+                id="defender-exclusions", scanner=self.name,
+                title=self.t("sc_defender_excl_title", n=total),
+                why=self.t("sc_defender_excl_why"),
+                severity=severity,
+                impact=self.t("sc_defender_excl_impact"),
+                risk=self.t("sc_defender_excl_risk"),
+                reversible=True,  # izuzeci se mogu ukloniti (ali MI to ne radimo)
+                evidence={"count": total, "broad": flagged[:5],
+                          "path": ex.get("path", [])[:10],
+                          "process": ex.get("process", [])[:10],
+                          "extension": ex.get("extension", [])[:10]},
+                tech_details="Get-MpPreference (read-only)",
             ))
         return findings

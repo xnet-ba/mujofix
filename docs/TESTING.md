@@ -31,6 +31,8 @@ uz tvrde kočnice (samo test-artefakti) i vraćanje u `finally`. Akcije 4-6 su
 - [ ] drivers: prolazi bez rušenja (broj drajvera zabilježiti)
 - [ ] duplicates: kopija 50 MB fajla na 2 mjesta = 1 grupa, certain
 - [ ] suspicious: kopiraj potpisani exe u %TEMP% + Run stavka = sumnjiv
+- [ ] defender-exclusions: dodaj izuzetak (`Add-MpPreference -ExclusionPath C:\Temp`)
+      → nalaz (MEDIUM za sirok); aplikacija ga NE mijenja, samo prijavljuje
 - [ ] permissions: EnableLUA=0 na test VM-u = CRITICAL (vratiti na 1!)
 - [ ] tasks: napravi zadatak koji se pokreće pri prijavi s programom u
       `%USERPROFILE%\mujofix-test.exe` → nalaz; disable_task ga isključi,

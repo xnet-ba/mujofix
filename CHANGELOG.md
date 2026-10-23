@@ -3,6 +3,14 @@
 ## [0.4.0] - 2026-10-22
 
 ### Dodano
+- **Defender izuzeci** (`defender-exclusions`, samo čitanje): dodavanje
+  izuzetka je klasičan trik da malware ostane neprimijećen, a nije se
+  gledalo. `Get-MpPreference` → path/process/extension izuzeci; **MEDIUM**
+  kad je neki izuzetak širok (cijeli disk, profil, Temp, Downloads...),
+  inače LOW. Nalaz izričito kaže da ih **ne mijenjamo** (politika app-a),
+  pa nema akciju — u tabeli pokrivenosti stoji sa tim razlogom.
+
+### Dodano
 - **Novi scanner `tasks` + akcija `disable_task`:** nijedan scanner nije čitao
   **Task Scheduler**, a to je čest autostart/perzistencija. Nalaz
   `tasks-autostart-untrusted` prijavljuje zadatke koji se pokreću pri
