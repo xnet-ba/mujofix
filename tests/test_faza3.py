@@ -166,6 +166,8 @@ class TestGuiFlow(unittest.TestCase):
                 self.assertIn("Automatski se može popraviti: 1.", text)
             finally:
                 window.close()
+                window.deleteLater()
+                app.processEvents()
                 qtmp.cleanup()
 
     def test_summary_says_when_nothing_is_fixable(self):
@@ -173,6 +175,75 @@ class TestGuiFlow(unittest.TestCase):
         try:
             self.assertIn("Nijedan nalaz nema automatsku popravku",
                           window.lbl_summary.text())
+        finally:
+            window.close()
+            qtmp.cleanup()
+
+    def test_summary_does_not_promise_elevated_fixes_without_admin(self):
+        """Bez admina akcije s elevacijom se preskacu — sazetak to ne smije obecati.
+
+        Jedan prozor, dva renderovanja sazetka (Qt offscreen ne trpi previse
+        istovremenih prozora u jednom procesu).
+        """
+        elevated = {
+            "id": "permissions-shares", "scanner": "permissions",
+            "title": "2 nedefault dijeljenih foldera", "why": "t",
+            "severity": "LOW", "impact": "t", "risk": "t", "reversible": True,
+            "evidence": {"shares": [{"name": "A", "resource": "C:\\A"},
+                                    {"name": "B", "resource": "C:\\B"}]},
+            "tech_details": "net share",
+        }
+        window, qtmp = self.make_window([elevated])
+        reports = [{"scanner": "t", "findings": [elevated], "skipped": None}]
+        try:
+            window._is_admin = False
+            window._on_scan_done(reports)
+            text = window.lbl_summary.text()
+            self.assertIn("bez administratora", text)
+            self.assertIn("2 traži admin", text)
+            self.assertNotIn("Automatski se može popraviti: 2", text)
+
+            window._is_admin = True
+            window._on_scan_done(reports)
+            self.assertIn("Automatski se može popraviti: 2",
+                          window.lbl_summary.text())
+        finally:
+            window.close()
+            window.deleteLater()
+            app.processEvents()
+            qtmp.cleanup()
+
+    def test_summary_counts_runnable_and_mentions_blocked(self):
+        from unittest.mock import patch
+
+        blocked = {
+            "id": "permissions-shares", "scanner": "permissions",
+            "title": "share", "why": "t", "severity": "LOW", "impact": "t",
+            "risk": "t", "reversible": True,
+            "evidence": {"shares": [{"name": "A", "resource": "C:\\A"}]},
+            "tech_details": "net share",
+        }
+        with tempfile.TemporaryDirectory() as data:
+            with patch("mujofix.platform.windows.is_admin", return_value=False):
+                window, qtmp = self.make_window(
+                    [disk_temp_finding(data), blocked])
+                try:
+                    text = window.lbl_summary.text()
+                    self.assertIn("Automatski se može popraviti: 1", text)
+                    self.assertIn("1 više traži administratora", text)
+                finally:
+                    window.close()
+                    qtmp.cleanup()
+
+    def test_unknown_severity_does_not_crash_the_summary(self):
+        """Nov/neocekivan nalaz ne smije srusiti GUI (prije: KeyError)."""
+        weird = dict(disk_temp_finding("/x"))
+        weird["severity"] = "HIGH"
+        window, qtmp = self.make_window([weird])
+        try:
+            text = window.lbl_summary.text()
+            self.assertIn("1 problema", text)
+            self.assertIn("bez poznate ozbiljnosti", text)
         finally:
             window.close()
             qtmp.cleanup()
@@ -197,6 +268,8 @@ class TestGuiFlow(unittest.TestCase):
                               window.log.toPlainText())
             finally:
                 window.close()
+                window.deleteLater()
+                app.processEvents()
                 qtmp.cleanup()
         finally:
             if previous is None:
@@ -219,6 +292,8 @@ class TestGuiFlow(unittest.TestCase):
                 window._save_geometry()
             finally:
                 window.close()
+                window.deleteLater()
+                app.processEvents()
                 qtmp.cleanup()
             second, qtmp2 = self.make_window([disk_temp_finding('/x')])
             try:
@@ -254,6 +329,8 @@ class TestGuiFlow(unittest.TestCase):
                 self.assertFalse(window.btn_undo.isEnabled())
             finally:
                 window.close()
+                window.deleteLater()
+                app.processEvents()
                 qtmp.cleanup()
 
     def test_fix_run_writes_json_audit(self):

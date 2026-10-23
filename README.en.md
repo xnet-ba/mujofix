@@ -69,7 +69,7 @@ Anti-hallucination: the AI talks **only about evidence the scanner collected**; 
 
 Fluent 2 / Windows 11: Segoe UI, rounded controls, automatic light/dark theme and
 a Mica backdrop on Win11. Screenshots are from the real app (offscreen render,
-Bosnian UI):
+Bosnian UI; the summary emoji do not render in an offscreen capture — they do on Windows):
 
 <p align="center">
   <img src="docs/screenshots/mujofix-light.png" alt="MujoFix — light theme" width="520">

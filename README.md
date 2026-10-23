@@ -26,7 +26,7 @@
 
 <p>MujoFix je <b>open-source desktop aplikacija</b> koja običnom korisniku — bez ikakvog admin znanja — pomaže da održava Windows računar zdravim. Umjesto tehničkih poruka o greškama, korisnik dobija rečenice poput:</p>
 
-> <p><b>"Tvoj računar ima 7 problema.<br>🔴 2 ozbiljna &nbsp; 🟠 3 srednja &nbsp; 🟢 2 mala"</b></p>
+> <p><b>"Tvoj računar ima 7 problema.<br>🔴 2 ozbiljna &nbsp; 🟠 3 srednja &nbsp; 🟢 2 mala<br>Automatski se može popraviti: 4."</b></p>
 
 <p>…i jedno dugme <b>[ POPRAVI SVE ]</b>. Ispod se nalazi proširiva lista s detaljima (<i>"Prikaži tehničke detalje"</i>) za naprednije korisnike.</p>
 
@@ -84,7 +84,7 @@
 
 <p>Fluent 2 / Windows 11: Segoe UI, zaobljene kontrole, automatska svijetla/tamna
 tema i Mica pozadina na Win11. Snimke su sa stvarne aplikacije (offscreen
-render, bs jezik):</p>
+render, bs jezik; emoji iz sažetka se u offscreen snimci ne crtaju — na Windowsu se prikazuju):</p>
 
 <p align="center">
   <img src="docs/screenshots/mujofix-light.png" alt="MujoFix — svijetla tema" width="520">

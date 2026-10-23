@@ -419,6 +419,13 @@ STRINGS = {
         "cli_summary": ("Tvoj računar ima {n} problema.\n"
                          "  {c} ozbiljna  {m} srednja  {l} mala"),
         "summary_fixable": "Automatski se može popraviti: {n}.",
+        "summary_unknown_sev": "{n} nalaza bez poznate ozbiljnosti.",
+        "summary_fixable_admin": ("{n} više traži administratora (dugme "
+                                  "\"Pokreni kao administrator\")."),
+        "summary_no_autofix_admin": ("Ništa se ne može popraviti bez "
+                                      "administratora: {n} traži admin "
+                                      "(dugme \"Pokreni kao "
+                                      "administrator\")."),
         "summary_no_autofix": "Nijedan nalaz nema automatsku popravku — "
                               "vidi preporuke u nalazima.",
         "ai_settings": "AI: uključi/isključi",
@@ -841,6 +848,13 @@ STRINGS = {
         "cli_summary": ("Your computer has {n} problems.\n"
                          "  {c} critical  {m} medium  {l} low"),
         "summary_fixable": "Can be fixed automatically: {n}.",
+        "summary_unknown_sev": "{n} findings without a known severity.",
+        "summary_fixable_admin": ("{n} more requires administrator (the "
+                                  "\"Run as administrator\" button)."),
+        "summary_no_autofix_admin": ("Nothing can be fixed without "
+                                      "administrator: {n} requires admin "
+                                      "(the \"Run as administrator\" "
+                                      "button)."),
         "summary_no_autofix": "No finding has an automatic fix — see the "
                               "recommendations in the findings.",
         "ai_settings": "AI: on/off",

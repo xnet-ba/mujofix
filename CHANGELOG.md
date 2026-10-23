@@ -2,6 +2,18 @@
 
 ## [0.4.1] (u razvoju — nije objavljeno)
 
+### Ispravljeno
+- **Sažetak je bez admina obećavao popravke koje se preskaču:** brojio je
+  svaki nalaz s akcijom, iako se 4 akcije tražeći elevaciju preskaču bez
+  admina. Sada broji **samo ono što se sada može pokrenuti** i izričito
+  kaže koliko ih traži administratora (dugme „Pokreni kao administrator").
+- **Sažetak je mogao srušiti GUI** (`KeyError`) na nalaz s neočekivanom
+  ozbiljnošću, a uz to je **lagao** („Nema problema" iako nalaz postoji, jer
+  se ukupan broj računao iz poznatih ozbiljnosti). Sada se nepoznate
+  ozbiljnosti broje i prikazuju posebno, a ukupan broj je broj nalaza.
+- Snimke u README-u sada crta **sam app** (`_on_scan_done`), pa ne mogu
+  odstupiti od stvarnog izgleda; README uvodni primjer sažetka usklađen.
+
 ### Dodano
 - **Defender izuzeci** (`defender-exclusions`, samo čitanje): dodavanje
   izuzetka je klasičan trik da malware ostane neprimijećen, a nije se

@@ -28,7 +28,7 @@ FINDINGS = [
     {"id": "startup-many", "scanner": "startup",
      "title": "14 programa se pokreće uz sistem",
      "why": "Mnogo startup stavki usporava prijavu i drži memoriju zauzetu.",
-     "severity": "HIGH", "impact": "Prijava do 40 s duže.",
+     "severity": "MEDIUM", "impact": "Prijava do 40 s duže.",
      "risk": "Srednji — potreban odabir; stanje se čuva i može vratiti.",
      "reversible": True, "evidence": {"count": 14},
      "tech_details": "HKCU\\...\\Run (14)"},
@@ -59,12 +59,10 @@ def shoot(name: str, dark: bool) -> str:
     window = MainWindow(scan_fn=lambda: [], quarantine_dir=quarantine,
                         audit_dir=tempfile.mkdtemp(), lang="bs",
                         ai_build_fn=lambda *a, **k: None)
-    window._findings = [dict(f) for f in FINDINGS]
-    window._render_list()
-    window.lbl_summary.setText(
-        "Tvoj računar ima 3 problema.\n"
-        "  1 ozbiljan  1 srednji  1 mali\n"
-        "Automatski se može popraviti: 2.")
+    # Sazetak i listu crta SAM app (isti kod kao u pogonu) — snimka ne moze
+    # da odstupi od stvarnog izgleda.
+    window._on_scan_done([{"scanner": "demo", "findings": [dict(f) for f in FINDINGS],
+                           "skipped": None}])
     window.lbl_report.setText("Popravljeno: 1, preskočeno: 0, neuspjelo: 0.")
     for button in (window.btn_fix, window.btn_explain, window.btn_undo):
         button.setEnabled(True)

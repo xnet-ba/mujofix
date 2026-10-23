@@ -95,6 +95,19 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- KONSOLIDACIJA 2026-10-22 (prolaz kroz tvrdnje/ponasanje poslije dodavanja):
+  nadjena tri stvarna propusta u sazetku: (1) bez admina je obecavao popravke
+  koje se preskacu (4 akcije traze elevaciju) — sada broji SAMO pokretljive i
+  kaze koliko trazi admin; (2) `counts[finding["severity"]]` je bacao KeyError na
+  neocekivanu ozbiljnost (rusio GUI) — sada se nepoznate broje i prikazuju;
+  (3) `total` se racunao iz poznatih ozbiljnosti, pa je uz nalaz nepoznate
+  ozbiljnosti pisalo "Nema problema" (laz) — sada je total broj nalaza.
+  Takodje: snimke crta SAM app (`_on_scan_done`), pa ne mogu odstupiti; README
+  uvodni primjer uskladjen; napomena da se emoji ne crtaju u offscreen snimci.
+  Provereno i: nema mrtvih i18n kljuceva (343 svi u upotrebi).
+  USPUT: Qt offscreen je pucao u punoj suite zbog mnogo prozora u jednom procesu
+  — moj novi test je pravio dva prozora pod `patch`-om; sada jedan prozor +
+  `deleteLater()` (tri uzastopna puna prolaza zelena).
 - ISPRAVLJENO 2026-10-22 (moja greska): Defender izuzeci su commitovani POSLIJE
   taga v0.4.0, a unos je bio upisan u sekciju `## [0.4.0]` — CHANGELOG bi tvrdio
   da izdanje sadrzi nesto sto ne sadrzi. Unos je premjesten u novi

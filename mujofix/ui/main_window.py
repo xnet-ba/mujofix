@@ -347,20 +347,44 @@ class MainWindow(QMainWindow):
         self.btn_cancel.setEnabled(False)
         self._findings = [f for r in reports for f in r.get("findings", [])]
         counts = {"CRITICAL": 0, "MEDIUM": 0, "LOW": 0}
+        unknown = 0
         for finding in self._findings:
-            counts[finding["severity"]] += 1
-        total = sum(counts.values())
+            severity = finding.get("severity", "")
+            if severity in counts:
+                counts[severity] += 1
+            else:
+                unknown += 1  # ne smije srusiti GUI (npr. novi/neocekivan nalaz)
+        # Ukupan broj je BROJ NALAZA (i oni bez poznate ozbiljnosti se
+        # broje) — inace bi sazetak lagao "nema problema" uz nalaz koji
+        # postoji.
+        total = len(self._findings)
         if total == 0:
             self.lbl_summary.setText(self._t("summary_none"))
         else:
-            fixable = sum(1 for finding in self._findings
-                          if finding_to_actions(finding))
+            # Brojimo SAMO ono sto se sada moze pokrenuti: akcije koje traze
+            # elevaciju se bez admina preskacu, pa ih ne smijemo obecati.
+            runnable = blocked = 0
+            for finding in self._findings:
+                for action in finding_to_actions(finding):
+                    if action.needs_elevation and not self._is_admin:
+                        blocked += 1
+                    else:
+                        runnable += 1
+            if runnable:
+                line = self._t("summary_fixable", n=runnable)
+                if blocked:
+                    line += " " + self._t("summary_fixable_admin", n=blocked)
+            elif blocked:
+                line = self._t("summary_no_autofix_admin", n=blocked)
+            else:
+                line = self._t("summary_no_autofix")
             self.lbl_summary.setText(
                 self._t("summary_many", n=total) + "\n"
                 + self._t("sev_line", c=counts["CRITICAL"],
                           m=counts["MEDIUM"], l=counts["LOW"])
-                + "\n" + (self._t("summary_fixable", n=fixable)
-                           if fixable else self._t("summary_no_autofix")))
+                + "\n" + line
+                + (("\n" + self._t("summary_unknown_sev", n=unknown))
+                   if unknown else ""))
         self._render_list()
         self.btn_fix.setEnabled(total > 0)
         self.btn_explain.setEnabled(total > 0)
