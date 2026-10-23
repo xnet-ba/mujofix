@@ -104,17 +104,53 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/xnet-ba/mujofix/main/s
 Info "Pokrećem validaciju (samo čita, ništa ne mijenja) ..."
 & $validate -ExeDir $exeDir
 
-# 6) sta dalje
+# 6) dodatni kontekst masine (bez izmjena) + uputstvo sta dalje
+#    (isti folder u koji je vm_validate.ps1 pisao svoje rezultate)
 $outDir = Join-Path ([Environment]::GetFolderPath("Desktop")) "mujofix-vm-rezultati"
-Info ""
-Info "GOTOVO. Rezultati: $outDir"
-Info "Pošalji mi taj folder (ili ga zapakuj: Compress-Archive '$outDir' '$outDir.zip')."
-Info ""
-Info "Rucno u aplikaciji (GUI) — kratka lista:"
-Info "  1) pokreni MujoFix.exe iz: $exeDir"
-Info "  2) SCAN -> provjeri sažetak (broj problema + koliko se može popraviti)"
-Info "  3) uključi 'Probni mod (ništa se ne mijenja)' -> POPRAVI SVE -> report kaže 'Probni mod'"
-Info "  4) isključi probni mod, odaberi JEDAN bezopasan nalaz (npr. privremeni fajlovi) -> POPRAVI SVE"
-Info "     pa provjeri: izvještaj, dugme 'Karantin', i 'Poništi sve' (mora vratiti)"
-Info "  5) 'Jezik: English' -> restart -> provjeri da su i NALAZI na engleskom"
-Info "  6) screenshot (svijetla + tamna tema) i kratak opis UAC prompta ako se pojavio"
+if (-not (Test-Path $outDir)) { New-Item -ItemType Directory $outDir -Force | Out-Null }
+
+$isAdmin = [bool](New-Object Security.Principal.WindowsPrincipal(
+  [Security.Principal.WindowsIdentity]::GetCurrent())
+).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+$ctxLog = Join-Path $outDir "06-masina.txt"
+@(
+  "== Masina ==",
+  "Korisnik: $env:USERNAME",
+  "Admin: $isAdmin",
+  "Napomena: fizicka masina (ne VM)"
+) | Out-File $ctxLog -Encoding utf8
+
+# ZIP se pravi POSLIJE 06-masina.txt (da i taj fajl bude unutra)
+$zipPath = "$outDir.zip"
+if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+Compress-Archive -Path $outDir -DestinationPath $zipPath -Force
+
+$gui = Join-Path $exeDir "MujoFix.exe"
+Write-Host ""
+Write-Host "================= GOTOVO (automatski dio) =================" -ForegroundColor Green
+Write-Host "Rezultati: $outDir"
+Write-Host "ZIP za slanje: $zipPath"
+Write-Host ""
+Write-Host "SLJEDECE (rucno, ~5 minuta) — pokreni aplikaciju:" -ForegroundColor Cyan
+Write-Host "  $gui"
+Write-Host ""
+Write-Host "  1) SCAN -> pogledaj sazetak: broj problema + koliko se moze popraviti"
+Write-Host "  2) ukljuci 'Probni mod (nista se ne mijenja)' -> POPRAVI SVE"
+Write-Host "     -> izvjestaj mora pisati 'Probni mod' (i nista se nije promijenilo)"
+Write-Host "  3) iskljuci probni mod, oznaci JEDAN bezopasan nalaz (npr. privremeni fajlovi)"
+Write-Host "     -> POPRAVI SVE -> provjeri: izvjestaj, dugme 'Karantin', pa 'Poništi sve' (mora vratiti)"
+Write-Host "  4) ako aplikacija ponudi 'Pokreni kao administrator' (za nalaz koji to trazi),"
+Write-Host "     klikni i PRIHVATI UAC — to je test elevacije; zapisi sta je pisalo PRIJE prompta"
+Write-Host "  5) 'Jezik: English' -> zatvori i ponovo otvori aplikaciju -> provjeri da su"
+Write-Host "     i NASLOVI NALAZA na engleskom (ne samo dugmadi)"
+Write-Host "  6) (opciono) 'Objasni nalaze (AI)' -> ako model nije dostupan, mora ISKRENO pisati offline"
+Write-Host ""
+Write-Host "Slikaj (Win+Shift+S) i posalji:" -ForegroundColor Cyan
+Write-Host "  - glavni prozor (svijetla tema) i isti prozor u tamnoj temi (Windows Settings -> Personalization -> Colors)"
+Write-Host "  - ako je bilo UAC prompta: screenshot prompta"
+Write-Host ""
+Write-Host "Posalji mi: $zipPath  (+ screenshotove)" -ForegroundColor Yellow
+if (Test-Path $gui) {
+  $ans = Read-Host "Da otvorim aplikaciju sada? (d/n)"
+  if ($ans -match '^[dDyY]') { Start-Process $gui }
+}

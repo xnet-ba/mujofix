@@ -95,6 +95,16 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- TEST-NA-MASINI 2026-10-22 (jedna komanda, bez SSH): `install-and-validate.ps1`
+  je prosiren tako da je rucni dio POTPUNO vodjen — ispise korak-po-korak listu
+  (probni mod, jedan bezopasan fix + "Poništi sve", test elevacije kroz
+  "Pokreni kao administrator" + UAC, izbor jezika koji mijenja i NASLOVE NALAZA,
+  AI iskren offline), automatski zapise `06-masina.txt` (korisnik, da li je admin,
+  da je fizicka masina), zapakuje rezultate u ZIP i ponudi da otvori aplikaciju.
+  Time A+B (SSH pristup) postaje OPCIONO: koristi se samo ako zelimo da agent
+  vozi bez covjeka. Pri pregledu uhvacen i popravljen bug u redoslijedu
+  (`$ctxLog` je koristio `$OutDir` prije definisanja, a ZIP se pravio prije tog
+  fajla).
 - TEST-NA-MASINI 2026-10-22 (bez VM/SSH/Dockera): korisnik moze testirati na
   PRAVOM Windows 11 laptopu. Nove skripte:
   `scripts/install-and-validate.ps1` (skine zvanicni release, PROVJERI SHA-256
