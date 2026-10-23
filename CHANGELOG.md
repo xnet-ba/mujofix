@@ -1,6 +1,6 @@
 # Changelog (semantičko verzioniranje; `mujofix.spec` čita vrh ovog fajla)
 
-## [0.4.0] - 2026-10-22
+## [0.4.1] (u razvoju — nije objavljeno)
 
 ### Dodano
 - **Defender izuzeci** (`defender-exclusions`, samo čitanje): dodavanje
@@ -9,6 +9,10 @@
   kad je neki izuzetak širok (cijeli disk, profil, Temp, Downloads...),
   inače LOW. Nalaz izričito kaže da ih **ne mijenjamo** (politika app-a),
   pa nema akciju — u tabeli pokrivenosti stoji sa tim razlogom.
+
+## [0.4.0] - 2026-10-22
+
+### Dodano
 
 ### Dodano
 - **Novi scanner `tasks` + akcija `disable_task`:** nijedan scanner nije čitao

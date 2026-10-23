@@ -95,6 +95,11 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- ISPRAVLJENO 2026-10-22 (moja greska): Defender izuzeci su commitovani POSLIJE
+  taga v0.4.0, a unos je bio upisan u sekciju `## [0.4.0]` — CHANGELOG bi tvrdio
+  da izdanje sadrzi nesto sto ne sadrzi. Unos je premjesten u novi
+  `## [0.4.1] (u razvoju)`, a `version.py` fallback je podignut na 0.4.1 (build iz
+  main-a ne smije se predstavljati kao objavljeni 0.4.0).
 - DEFENDER-IZUZECI 2026-10-22: dodat nalaz `defender-exclusions` u
   `suspicious` scanner (isti domen, isti PowerShell put). `Get-MpPreference` ->
   path/process/extension; MEDIUM kad je izuzetak sirok (disk root, `*`, profil,
