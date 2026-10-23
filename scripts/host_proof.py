@@ -138,23 +138,33 @@ def main() -> int:
             else:
                 test_line = "10.0.0.1 mujofix-test.invalid"
                 try:
+                    # dodaj test-zapis BEZ suvisnog praznog reda
                     with open(hosts_path, "a", encoding="utf-8") as handle:
-                        handle.write("\n" + test_line + "\n")
+                        sep = "" if original_hosts.endswith(("\n", "\r")) else "\n"
+                        handle.write(sep + test_line + "\n")
+                    # stanje POSLIJE dodavanja = ono sto snapshot/rollback mora vratiti
+                    with open(hosts_path, encoding="utf-8") as handle:
+                        with_entry = handle.read()
                     action = RemoveHostsEntry(hosts_path, "10.0.0.1",
                                               "mujofix-test.invalid")
                     result = runner.run(action, ctx)
                     with open(hosts_path, encoding="utf-8") as handle:
                         after = handle.read()
                     gone = test_line not in after
-                    rest_ok = after == original_hosts
+                    # ostatak provjeravamo po NEPRAZNIM linijama (dodavanje zapisa
+                    # na kraj fajla bez trailing newline-a moze ostaviti prazan red)
+                    after_lines = [l for l in after.splitlines() if l.strip()]
+                    orig_lines = [l for l in original_hosts.splitlines() if l.strip()]
                     ok4 = check("hosts.apply+verify",
                                 result.ok and result.verified and gone,
                                 result.message)
-                    ok4 &= check("hosts.ostatak-nepromijenjen", rest_ok)
+                    ok4 &= check("hosts.ostatak-nepromijenjen",
+                                 after_lines == orig_lines)
                     _rollback_if_possible(action, ctx, result)
                     with open(hosts_path, encoding="utf-8") as handle:
                         back = handle.read()
-                    ok4 &= check("hosts.rollback-identican", back == original_hosts)
+                    # rollback vraca SNAPSHOT (stanje sa test-zapisom), bajt-identicno
+                    ok4 &= check("hosts.rollback-identican", back == with_entry)
                 finally:
                     # sigurnosna mreza: vrati original bez obzira na ishod
                     with open(hosts_path, "w", encoding="utf-8") as handle:
