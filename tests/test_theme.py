@@ -26,6 +26,13 @@ class TestTokens(unittest.TestCase):
         self.assertIn("#f3f3f3", theme.qss(False))   # Fluent base light
         self.assertIn("#202020", theme.qss(True))    # Fluent base dark
 
+    def test_combo_box_is_styled_in_both_themes(self):
+        """Bez ovoga je izbor jezika u tamnoj temi bio nevidljiv (belo na belo)."""
+        for dark in (False, True):
+            css = theme.qss(dark)
+            self.assertIn("QComboBox {", css)
+            self.assertIn("QComboBox QAbstractItemView", css)
+
     def test_mica_makes_root_transparent(self):
         self.assertIn("background: transparent", theme.qss(True, mica=True))
         self.assertNotIn("QWidget#root { background: transparent",

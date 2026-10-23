@@ -175,6 +175,24 @@ QProgressBar {{
 }}
 QProgressBar::chunk {{ background: {t["accent"]}; border-radius: 3px; }}
 
+QComboBox {{
+    background: {t["layer"]};
+    color: {t["text"]};
+    border: 1px solid {t["border"]};
+    border-radius: 4px;
+    padding: 4px 8px;
+    min-width: 110px;
+}}
+QComboBox:hover {{ border: 1px solid {t["accent"]}; }}
+QComboBox::drop-down {{ border: none; width: 22px; }}
+QComboBox QAbstractItemView {{
+    background: {t["layer"]};
+    color: {t["text"]};
+    border: 1px solid {t["border"]};
+    selection-background-color: {t["sel"]};
+    selection-color: {t["text"]};
+    outline: none;
+}}
 QCheckBox {{ spacing: 8px; }}
 QCheckBox::indicator {{ width: 18px; height: 18px; border-radius: 4px;
                         border: 1px solid {t["control_border"]};
