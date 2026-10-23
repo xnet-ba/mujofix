@@ -21,6 +21,11 @@ uz tvrde kočnice (samo test-artefakti) i vraćanje u `finally`. Akcije 4-6 su
 **netestirane** dok se ne pokrenu na VM-u; hosts/share bez admina = SKIP.
 
 ## A. Faza 0 SPIKE (`scripts/phase0_spike.py --model <zen-model>`)
+
+> **Izvršeno na pravom Win11 (2026-10-23)**: 1, 2 i 5 PASS protiv pinovanog
+> opencode 1.18.34 (config prihvaćen: agent `mujofix`, 11 alata `deny`, MCP samo
+> naš); 3 i 4 SKIP (nema model kredencijala). Dokazi:
+> `lab/results-win11-laptop/01-spike.txt`.
 - [ ] 1. Bundlovani OpenCode se pokreće bez Node-a (Win10 / Win11)
 - [ ] 2. `opencode debug config` prihvata naš config (agent `mujofix`, 11 alata `deny`, samo naš MCP; 0 tuđih servera/pluginova)
 - [ ] 3. Agent `mujofix` pozove MCP alat s lažnim podacima
@@ -49,6 +54,10 @@ uz tvrde kočnice (samo test-artefakti) i vraćanje u `finally`. Akcije 4-6 su
       prijavljuju jer su im programi u sistemskim folderima
 
 ## C. Akcije uživo (SVAKA: apply → verify → rollback → identično stanje)
+
+> **Izvršeno na pravom Win11 (2026-10-23)**: `scripts/host_proof.py` **12/12
+> PASS** (startup, temp, service, hosts, share; `power` SKIP jer je plan već
+> Balanced). Dokaz: `lab/results-win11-laptop/host_proof.txt`.
 - [ ] disable_startup_item na test stavci (HKCU, bez UAC)
 - [ ] clean_temp na test folderu (fajl stariji od 7 dana, sadržaj identičan nakon rollback-a)
 - [ ] restart_service na Spooleru (treba UAC prompt + objašnjenje prije)

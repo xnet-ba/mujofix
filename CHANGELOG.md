@@ -2,6 +2,18 @@
 
 ## [0.4.1] (u razvoju — nije objavljeno)
 
+### Ispravljeno
+- **Validacija na pravom Windows 11 laptopu (Enterprise N, WDAC enforced)**
+  našla tri buga koja nijedan lokalni test nije mogao: (1) `remove_hosts_entry`
+  je padao sa `WinError 5` jer taj Windows **zabranjuje `os.replace`** nad
+  `…\etc\hosts` (a dozvoljava kopiju) → dodat fallback; (2) akcija je
+  mijenjala **line-endings (CRLF→LF)** pa nije bila bajt-identična → sada radi
+  nad bajtovima; (3) **izbor jezika (QComboBox) je u tamnoj temi bio
+  nevidljiv** → dodato stilizovanje. Uz to `host_proof.py` više ne pada kad
+  akcija ne uspije. Rezultat validacije: scan 11/11, **host_proof 12/12
+  PASS**, pinovani opencode prihvata config (11 alata `deny`), CLI bs/en +
+  JSON + živi update. Dokazi: `lab/results-win11-laptop/`.
+
 ### Dodano
 - **`scripts/install-and-validate.ps1`** — validacija na PRAVOM Windowsu
   (bez VM-a/SSH-a/Dockera): skine zvanični release, **provjeri SHA-256**

@@ -1,0 +1,94 @@
+{
+  "findings": [
+    {
+      "id": "config-sfc",
+      "scanner": "config",
+      "title": "SFC tragovi: 12 grešaka u CBS logu",
+      "why": "Servisiranje komponenti prijavljuje neuspjehe — moguća oštećena sistemska datoteka (provjera: sfc /scannow).",
+      "severity": "MEDIUM",
+      "impact": "moguća nestabilnost sistema",
+      "risk": "nizak: samo čitamo log, ne mijenjamo ništa",
+      "reversible": false,
+      "evidence": {
+        "failures": 12,
+        "sample": [
+          "2026-10-23 11:55:45, Info                  CBS    Failed to create open package. [HRESULT = 0x800f0805 - CBS_E_INVALID_PACKAGE]",
+          "2026-10-23 11:55:45, Info                  CBS    Failed to OpenPackage using worker session [HRESULT = 0x800f0805]",
+          "2026-10-23 11:55:45, Info                  CBS    Failed to internally open package. [HRESULT = 0x800f0805 - CBS_E_INVALID_PACKAGE]",
+          "2026-10-23 11:55:45, Info                  CBS    Failed to create open package. [HRESULT = 0x800f0805 - CBS_E_INVALID_PACKAGE]",
+          "2026-10-23 11:55:45, Info                  CBS    Failed to OpenPackage using worker session [HRESULT = 0x800f0805]"
+        ]
+      },
+      "tech_details": "rep CBS.log (524288 B)"
+    },
+    {
+      "id": "duplicates-found",
+      "scanner": "duplicates",
+      "title": "2 grupa duplikata (~30 MB viška)",
+      "why": "Iste velike datoteke na više mjesta jedu disk. Potvrđene kopije idu u karantin (jedna ostaje) — ništa se ne briše, rollback vraća sve.",
+      "severity": "LOW",
+      "impact": "moguće oslobađanje ~30 MB (karantin)",
+      "risk": "srednji: prva kopija ostaje, ostale u karantin; rollback vraća",
+      "reversible": true,
+      "evidence": {
+        "groups": [
+          {
+            "certain": true,
+            "size": 11213824,
+            "paths": [
+              "C:\\Users\\Korisnik\\Application Data\\uv\\tools\\cordon\\Lib\\site-packages\\litellm\\rust_bridge\\_native.pyd",
+              "C:\\Users\\Korisnik\\Application Data\\uv\\tools\\headroom-ai\\Lib\\site-packages\\litellm\\rust_bridge\\_native.pyd"
+            ]
+          },
+          {
+            "certain": true,
+            "size": 20495360,
+            "paths": [
+              "C:\\Users\\Korisnik\\Application Data\\uv\\tools\\cordon\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-327b2e0bcffce2882e0dc04cdeb4eaa6.dll",
+              "C:\\Users\\Korisnik\\Application Data\\uv\\tools\\headroom-ai\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-327b2e0bcffce2882e0dc04cdeb4eaa6.dll"
+            ]
+          }
+        ],
+        "wasted_bytes": 31709184,
+        "walked_files": 200000
+      },
+      "tech_details": "veličina -> sha256(64KB) -> puni sha256"
+    },
+    {
+      "id": "startup-count",
+      "scanner": "startup",
+      "title": "3 programa se pali s Windowsom",
+      "why": "Programi koji se pale s sistemom produžuju prijavu i troše memoriju u pozadini. Broj stavki je orijentir — nije izmjereno stvarno vrijeme boot-a.",
+      "severity": "LOW",
+      "impact": "blago usporenje prijave",
+      "risk": "nizak: onemogućavanje stavke se poništava jednim klikom",
+      "reversible": true,
+      "evidence": {
+        "count": 3,
+        "items": [
+          {
+            "source": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+            "name": "MicrosoftEdgeAutoLaunch_9877631B1591D5388C8E0686FDECECBD",
+            "command": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --no-startup-window --win-session-start"
+          },
+          {
+            "source": "C:\\Users\\Korisnik\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup",
+            "name": "omniroute-start.vbs",
+            "command": "omniroute-start.vbs"
+          },
+          {
+            "source": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Startup",
+            "name": "Tailscale.lnk",
+            "command": "Tailscale.lnk"
+          }
+        ],
+        "threshold_medium": 10
+      },
+      "tech_details": "Run/RunOnce ključevi + Startup folderi"
+    }
+  ],
+  "system_info": {
+    "os": "Windows",
+    "release": "10"
+  }
+}

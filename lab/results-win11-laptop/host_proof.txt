@@ -1,0 +1,13 @@
+[PASS] startup.apply+verify MUJOFIX_TEST_STARTUP vise nije u startup-u
+[PASS] startup.rollback-identican 
+[PASS] temp.apply+verify ocisceno 1 fajlova
+[PASS] temp.rollback-identican 
+[PASS] service.restart prije=RUNNING poslije=RUNNING
+[PASS] hosts.apply+verify uklonjeno 1 zapisa (10.0.0.1 mujofix-test.invalid)
+[PASS] hosts.ostatak-nepromijenjen 
+[PASS] hosts.rollback-identican 
+[PASS] share.apply+verify share MUJOFIX_TEST_SHARE je uklonjen s mreze
+[PASS] share.rollback-identican 
+[PASS] share.ne-dira-administrativne 
+[PASS] power.apply+verify+rollback SKIP: plan napajanja je vec uravnotezen (Balanced)
+UKUPNO: 12/12 PASS

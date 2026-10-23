@@ -1,0 +1,8 @@
+﻿== spike ==
+MujoFix Faza 0 SPIKE (netestirano na Win10/11 dok se ne pokrene u VM-u)
+CHECK 1 bundlovani binary bez Node-a: PASS: 1.18.34
+CHECK 2 config prihvacen + alati deny: PASS: agent mujofix, 11 alata deny, mcp samo mujofix
+CHECK 3 mcp alat: SKIP: model nije zadan (--model); bez kredencijala nema poziva
+CHECK 4 shell zabrana: SKIP: model nije zadan (--model); zabrana nije dokaziva
+CHECK 5 offline fallback: PASS: offline fallback radi bez mreze i modela
+SPIKE GOTOV: nema failova

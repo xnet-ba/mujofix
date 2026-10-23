@@ -1,0 +1,5 @@
+﻿== cli scan (bs) ==
+Tvoj ra─ìunar ima 4 problema.
+  0 ozbiljna  2 srednja  2 mala
+== cli update ==
+Verzija 0.4.0 je najnovija.

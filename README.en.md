@@ -69,7 +69,7 @@ Anti-hallucination: the AI talks **only about evidence the scanner collected**; 
 
 Fluent 2 / Windows 11: Segoe UI, rounded controls, automatic light/dark theme and
 a Mica backdrop on Win11. Screenshots are from the real app (offscreen render,
-Bosnian UI; the summary emoji do not render in an offscreen capture — they do on Windows):
+Bosnian UI; rendered offscreen on real Windows 11):
 
 <p align="center">
   <img src="docs/screenshots/mujofix-light.png" alt="MujoFix — light theme" width="520">
@@ -148,7 +148,7 @@ Hard-coded blacklist in the AI-plan validator (System32, WinSxS, Program Files, 
 
 ## 🚦 Status
 
-All phases (0–6) are implemented in code and validated **host-direct on a real Windows 11 machine**: full scan (9/9 scanners at that time, 0 skipped; the `tasks` scanner was added 2026-10-22), the 3 host-proven fix actions (of 11 in the catalog: startup, temp, service) with apply → verify → rollback, GUI smoke, and spike checks 1–2. the full unit-test suite (230+ tests) passes locally (Linux, Qt offscreen); CI is green on Ubuntu and Windows and smoke-tests the packaged exe on every push. The extended Win10 + Win11 clean-VM matrix remains an **optional** follow-up — see [docs/TESTING.md](docs/TESTING.md). The build is unsigned (SmartScreen warning expected).
+**Validated on a real Windows 11 laptop (2026-10-23, Enterprise N with WDAC enforced):** scan 11/11 scanners with no skips, **host_proof 12/12 PASS** (apply → verify → rollback, including the new hosts/share/power actions), the pinned opencode accepts our config (agent `mujofix`, all 11 built-in tools `deny`), CLI bs/en + findings JSON + live update check — evidence in [lab/results-win11-laptop/](lab/results-win11-laptop/). Earlier: host-direct on another Win11 machine (scan 9/9 at that time, 3 actions with identical rollback, GUI smoke, spike 1–2). the full unit-test suite (230+ tests) passes locally (Linux, Qt offscreen); CI is green on Ubuntu and Windows and smoke-tests the packaged exe on every push. The extended Win10 + Win11 clean-VM matrix remains an **optional** follow-up — see [docs/TESTING.md](docs/TESTING.md). The build is unsigned (SmartScreen warning expected).
 
 ## ⚠️ Disclaimer
 

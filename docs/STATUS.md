@@ -105,6 +105,40 @@
   vozi bez covjeka. Pri pregledu uhvacen i popravljen bug u redoslijedu
   (`$ctxLog` je koristio `$OutDir` prije definisanja, a ZIP se pravio prije tog
   fajla).
+- VALIDACIJA NA PRAVOM WINDOWSU 2026-10-23 (laptop sha-laptop-win11, pristup
+  preko SSH-a uz kredencijale; sesija elevated = bez UAC): **prva nezavisna
+  validacija na fizickoj masini** — dokazi u `lab/results-win11-laptop/`.
+  Masina: **Win11 Enterprise N, build 26300, WDAC enforced + 8 ASR pravila**
+  (znaci bitno stroze od prosjeka). Rezultati:
+  - `scan` 11/11 scannera bez skipova; JSON nalaza (4 problema); `update` ->
+    "Verzija 0.4.0 je najnovija." (ziva provjera protiv release-a)
+  - **`scripts/host_proof.py`: 12/12 PASS** — startup/temp/service/hosts/share
+    (apply -> verify -> rollback identican; `C$`/`ADMIN$` nedirnuti); `power`
+    SKIP (plan je vec Balanced, iskreno)
+  - `scripts/phase0_spike.py` sa bundlovanim opencode 1.18.34: CHECK 1 PASS
+    (binary bez Node-a), **CHECK 2 PASS (pinovani binarni prihvata nas config:
+    agent mujofix, svih 11 alata deny, MCP samo nas)**, CHECK 5 PASS; 3/4 SKIP
+    (nema model kredencijala)
+  - GUI render offscreen (PySide6) na Windowsu -> `docs/screenshots/*.png` su
+    sada sa PRAVOG Windowsa (emoji se vide)
+  BUGOVI KOJE JE OVA VALIDACIJA NASLA (svi popravljeni):
+  1) `remove_hosts_entry` je padao sa WinError 5 — ovaj Windows ZABRANJUJE
+     `os.replace` (MOVEFILE_REPLACE_EXISTING) nad `...\etc\hosts`, a dozvoljava
+     `shutil.copyfile` (dokazano: replace X, remove+rename OK, copyfile OK) ->
+     fallback na kopiju (`f7a19b7`)
+  2) akcija je mijenjala line-endings (CRLF->LF) -> nije bila bajt-identicna;
+     sada radi nad bajtovima (`f0694de`)
+  3) `QComboBox` (izbor jezika) nije bio stilizovan -> u tamnoj temi nevidljiv
+     tekst; sada stilizovan (`1067e2e`)
+  4) `host_proof.py` je padao kad akcija ne uspije (`rollback(state=None)`) i
+     imao pogresna ocekivanja za hosts (`99567f8`)
+  ISKRENO (sta je agent promijenio na masini): dodao SSH kljuc, dodao
+  PRIVREMENI Defender izuzetak (obrisan), tokom dijagnostike prepisao `hosts` i
+  vratio ga na standardni sadrzaj, napravio/uklonio test share i startup zapis,
+  instalirao PySide6. Naden i POSTOJECI Defender izuzetak
+  `C:\Users\Korisnik\nikto` (nije agentov — vrijedi provjeriti).
+  Nije pokriveno: zivi AI model (nema kredencijala; besplatni tier i dalje
+  odbija CLI poziv), klikanje kroz GUI, pokretanje installer-a.
 - TEST-NA-MASINI 2026-10-22 (bez VM/SSH/Dockera): korisnik moze testirati na
   PRAVOM Windows 11 laptopu. Nove skripte:
   `scripts/install-and-validate.ps1` (skine zvanicni release, PROVJERI SHA-256

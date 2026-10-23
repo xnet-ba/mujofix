@@ -84,7 +84,7 @@
 
 <p>Fluent 2 / Windows 11: Segoe UI, zaobljene kontrole, automatska svijetla/tamna
 tema i Mica pozadina na Win11. Snimke su sa stvarne aplikacije (offscreen
-render, bs jezik; emoji iz sažetka se u offscreen snimci ne crtaju — na Windowsu se prikazuju):</p>
+render na pravom Windows 11, bs jezik):</p>
 
 <p align="center">
   <img src="docs/screenshots/mujofix-light.png" alt="MujoFix — svijetla tema" width="520">
@@ -219,7 +219,7 @@ MujoFix UI → MujoFix Core (scanneri, katalog, executor, rollback)
   <tr><td><b>6</b></td><td>Installer, potpisivanje, auto-update, javni release</td><td>🟡 kod gotov; build/release odluka otvorena (nepotpisan)</td></tr>
 </table>
 
-<p>Sve faze su implementirane u kodu i potvrđene <i>host-direct</i> na pravom Windows 11 računaru (scan 9/9 u tom runu — `tasks` scanner je dodat kasnije, 3 akcije uz identičan rollback preko host dokaza, GUI smoke, spike 1–2). Puna VM matrica (Win10 + Win11, čist sistem) ostaje kao opciona, produžena validacija — vidi <a href="docs/TESTING.md">docs/TESTING.md</a>.</p>
+<p><b>Validacija na pravom Windows 11 (2026-10-23, laptop, Enterprise N sa WDAC enforced):</b> scan 11/11 scannera bez skipova, <b>host_proof 12/12 PASS</b> (apply → verify → rollback, uključujući nove akcije hosts/share/power), pinovani opencode prihvata naš config (agent `mujofix`, svih 11 alata `deny`), CLI bs/en + JSON nalaza + živa provjera update-a — dokazi u <a href="lab/results-win11-laptop/">lab/results-win11-laptop/</a>. Ranije: <i>host-direct</i> na drugom Win11 računaru (scan 9/9 u tom runu, 3 akcije uz identičan rollback, GUI smoke, spike 1–2). Puna VM matrica (Win10 + Win11, čist sistem) ostaje kao opciona, produžena validacija — vidi <a href="docs/TESTING.md">docs/TESTING.md</a>.</p>
 
 <p>Detalji po sesiji: <a href="docs/STATUS.md">docs/STATUS.md</a> • Pravila za kodere: <a href="AGENTS.md">AGENTS.md</a></p>
 
