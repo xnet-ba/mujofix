@@ -105,6 +105,13 @@
   vozi bez covjeka. Pri pregledu uhvacen i popravljen bug u redoslijedu
   (`$ctxLog` je koristio `$OutDir` prije definisanja, a ZIP se pravio prije tog
   fajla).
+- GUI-DESKTOP 2026-10-23 (na pravom Win11): aplikacija pokrenuta u interaktivnoj
+  sesiji preko zakazanog zadatka (`/it`); prozor se renderuje ispravno u tamnoj
+  temi, a vidljivo je dugme "Pokreni kao administrator" — jer interaktivno
+  pokretanje NIJE elevated (UAC token filtering radi kako je dizajnirano).
+  Snimka NIJE u repou (sadrzi privatni desktop korisnika); nalaz je upisan u
+  `lab/results-win11-laptop/README.md`. Klikanje kroz GUI i prihvatanje UAC
+  prompta traze covjeka za ekranom.
 - ZIVI MODEL 2026-10-23 (na pravom Win11): masina ima opencode kredencijale
   (`omniroute`, `google`), pa je zivi put testiran sa `google/gemini-2.5-flash`:
   **TEST 1** model odgovara; **TEST 2** poziva nas MCP alat i cita katalog akcija;
