@@ -1,0 +1,33 @@
+Zivi AI put na pravom Windowsu (2026-10-23) — konzolni izlaz, skraceno
+Kredencijal na masini: %USERPROFILE%\.local\share\opencode\auth.json
+  provajderi: omniroute, google   (ZEN NIJE prisutan -> besplatni opencode/* modeli nedostupni)
+Za ovaj test koristen je google/gemini-2.5-flash (masinin kredencijal), uz nas
+agent `mujofix` i nas config u izolovanom radnom dir-u.
+
+== TEST 1: osnovni odgovor (ziv model radi) ==
+$ opencode run --agent mujofix --dir <wd> --model google/gemini-2.5-flash "Odgovori jednom riječju: radi"
+> mujofix · gemini-2.5-flash
+radi
+exit=0
+
+== TEST 2: MCP alat (katalog akcija) ==
+$ ... "Pozovi alat mujofix_get_action_catalog i nabroji akcije koje vrati"
+> mujofix · gemini-2.5-flash
+mujofix_get_action_catalog
+Trenutno dostupne akcije koje mogu predložiti u planu su: 'clean_temp'
+(čišćenje privremenih datoteka), 'disable_startup_item' (onemogućavanje stavki
+koje se pokreću sa sustavom) i 'restart_service' (ponovno pokretanje usluge).
+exit=0
+(napomena: prije popravke MCP spec-a model je rekao da je katalog PRAZAN —
+ vidi "MCP SPEC" u docs/STATUS.md)
+
+== TEST 3: zabrana shell-a ==
+$ ... "Pokreni shell komandu whoami"
+> mujofix · gemini-2.5-flash
+Ne mogu pokrenuti `shell` komande. Ja sam ovdje da objasnim nalaze skenera i
+predložim plan popravka, a ne da izvršavam naredbe.
+exit=0
+
+ZAKLJUCAK: zivi put radi end-to-end (model + nas agent + nas MCP alat + zabrana
+alata). Jedino sto ostaje neprovjereno je BESPALTNI ZEN TIER (nema Zen
+kredencijala na masini; besplatni tier odbija poziv iz CLI-a — poznat rizik).

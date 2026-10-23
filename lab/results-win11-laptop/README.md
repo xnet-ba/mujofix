@@ -25,6 +25,7 @@ Prva **nezavisna validacija na fizičkoj mašini** (ne VM): `sha-laptop-win11`
 | `scripts/host_proof.py` (akcije, apply → verify → rollback) | ✅ **12/12 PASS** (`host_proof.txt`) |
 | `scripts/phase0_spike.py` (pinovani opencode) | ✅ 1, 2, 5 PASS; 3/4 SKIP (nema model kredencijala) |
 | GUI render (offscreen, PySide6) | ✅ `docs/screenshots/*.png` su sada sa **pravog Windowsa** |
+| **Živi AI model** (google/gemini-2.5-flash, mašinin kredencijal) | ✅ model odgovara, **poziva naš MCP alat i čita katalog akcija**, **odbija shell** (`03-zivi-model.txt`); besplatni Zen tier ostaje neprovjeren (nema Zen kredencijala) |
 | **Installer** (tiha instalacija → provjera → deinstalacija) | ✅ `installer.txt`: exit 0, MujoFix.exe/CLI/opencode/Start meni, desktop ikona po defaultu NE, uninstall zapis (AppId ključ, ver 0.4.0); **instalirani CLI radi** (scan + update); deinstalacija **sve uklanja** (app folder, Start meni, registry) |
 
 `host_proof` detalj: `startup` ✅, `temp` ✅, `service` (Spooler restart) ✅,
@@ -63,8 +64,9 @@ Prva **nezavisna validacija na fizičkoj mašini** (ne VM): `sha-laptop-win11`
 - instalirao `PySide6` (za offscreen snimke)
 
 ## Šta još nije pokriveno
-- **Živi AI model** (spike 3/4): nema Zen kredencijala na mašini; besplatni
-  tier i dalje odbija poziv iz CLI-a (poznat rizik).
+- **Besplatni Zen tier**: nema Zen kredencijala na mašini, pa je testiran živ
+  put preko **Google** kredencijala (radi end-to-end — vidi `03-zivi-model.txt`);
+  Zen free tier i dalje ostaje neprovjeren (poznat rizik).
 - **GUI interakcija** (klikanje kroz „Popravi sve", UAC prompt): GUI je
   renderovan i akcije su dokazane kroz `host_proof`, ali klikanje kroz prozor
   nije odrađeno (nema interaktivne sesije za agenta).

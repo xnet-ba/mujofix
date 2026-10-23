@@ -105,6 +105,11 @@
   vozi bez covjeka. Pri pregledu uhvacen i popravljen bug u redoslijedu
   (`$ctxLog` je koristio `$OutDir` prije definisanja, a ZIP se pravio prije tog
   fajla).
+- ZIVI MODEL 2026-10-23 (na pravom Win11): masina ima opencode kredencijale
+  (`omniroute`, `google`), pa je zivi put testiran sa `google/gemini-2.5-flash`:
+  **TEST 1** model odgovara; **TEST 2** poziva nas MCP alat i cita katalog akcija;
+  **TEST 3** odbija shell. Dokaz: `lab/results-win11-laptop/03-zivi-model.txt`.
+  Besplatni ZEN tier ostaje neprovjeren (nema Zen kredencijala na masini).
 - MCP SPEC 2026-10-23 (interop bug nadjen UZIVO sa pravim modelom): nas MCP je za
   `tools/call` vracao goli objekat (`{"actions": [...]}`) kao `result`, a MCP spec
   zahtijeva `{"content": [{"type":"text","text": ...}], "isError": false}`. Zbog

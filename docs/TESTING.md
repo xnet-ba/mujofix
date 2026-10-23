@@ -24,8 +24,10 @@ uz tvrde kočnice (samo test-artefakti) i vraćanje u `finally`. Akcije 4-6 su
 
 > **Izvršeno na pravom Win11 (2026-10-23)**: 1, 2 i 5 PASS protiv pinovanog
 > opencode 1.18.34 (config prihvaćen: agent `mujofix`, 11 alata `deny`, MCP samo
-> naš); 3 i 4 SKIP (nema model kredencijala). Dokazi:
-> `lab/results-win11-laptop/01-spike.txt`.
+> naš). **3 i 4 takođe PASS sa pravim modelom** (`google/gemini-2.5-flash`, uz
+> mašinin Google kredencijal): model je pozvao naš MCP alat i pročitao katalog,
+> a shell je odbio. Dokazi: `lab/results-win11-laptop/01-spike.txt` i
+> `03-zivi-model.txt`.
 - [ ] 1. Bundlovani OpenCode se pokreće bez Node-a (Win10 / Win11)
 - [ ] 2. `opencode debug config` prihvata naš config (agent `mujofix`, 11 alata `deny`, samo naš MCP; 0 tuđih servera/pluginova)
 - [ ] 3. Agent `mujofix` pozove MCP alat s lažnim podacima
