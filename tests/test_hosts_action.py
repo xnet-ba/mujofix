@@ -109,6 +109,32 @@ class TestRemoveHostsEntry(unittest.TestCase):
             {"id": "network-dns", "scanner": "network",
              "evidence": {"host": "x"}}), [])
 
+    def test_falls_back_to_copy_when_replace_is_denied(self):
+        """Hardenovan Windows (WDAC/ASR) zabranjuje os.replace nad hosts-om.
+
+        Dokazano na Win11 Enterprise N: os.replace -> WinError 5, a copyfile radi.
+        Akcija mora i tada da odradi posao (i rollback).
+        """
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = _write(tmp)
+            original = open(path, encoding="utf-8").read()
+            ctx = ActionContext(quarantine_dir=os.path.join(tmp, "q"))
+            action = RemoveHostsEntry(path, "10.0.0.1", "zlonamjerni.test")
+            with patch("mujofix.actions.hosts.os.replace",
+                       side_effect=PermissionError(13, "Access is denied")):
+                result = Runner().run(action, ctx)
+            self.assertTrue(result.ok and result.verified, result.message)
+            after = open(path, encoding="utf-8").read()
+            self.assertNotIn("zlonamjerni.test", after)
+            self.assertIn("127.0.0.1   localhost", after)
+            # rollback mora vratiti original (i on ide kroz isti fallback)
+            with patch("mujofix.actions.hosts.os.replace",
+                       side_effect=PermissionError(13, "Access is denied")):
+                action.rollback(ctx, result.state)
+            self.assertEqual(open(path, encoding="utf-8").read(), original)
+
 
 if __name__ == "__main__":
     unittest.main()

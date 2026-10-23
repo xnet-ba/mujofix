@@ -13,6 +13,7 @@ Elevacija: hosts fajl je na Windowsu zastita od strane sistema
 from __future__ import annotations
 
 import os
+import shutil
 import tempfile
 
 from mujofix.actions.base import Action, ActionContext, register
@@ -24,14 +25,28 @@ def _read_lines(path: str) -> list[str]:
 
 
 def _write_lines(path: str, lines: list[str]) -> None:
-    """Upisi atomarno (temp fajl u istom folderu + os.replace)."""
+    """Upisi hosts fajl.
+
+    Primarno atomski (temp u istom folderu + `os.replace`). Neke hardenovane
+    Windows masine (enterprise WDAC/ASR politike) ZABRANJUJU
+    `MOVEFILE_REPLACE_EXISTING` nad postojecim fajlom u `drivers\etc`, ali
+    dozvoljavaju kopiju preko njega — dokazano na Win11 Enterprise N:
+      os.replace  -> WinError 5 (Access is denied)
+      copyfile    -> OK
+    Zato fallback na kopiju (nije atomska, ali je jedini put na takvim masinama).
+    """
     directory = os.path.dirname(path) or "."
     handle = tempfile.NamedTemporaryFile(
         "w", encoding="utf-8", dir=directory, delete=False, newline="\n")
     try:
         handle.write("\n".join(lines) + "\n")
         handle.close()
-        os.replace(handle.name, path)
+        try:
+            os.replace(handle.name, path)
+        except OSError:
+            # ponytail: kopija nije atomska; atomski replace ostaje primarni put
+            shutil.copyfile(handle.name, path)
+            os.unlink(handle.name)
     except Exception:
         try:
             handle.close()
