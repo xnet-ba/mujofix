@@ -135,6 +135,28 @@ class TestRemoveHostsEntry(unittest.TestCase):
                 action.rollback(ctx, result.state)
             self.assertEqual(open(path, encoding="utf-8").read(), original)
 
+    def test_preserves_crlf_and_is_byte_identical_after_rollback(self):
+        """Windows hosts je CRLF — rollback mora vratiti BAJT-identicno."""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "hosts")
+            original = (b"# header\r\n"
+                        b"127.0.0.1   localhost\r\n"
+                        b"10.0.0.1    zlonamjerni.test   # hijack\r\n"
+                        b"# bez trailing newline")
+            with open(path, "wb") as handle:
+                handle.write(original)
+            ctx = ActionContext(quarantine_dir=os.path.join(tmp, "q"))
+            action = RemoveHostsEntry(path, "10.0.0.1", "zlonamjerni.test")
+            result = Runner().run(action, ctx)
+            self.assertTrue(result.ok and result.verified, result.message)
+            after = open(path, "rb").read()
+            self.assertNotIn(b"zlonamjerni.test", after)
+            self.assertIn(b"\r\n", after)          # CRLF sacuvan
+            self.assertNotIn(b"\n\n", after)
+            self.assertTrue(after.endswith(b"# bez trailing newline"))
+            action.rollback(ctx, result.state)
+            self.assertEqual(open(path, "rb").read(), original)  # BAJT-identicno
+
 
 if __name__ == "__main__":
     unittest.main()
