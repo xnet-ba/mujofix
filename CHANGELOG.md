@@ -3,6 +3,14 @@
 ## [0.4.1] (u razvoju — nije objavljeno)
 
 ### Dodano
+- **`scripts/install-and-validate.ps1`** — validacija na PRAVOM Windowsu
+  (bez VM-a/SSH-a/Dockera): skine zvanični release, **provjeri SHA-256**
+  protiv `SHA256SUMS.txt` (fail-closed), raspakuje portabilnu verziju bez
+  admina (ili uz `-Installer` pokrene pravi installer) i pokrene
+  `vm_validate.ps1`; **ne mijenja sistem** (samo skenira/prijavljuje).
+- **`lab/guest-run.ps1` je bio zastario** (skidao `MujoFix-windows-alpha.1.zip`
+  iz taga `v0.1.0-alpha.1`, asset više ne postoji) — sada poziva novu skriptu
+  sa `main`.
 - **README: sekcija „Šta aplikacija NE radi"** (bs+en) — konsolidovana,
   iskrena lista ograničenja na jednom mjestu: ne mjeri boot vrijeme, ne pravi
   System Restore Point, ne instalira drajvere/zakrpe, ne mijenja zaštitne

@@ -1,30 +1,33 @@
 #Requires -Version 5.1
 <#
-.SYNOPSIS  MujoFix lab korak UNUTAR Win11 gosta (MujoWinPC / bilo koji VM).
+.SYNOPSIS  MujoFix lab korak (VM gost ILI prava Windows masina).
 .DESCRIPTION
-  Skida alpha build + vm_validate.ps1 s GitHuba i pokrece validaciju.
-  U gostu je dovoljan internet; Python/admin nisu potrebni.
-  Pokretanje u gostujucoj PowerShell konzoli (zalijepi cijeli red):
-    powershell -ExecutionPolicy Bypass -File \\putanja\\guest-run.ps1
-  ili preuzmi fajl RDP-om / browserom pa pokreni lokalno.
+  Zamjena za staru verziju koja je skidala `MujoFix-windows-alpha.1.zip` iz taga
+  `v0.1.0-alpha.1` — taj asset vise ne postoji, pa je stara skripta pucala.
+
+  Sada samo pokrece `scripts/install-and-validate.ps1` s `main` grane, koji:
+  skine zvanicni release, PROVJERI SHA-256 protiv SHA256SUMS.txt, raspakuje
+  portabilnu verziju (bez admina) i pokrene validaciju. Rezultati idu na Desktop
+  u `mujofix-vm-rezultati/`.
+
+  Pokretanje (gost ili host PowerShell, zalijepi jedan red):
+    powershell -ExecutionPolicy Bypass -File guest-run.ps1
+    powershell -ExecutionPolicy Bypass -File guest-run.ps1 -Tag v0.4.0
+    powershell -ExecutionPolicy Bypass -File guest-run.ps1 -Installer
 #>
 param(
-  [string]$Tag = "v0.1.0-alpha.1",
-  [string]$WorkDir = (Join-Path $env:TEMP "mujofix-lab")
+  [string]$Tag = "",
+  [switch]$Installer,
+  [string]$WorkDir = (Join-Path $env:USERPROFILE "mujofix-test")
 )
 
 $ErrorActionPreference = "Stop"
-New-Item -ItemType Directory $WorkDir -Force | Out-Null
+$url = "https://raw.githubusercontent.com/xnet-ba/mujofix/main/scripts/install-and-validate.ps1"
+$script = Join-Path $env:TEMP "mujofix-install-and-validate.ps1"
+Write-Host "[mujofix] Skidam $url ..."
+Invoke-WebRequest -Uri $url -OutFile $script
 
-$zipUrl = "https://github.com/xnet-ba/mujofix/releases/download/$Tag/MujoFix-windows-alpha.1.zip"
-$zip = Join-Path $WorkDir "alpha.zip"
-Write-Host "Skidam $zipUrl ..."
-Invoke-WebRequest -Uri $zipUrl -OutFile $zip
-
-$validateUrl = "https://raw.githubusercontent.com/xnet-ba/mujofix/main/scripts/vm_validate.ps1"
-$validate = Join-Path $WorkDir "vm_validate.ps1"
-Write-Host "Skidam vm_validate.ps1 ..."
-Invoke-WebRequest -Uri $validateUrl -OutFile $validate
-
-Expand-Archive $zip (Join-Path $WorkDir "app") -Force
-& $validate -ExeDir (Join-Path $WorkDir "app\MujoFix")
+$args = @{ WorkDir = $WorkDir }
+if ($Tag) { $args.Tag = $Tag }
+if ($Installer) { $args.Installer = $true }
+& $script @args

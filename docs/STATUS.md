@@ -95,6 +95,18 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- TEST-NA-MASINI 2026-10-22 (bez VM/SSH/Dockera): korisnik moze testirati na
+  PRAVOM Windows 11 laptopu. Nove skripte:
+  `scripts/install-and-validate.ps1` (skine zvanicni release, PROVJERI SHA-256
+  protiv SHA256SUMS-a fail-closed, raspakuje portabilnu verziju bez admina ili
+  po `-Installer` pokrene pravi installer, pa pokrene `vm_validate.ps1`; NE
+  MIJENJA sistem) i `lab/guest-run.ps1` koji je bio ZASTARIO (skidao
+  `MujoFix-windows-alpha.1.zip` iz taga `v0.1.0-alpha.1` — asset vise ne
+  postoji) sada samo poziva novu skriptu s `main`.
+  Provjereno protiv stvarnog release-a: v0.4.0 ima `MujoFix-v0.4.0.zip`,
+  `MujoFix-Setup-0.4.0.exe`, `SHA256SUMS.txt`; raw `vm_validate.ps1` na main
+  vraca 200. Skripte su NETESTIRANE (nema PowerShell-a ovdje) — prvo pokretanje
+  na laptopu.
 - OGRANICENJA 2026-10-22: README (bs+en) dobio sekciju "Sta aplikacija NE radi" —
   jedna iskrena lista (12 tvrdnji), svaka provjerena u kodu: boot vrijeme se ne
   mjeri (`startup.py` to i pise), nema System Restore Pointa, ne instalira

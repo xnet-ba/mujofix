@@ -10,6 +10,11 @@ Rezultat se upisuje: PASS / FAIL + datum + build.
 Automatizovani dio (scan, pin, live update provjera, sha256):
 `scripts/vm_validate.ps1` (uz `-SetupExe` + `-SumsFile` za provjeru setup exe-a).
 
+Najbrzi put na PRAVOJ masini (bez VM-a): `scripts/install-and-validate.ps1` —
+skine release, provjeri SHA-256, raspakuje portabilnu verziju (bez admina) i
+pokrene `vm_validate.ps1`; rezultati na Desktop u `mujofix-vm-rezultati/`.
+Ne mijenja sistem. Za VM: `lab/guest-run.ps1` (poziva istu skriptu).
+
 Akcije: `scripts/host_proof.py` vrti 1-3 (startup/temp/servis) i, od 2026-10-22,
 i 4-6 (hosts/share/power) — svaka apply → verify → rollback → identično stanje,
 uz tvrde kočnice (samo test-artefakti) i vraćanje u `finally`. Akcije 4-6 su
