@@ -34,6 +34,10 @@ uz tvrde kočnice (samo test-artefakti) i vraćanje u `finally`. Akcije 4-6 su
 - [ ] defender-exclusions: dodaj izuzetak (`Add-MpPreference -ExclusionPath C:\Temp`)
       → nalaz (MEDIUM za sirok); aplikacija ga NE mijenja, samo prijavljuje
 - [ ] permissions: EnableLUA=0 na test VM-u = CRITICAL (vratiti na 1!)
+- [ ] security: na VM-u provjeri nalaze (BitLocker off, Secure Boot off,
+      TPM uklonjen u VM postavkama, `sc config wuauserv start= disabled`)
+      → app ih PRIJAVI i ne mijenja ništa; na VM-u sa svim isključenim
+      provjerama (npr. starija verzija) → scanner je *skipped*, ne "sve ok"
 - [ ] tasks: napravi zadatak koji se pokreće pri prijavi s programom u
       `%USERPROFILE%\mujofix-test.exe` → nalaz; disable_task ga isključi,
       "Poništi sve" ponovo uključi; sistemski zadaci (\Microsoft\…) se NE

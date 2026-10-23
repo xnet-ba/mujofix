@@ -78,10 +78,10 @@ Bosnian UI; the summary emoji do not render in an offscreen capture — they do 
 
 ## 🧩 Scanners
 
-Startup, services, disk, network, configuration, drivers, large files & duplicates (never auto-deleted, review only), suspicious processes and Defender exclusions ("suspicious, reasons: …" — never "virus"; exclusions are report-only), permissions (disabled UAC = CRITICAL, ACLs, shares), scheduled tasks (autostart tasks whose program sits outside system folders). Every module degrades gracefully on unsupported Windows versions.
+Startup, services, disk, network, configuration, drivers, large files & duplicates (never auto-deleted, review only), suspicious processes and Defender exclusions ("suspicious, reasons: …" — never "virus"; exclusions are report-only), permissions (disabled UAC = CRITICAL, ACLs, shares), scheduled tasks (autostart tasks whose program sits outside system folders), security posture (BitLocker, Secure Boot, TPM, Windows Update service — report-only). Every module degrades gracefully on unsupported Windows versions.
 
 <!-- coverage:start -->
-<p>Of <b>28</b> findings, <b>12</b> have an automatic fix (a catalog action with snapshot/verify/rollback); the rest are <b>deliberately recommendations only</b> — with the reason:</p>
+<p>Of <b>32</b> findings, <b>12</b> have an automatic fix (a catalog action with snapshot/verify/rollback); the rest are <b>deliberately recommendations only</b> — with the reason:</p>
 
 | Nalaz | Popravka | Napomena |
 |---|---|---|
@@ -107,6 +107,10 @@ Startup, services, disk, network, configuration, drivers, large files & duplicat
 | `permissions-acl` | ❌ | tightening ACLs can break access — risky without review |
 | `permissions-shares` | ✅ remove_share | |
 | `permissions-path-writable` | ❌ | POSIX fallback only; same as config-path-writable |
+| `bitlocker-off` | ❌ | changing protection policies is OUTSIDE the app's policy — report only |
+| `secureboot-off` | ❌ | same — boot policy is not touched by the app |
+| `tpm-absent` | ❌ | a hardware gap — nothing to fix in software |
+| `wuauserv-disabled` | ❌ | update policy is outside the app's policy — report only |
 | `services-auto-stopped` | ✅ restart_service | |
 | `startup-count` | ✅ disable_startup_item | |
 | `suspicious-process` | ❌ | report-only by design — the app kills nothing and never claims a virus |

@@ -2,6 +2,15 @@
 
 ## [0.4.1] (u razvoju — nije objavljeno)
 
+### Dodano
+- **Novi scanner `security` (samo čitanje):** BitLocker na sistemskom disku,
+  Secure Boot, TPM i Windows Update servis. Svaka provjera je **nezavisna**
+  (ako se jedna ne može izvršiti, preskače se bez tvrdnje, ostale se rade),
+  a ako se **nijedna** ne može izvršiti, scanner se prijavljuje kao *skipped*
+  — nikad tiho „sve je u redu". Nalazi **nemaju akcije** (mijenjanje
+  zaštitnih politika je izvan politike app-a) i tako stoje u tabeli
+  pokrivenosti.
+
 ### Ispravljeno
 - **Sažetak je bez admina obećavao popravke koje se preskaču:** brojio je
   svaki nalaz s akcijom, iako se 4 akcije tražeći elevaciju preskaču bez

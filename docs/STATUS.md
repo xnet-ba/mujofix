@@ -95,6 +95,15 @@
   u dev-u). Dokaz bez servera i bez modela: `opencode debug config` sa
   izolovanim config-home pokaze nas agent, 11 alata `deny`, samo nas MCP, 0
   pluginova (testovi u `test_phase0_spike.py`); spike CHECK 2 je prepisan na to.
+- SIGURNOST 2026-10-22 (nova pokrivenost, samo citanje): novi scanner
+  `mujofix/scanners/security.py` — BitLocker (sistemski disk), Secure Boot, TPM,
+  Windows Update servis (wuauserv). Provjere su NEZAVISNE (jedna koja padne ne
+  krije ostale), a ako se NIJEDNA ne moze izvrsiti -> scanner je `skipped`
+  (nikad "sve je u redu"). Nalazi bez akcija (politika) — u tabeli pokrivenosti
+  stoje sa tim razlogom. Testovi: `tests/test_security_scanner.py` (9) sa laznim
+  PowerShell-om: zdravo stanje, svaki problem pojedinacno (+ ozbiljnosti),
+  jedna provjera padne -> ostale rade, nista izvedivo -> skipped, neocekivani
+  oblici odgovora, dvojezicno, politikom bez akcija. Scanner-a sada 11.
 - KONSOLIDACIJA 2026-10-22 (prolaz kroz tvrdnje/ponasanje poslije dodavanja):
   nadjena tri stvarna propusta u sazetku: (1) bez admina je obecavao popravke
   koje se preskacu (4 akcije traze elevaciju) — sada broji SAMO pokretljive i

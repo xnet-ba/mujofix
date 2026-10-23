@@ -108,13 +108,14 @@ render, bs jezik; emoji iz sažetka se u offscreen snimci ne crtaju — na Windo
   <tr><td>🌐 Mreža</td><td>DNS, proxy, adapteri, latencija, hosts hijack, Winsock</td><td>5</td></tr>
   <tr><td>🕵️ Sumnjivi procesi</td><td>Nepotpisani procesi na čudnim lokacijama, autostart iz Temp-a, <b>Defender izuzeci</b> (i isključena real-time zaštita). <b>Ne tvrdi "virus"</b> — kaže "sumnjivo, razlozi: …"; izuzeci su <b>samo čitanje</b></td><td>5</td></tr>
   <tr><td>⏰ Zakazani zadaci</td><td>Zadaci koji se pokreću pri prijavi/boot-u, a program im je izvan sistemskih foldera (Task Scheduler)</td><td>5</td></tr>
+  <tr><td>🛡️ Sigurnosna postavka (samo čitanje)</td><td>BitLocker na sistemskom disku, Secure Boot, TPM, Windows Update servis — <b>samo prijavljuje, ništa ne mijenja</b></td><td>5</td></tr>
   <tr><td>🔒 Permisije</td><td>Preširoke ACL dozvole, svijet-zapisivi folderi u PATH-u, UAC, share-ovi</td><td>5</td></tr>
 </table>
 
 ---
 
 <!-- coverage:start -->
-<p>Od <b>28</b> nalaza, <b>12</b> ima automatsku popravku (akcija iz kataloga, sa snapshot/verify/rollback); ostali su <b>namjerno samo preporuke</b> — sa razlogom:</p>
+<p>Od <b>32</b> nalaza, <b>12</b> ima automatsku popravku (akcija iz kataloga, sa snapshot/verify/rollback); ostali su <b>namjerno samo preporuke</b> — sa razlogom:</p>
 
 | Nalaz | Popravka | Napomena |
 |---|---|---|
@@ -140,6 +141,10 @@ render, bs jezik; emoji iz sažetka se u offscreen snimci ne crtaju — na Windo
 | `permissions-acl` | ❌ | zatezanje ACL-a može slomiti pristup — rizično bez pregleda |
 | `permissions-shares` | ✅ remove_share | |
 | `permissions-path-writable` | ❌ | samo POSIX fallback; isto kao config-path-writable |
+| `bitlocker-off` | ❌ | mijenjanje zaštitnih politika je IZVAN politike app-a — samo prijavljujemo |
+| `secureboot-off` | ❌ | isto — boot politika se ne dira iz aplikacije |
+| `tpm-absent` | ❌ | hardverski nedostatak — nema šta da se popravi softverski |
+| `wuauserv-disabled` | ❌ | politika ažuriranja je izvan politike app-a — samo prijavljujemo |
 | `services-auto-stopped` | ✅ restart_service | |
 | `startup-count` | ✅ disable_startup_item | |
 | `suspicious-process` | ❌ | namjerno report-only — app ne gasi procese i ne tvrdi da je virus |
