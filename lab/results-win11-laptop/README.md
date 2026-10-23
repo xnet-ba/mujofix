@@ -44,6 +44,14 @@ Prva **nezavisna validacija na fizičkoj mašini** (ne VM): `sha-laptop-win11`
    svijetloj native pozadini) → dodato stilizovanje comba (`1067e2e`).
 4. Usput, u samoj skripti: `host_proof.py` je padao kad akcija ne uspije
    (`rollback(state=None)`) i imao je pogrešna očekivanja za hosts (`99567f8`).
+5. **`config-sfc` je bio FALSE POSITIVE na zdravom sistemu** (MEDIUM „12 grešaka
+   u CBS logu"). Provjera na mašini: u zadnjih 512 KB CBS loga ima 12 linija sa
+   „Failed", ali **svih 12 je `Info` nivo** (`Failed to open package /
+   CBS_E_INVALID_PACKAGE` = normalna buka), **0 `Error`**. Sada se broji samo
+   `Error` nivo (1–5 → LOW, >5 → MEDIUM) → **verifikovano na istoj mašini da
+   nalaz nestaje**, a ostaju stvarni nalazi (`disk-temp`, `wuauserv-disabled`,
+   `defender-exclusions` zbog tuđeg „nikto" izuzetka, `duplicates-found`,
+   `startup-count`).
 
 ## Šta agent (ja) jeste promijenio na mašini — iskreno
 - dodao **SSH javni ključ** (`mujofix-agent`) u `administrators_authorized_keys`

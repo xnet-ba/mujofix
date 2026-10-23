@@ -16,6 +16,10 @@
 - **Installer provjeren na pravom Windowsu:** tiha instalacija bez admina,
   Start meni, uninstall zapis, **instalirani CLI radi** (scan + update), a
   **deinstalacija uklanja sve** (app folder, Start meni, registry).
+- **`config-sfc` false positive** (nađen na pravom Windowsu): nalaz je
+  prijavljivao „greške u CBS logu" za obične `Info` poruke o paketima
+  („Failed to open package") — sada se broji samo `Error` nivo (1–5 → LOW,
+  >5 → MEDIUM). Verifikovano na istoj mašini: nalaz nestaje.
 
 ### Dodano
 - **`scripts/install-and-validate.ps1`** — validacija na PRAVOM Windowsu

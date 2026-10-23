@@ -105,6 +105,14 @@
   vozi bez covjeka. Pri pregledu uhvacen i popravljen bug u redoslijedu
   (`$ctxLog` je koristio `$OutDir` prije definisanja, a ZIP se pravio prije tog
   fajla).
+- FALSE-POSITIVE 2026-10-23 (nadjen na pravom Win11): `config-sfc` je prijavljivao
+  MEDIUM "12 gresaka u CBS logu" na ISPRAVNOM sistemu. Provjera na masini: 12
+  "Failed" linija u zadnjih 512 KB, **svih 12 `Info`** ("Failed to open package /
+  CBS_E_INVALID_PACKAGE" = normalna buka), 0 `Error`. Sada `_cbs_failures` broji
+  SAMO `Error` nivo (1-5 -> LOW, >5 -> MEDIUM), tekst nalaza to i kaze.
+  **Verifikovano na istoj masini**: nalaz nestaje; ostaju stvarni
+  (`disk-temp`, `wuauserv-disabled`, `defender-exclusions` od tudjeg "nikto"
+  izuzetka, `duplicates-found`, `startup-count`).
 - INSTALLER 2026-10-23 (na pravom Win11): tiha instalacija **bez admina** (exit
   0), `MujoFix.exe`/`MujoFixCLI.exe`/bundlovani `opencode`/Start meni na mestu,
   desktop ikona po defaultu NE (kako je i definisano), uninstall zapis u
