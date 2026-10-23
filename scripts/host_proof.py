@@ -37,6 +37,18 @@ PASS, FAIL = "PASS", "FAIL"
 results: list[tuple[str, str, str]] = []
 
 
+def _rollback_if_possible(action, ctx, result) -> None:
+    """Vrati akciju SAMO ako je uspjela (state postoji).
+
+    Ako je akcija pala, Runner je vec vratio stanje i `result.state` je None —
+    poziv `rollback` sa None bi srusio cijelu skriptu (i preskocio ostale akcije).
+    """
+    if getattr(result, "state", None) is None:
+        print(f"[{FAIL}] {action.name}.rollback preskocen (akcija nije uspjela)")
+        return
+    action.rollback(ctx, result.state)
+
+
 def check(name: str, cond: bool, detail: str = "") -> bool:
     results.append((name, PASS if cond else FAIL, detail))
     print(f"[{PASS if cond else FAIL}] {name} {detail}")
@@ -90,7 +102,7 @@ def main() -> int:
         result = runner.run(action, ctx)
         ok2 = check("temp.apply+verify", result.ok and result.verified
                     and not os.path.exists(victim), result.message)
-        action.rollback(ctx, result.state)
+        _rollback_if_possible(action, ctx, result)   # 2. temp
         try:
             with open(victim) as handle:
                 content_ok = handle.read() == "podaci-host-proof"
@@ -139,7 +151,7 @@ def main() -> int:
                                 result.ok and result.verified and gone,
                                 result.message)
                     ok4 &= check("hosts.ostatak-nepromijenjen", rest_ok)
-                    action.rollback(ctx, result.state)
+                    _rollback_if_possible(action, ctx, result)
                     with open(hosts_path, encoding="utf-8") as handle:
                         back = handle.read()
                     ok4 &= check("hosts.rollback-identican", back == original_hosts)
@@ -165,7 +177,7 @@ def main() -> int:
                 ok5 = check("share.apply+verify",
                             result.ok and result.verified and gone,
                             result.message)
-                action.rollback(ctx, result.state)
+                _rollback_if_possible(action, ctx, result)
                 info = share_mod._share_info(share_name)
                 ok5 &= check("share.rollback-identican",
                              info is not None
@@ -197,7 +209,7 @@ def main() -> int:
                             result.ok and result.verified
                             and now == "381b4222-f694-41f0-9685-ff5bb260df2e",
                             f"prije={before_guid} poslije={now}")
-                action.rollback(ctx, result.state)
+                _rollback_if_possible(action, ctx, result)
                 ok6 &= check("power.rollback-identican",
                              active_guid() == before_guid)
 
